@@ -1,0 +1,90 @@
+
+ACT 2 · DROWNED METRO · WATER · 575 XP (Lv10 -> Lv12)
+  1/8 · DROWNED DRIFTERS                 Lv10  2 x   470 HP  ATK   88  | good 2, avg  4, idle 12, avg survives yes, great turn KILLS | 25 XP
+  2/8 · PIPE CRAWLERS                    Lv10  3 x   470 HP  ATK   70  | good 3, avg  6, idle 10, avg survives yes, great turn KILLS | 35 XP
+  3/8 · MINI-BOSS: TIDE GUARD            Lv10  1 x  2790 HP  ATK  262 ARMOUR  | good 5, avg 11, idle  8, avg survives yes, great turn leaves 1064 | 75 XP
+  4/8 · ASH IMPS                         Lv10  3 x   430 HP  ATK   78  | good 3, avg  6, idle  9, avg survives yes, great turn KILLS | 45 XP
+  5/8 · MIRAGE · HOLO DECOYS             Lv10  2 x   980 HP  ATK  117  | good 3, avg  4, idle  9, avg survives yes, great turn KILLS | 55 XP
+  6/8 · SPECTRA · GLITCH GHOSTS          Lv10  2 x   660 HP  ATK  117  | good 3, avg  6, idle  9, avg survives yes, great turn KILLS | 65 XP
+  7/8 · MINI-BOSS: DEEP DIVER MUTANT     Lv11  1 x  3080 HP  ATK  273 ARMOUR  | good 5, avg 11, idle  8, avg survives yes, great turn leaves 1277 | 110 XP
+  8/8 · BOSS: TIDECOIL-7                 Lv11  1 x  3740 HP  ATK  273 ARMOUR  | good 6, avg 14, idle  8, avg survives yes, great turn leaves 1937 | 165 XP
+
+ACT 3 · GREENHOUSE RUINS · WOOD · 675 XP (Lv12 -> Lv14)
+  1/8 · POLLEN WISPS                     Lv12  2 x   600 HP  ATK   95  | good 2, avg  4, idle 12, avg survives yes, great turn KILLS | 30 XP
+  2/8 · OVERGROWTH SPROUTLINGS           Lv12  3 x   600 HP  ATK   76  | good 3, avg  6, idle 10, avg survives yes, great turn KILLS | 40 XP
+  3/8 · MINI-BOSS: VINE STRANGLER        Lv12  1 x  4640 HP  ATK  284 ARMOUR  | good 5, avg 10, idle  8, avg survives yes, great turn leaves 1254 | 90 XP
+  4/8 · BUBBLE BOMBERS                   Lv12  3 x   520 HP  ATK   85  | good 3, avg  6, idle  9, avg survives yes, great turn KILLS | 55 XP
+  5/8 · PRISMA · PRISM WISPS             Lv12  2 x  1060 HP  ATK  127  | good 3, avg  4, idle  9, avg survives yes, great turn KILLS | 65 XP
+  6/8 · NIX · VOID IMPS                  Lv12  2 x   720 HP  ATK  127  | good 3, avg  6, idle  9, avg survives yes, great turn KILLS | 75 XP
+  7/8 · MINI-BOSS: THORN BRUTE           Lv13  1 x  4830 HP  ATK  295 ARMOUR  | good 5, avg 10, idle  8, avg survives yes, great turn leaves 1302 | 130 XP
+  8/8 · BOSS: THORNWOOD UNIT             Lv13  1 x  5710 HP  ATK  295 ARMOUR  | good 6, avg 12, idle  8, avg survives yes, great turn leaves 2182 | 190 XP
+
+ACT 4 · UPPER SPIRES · LIGHT · 775 XP (Lv14 -> Lv16)
+  1/8 · LUMEN · RADIANT SPRITES          Lv14  2 x   640 HP  ATK  102  | good 2, avg  4, idle 12, avg survives yes, great turn KILLS | 35 XP
+  2/8 · SOL · SUN SQUIRES                Lv14  3 x   640 HP  ATK   82  | good 3, avg  6, idle 10, avg survives yes, great turn KILLS | 45 XP
+  3/8 · MINI-BOSS: AURELIUS (HALO GUARD) Lv14  1 x  4660 HP  ATK  306 ARMOUR  | good 5, avg  8, idle  8, avg survives yes, great turn leaves 1687 | 105 XP
+  4/8 · MOSS ZOMBIES                     Lv14  3 x   640 HP  ATK   91  | good 3, avg  6, idle  9, avg survives yes, great turn KILLS | 65 XP
+  5/8 · LUX · BEACON SNIPERS             Lv14  2 x  1150 HP  ATK  136  | good 3, avg  4, idle  9, avg survives yes, great turn KILLS | 75 XP
+  6/8 · NOCTURNE · NIGHT STALKERS        Lv14  2 x   780 HP  ATK  136  | good 3, avg  6, idle  9, avg survives yes, great turn KILLS | 85 XP
+  7/8 · MINI-BOSS: ECHO (MIRROR MIMIC)   Lv15  1 x  4840 HP  ATK  317 ARMOUR  | good 5, avg  8, idle  8, avg survives yes, great turn leaves 1754 | 150 XP
+  8/8 · BOSS: DAWNWING                   Lv15  1 x  5890 HP  ATK  317 ARMOUR  | good 6, avg  9, idle  8, avg survives yes, great turn leaves 2804 | 215 XP
+
+ACT 5 · VOID QUARTER · DARK · 875 XP (Lv16 -> Lv18)
+  1/8 · MORPHEUS · NIGHTMARE DRONES      Lv16  2 x   490 HP  ATK  110  | good 2, avg  4, idle 12, avg survives yes, great turn KILLS | 40 XP
+  2/8 · OBSIDIAN · VOID CULTISTS         Lv16  3 x   490 HP  ATK   88  | good 3, avg  6, idle 10, avg survives yes, great turn KILLS | 50 XP
+  3/8 · MINI-BOSS: EREBUS (ECLIPSE ASSASSIN) Lv16  1 x  3080 HP  ATK  328 ARMOUR  | good 5, avg  9, idle  8, avg survives yes, great turn leaves 489 | 115 XP
+  4/8 · FLAME TURRETS                    Lv16  3 x   540 HP  ATK   98  | good 3, avg  6, idle  9, avg survives yes, great turn KILLS | 70 XP
+  5/8 · AURORA · DAWN ACOLYTES           Lv16  2 x  1230 HP  ATK  146  | good 3, avg  4, idle  9, avg survives yes, great turn KILLS | 85 XP
+  6/8 · CIPHER · DARK HACKERS            Lv16  2 x   830 HP  ATK  146  | good 3, avg  6, idle  9, avg survives yes, great turn KILLS | 95 XP
+  7/8 · MINI-BOSS: UMBRA (UMBRA HOUND)   Lv17  1 x  3180 HP  ATK  340 ARMOUR  | good 5, avg  9, idle  8, avg survives yes, great turn leaves 497 | 170 XP
+  8/8 · BOSS: VOIDSCALE                  Lv17  1 x  3890 HP  ATK  340 ARMOUR  | good 6, avg 12, idle  8, avg survives yes, great turn leaves 1207 | 250 XP
+
+ACT 6 · SOLAR FARMS · FIRE · 975 XP (Lv18 -> Lv20)
+  1/8 · SOLAR FLARE SPRITES              Lv18  2 x   570 HP  ATK  117  | good 2, avg  4, idle 12, avg survives yes, great turn KILLS | 45 XP
+  2/8 · PYRO CULTISTS                    Lv18  3 x   570 HP  ATK   94  | good 3, avg  6, idle 10, avg survives yes, great turn KILLS | 60 XP
+  3/8 · MINI-BOSS: INFERNO BIKER         Lv18  1 x  3470 HP  ATK  351 ARMOUR  | good 5, avg 10, idle  8, avg survives yes, great turn leaves 595 | 130 XP
+  4/8 · ROOT CRAWLERS                    Lv18  3 x   730 HP  ATK  104  | good 3, avg  6, idle  9, avg survives yes, great turn KILLS | 80 XP
+  5/8 · CASSIAN · LIGHT CULTISTS         Lv18  2 x  1310 HP  ATK  156  | good 3, avg  4, idle  9, avg survives yes, great turn KILLS | 95 XP
+  6/8 · MORTIS · REAPER ACOLYTES         Lv18  2 x   890 HP  ATK  156  | good 3, avg  6, idle  9, avg survives yes, great turn KILLS | 110 XP
+  7/8 · MINI-BOSS: MOLTEN SCRAPBOT       Lv19  1 x  3590 HP  ATK  362 ARMOUR  | good 5, avg 10, idle  8, avg survives yes, great turn leaves 619 | 190 XP
+  8/8 · BOSS: ASHEN-01                   Lv19  1 x  4400 HP  ATK  362 ARMOUR  | good 6, avg 12, idle  8, avg survives yes, great turn leaves 1429 | 265 XP
+
+ACT 7 · DATA ABYSS · WATER · 1075 XP (Lv20 -> Lv22)
+  1/8 · KRAKEN SPAWNLINGS                Lv20  2 x   680 HP  ATK  125  | good 2, avg  4, idle 12, avg survives yes, great turn KILLS | 50 XP
+  2/8 · HYDRO HACKERS                    Lv20  3 x   680 HP  ATK  100  | good 3, avg  6, idle 10, avg survives yes, great turn KILLS | 65 XP
+  3/8 · MINI-BOSS: RAIN ASSASSIN         Lv20  1 x  4200 HP  ATK  373 ARMOUR  | good 5, avg 11, idle  8, avg survives yes, great turn leaves 1743 | 145 XP
+  4/8 · PLASMA HOUNDS                    Lv20  3 x   610 HP  ATK  111  | good 3, avg  6, idle  9, avg survives yes, great turn KILLS | 90 XP
+  5/8 · PRISMA · PRISM WISPS             Lv20  2 x  1390 HP  ATK  166  | good 3, avg  4, idle  9, avg survives yes, great turn KILLS | 105 XP
+  6/8 · MORPHEUS · NIGHTMARE DRONES      Lv20  2 x   940 HP  ATK  166  | good 3, avg  6, idle  9, avg survives yes, great turn KILLS | 120 XP
+  7/8 · MINI-BOSS: FLOOD MEDIC           Lv21  1 x  4340 HP  ATK  384 ARMOUR  | good 5, avg 11, idle  8, avg survives yes, great turn leaves 1804 | 205 XP
+  8/8 · BOSS: KRAKEN MAINFRAME           Lv21  1 x  5270 HP  ATK  384 ARMOUR  | good 6, avg 14, idle  8, avg survives yes, great turn leaves 2734 | 295 XP
+
+ACT 8 · GENE LABS · WOOD · 1175 XP (Lv22 -> Lv24)
+  1/8 · BIO HOUNDS                       Lv22  2 x   830 HP  ATK  132  | good 2, avg  4, idle 12, avg survives yes, great turn KILLS | 50 XP
+  2/8 · MOSS ZOMBIES                     Lv22  3 x   830 HP  ATK  106  | good 3, avg  6, idle 10, avg survives yes, great turn KILLS | 70 XP
+  3/8 · MINI-BOSS: CHLORO CULTIST        Lv22  1 x  6460 HP  ATK  395 ARMOUR  | good 5, avg 10, idle  8, avg survives yes, great turn leaves 1739 | 155 XP
+  4/8 · COOLANT SLIMES                   Lv22  3 x   720 HP  ATK  117  | good 3, avg  6, idle  9, avg survives yes, great turn KILLS | 95 XP
+  5/8 · ECHO · MIRROR MIMICS             Lv22  2 x  1480 HP  ATK  176  | good 3, avg  4, idle  9, avg survives yes, great turn KILLS | 115 XP
+  6/8 · UMBRA · UMBRA HOUNDS             Lv22  2 x  1000 HP  ATK  176  | good 3, avg  6, idle  9, avg survives yes, great turn KILLS | 130 XP
+  7/8 · MINI-BOSS: GREENHOUSE MUTANT     Lv23  1 x  6630 HP  ATK  406 ARMOUR  | good 5, avg 10, idle  8, avg survives yes, great turn leaves 1785 | 225 XP
+  8/8 · BOSS: MOSSBACK CHIMERA           Lv23  1 x  7840 HP  ATK  406 ARMOUR  | good 6, avg 12, idle  8, avg survives yes, great turn leaves 2995 | 335 XP
+
+ACT 9 · CORE SANCTUM · LIGHT · 1950 XP (Lv24 -> Lv27)
+  1/8 · PRISMA · PRISM WISPS             Lv24  2 x   870 HP  ATK  140  | good 2, avg  4, idle 12, avg survives yes, great turn KILLS | 85 XP
+  2/8 · CASSIAN · LIGHT CULTISTS         Lv24  3 x   870 HP  ATK  112  | good 3, avg  6, idle 10, avg survives yes, great turn KILLS | 115 XP
+  3/8 · MINI-BOSS: AURELIUS (HALO GUARD) Lv24  1 x  6350 HP  ATK  418 ARMOUR  | good 5, avg  8, idle  8, avg survives yes, great turn leaves 2295 | 260 XP
+  4/8 · TIDE GUARDS                      Lv24  3 x   760 HP  ATK  124  | good 3, avg  6, idle  9, avg survives yes, great turn KILLS | 160 XP
+  5/8 · SOL · SUN SQUIRES                Lv24  2 x  1560 HP  ATK  186  | good 3, avg  4, idle  9, avg survives yes, great turn KILLS | 190 XP
+  6/8 · EREBUS · ECLIPSE ASSASSINS       Lv25  2 x  1090 HP  ATK  191  | good 3, avg  6, idle  9, avg survives yes, great turn KILLS | 215 XP
+  7/8 · MINI-BOSS: LUX (BEACON SNIPER)   Lv25  1 x  6520 HP  ATK  429 ARMOUR  | good 5, avg  8, idle  8, avg survives yes, great turn leaves 2359 | 375 XP
+  8/8 · BOSS: SERAPH ENFORCER            Lv26  1 x  8140 HP  ATK  440 ARMOUR  | good 6, avg  9, idle  8, avg survives yes, great turn leaves 3868 | 550 XP
+
+ACT 10 · THE CORE · DARK · 2175 XP (Lv27 -> Lv30)
+  1/8 · NIX · VOID IMPS                  Lv27  2 x   670 HP  ATK  151  | good 2, avg  4, idle 12, avg survives yes, great turn KILLS | 95 XP
+  2/8 · SPECTRA · GLITCH GHOSTS          Lv27  3 x   670 HP  ATK  121  | good 3, avg  6, idle 10, avg survives yes, great turn KILLS | 130 XP
+  3/8 · MINI-BOSS: NOCTURNE (NIGHT STALKER) Lv27  1 x  4230 HP  ATK  451 ARMOUR  | good 5, avg  9, idle  8, avg survives yes, great turn leaves 668 | 290 XP
+  4/8 · FORGE BRUTES                     Lv27  3 x   740 HP  ATK  134  | good 3, avg  6, idle  9, avg survives yes, great turn KILLS | 175 XP
+  5/8 · LUMEN · RADIANT SPRITES          Lv27  2 x  1690 HP  ATK  201  | good 3, avg  4, idle  9, avg survives yes, great turn KILLS | 210 XP
+  6/8 · MORTIS · REAPER ACOLYTES         Lv28  2 x  1170 HP  ATK  206  | good 3, avg  6, idle  9, avg survives yes, great turn KILLS | 240 XP
+  7/8 · MINI-BOSS: OBSIDIAN (VOID CULTIST) Lv28  1 x  4330 HP  ATK  462 ARMOUR  | good 5, avg  9, idle  8, avg survives yes, great turn leaves 681 | 420 XP
+  8/8 · BOSS: REAPER-0                   Lv29  1 x  5420 HP  ATK  473 ARMOUR  | good 6, avg 12, idle  8, avg survives yes, great turn leaves 1686 | 615 XP

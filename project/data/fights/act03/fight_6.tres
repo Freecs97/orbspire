@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="FightData" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/fighter_data.gd" id="1_4r2uf"]
+[ext_resource type="Resource" path="res://data/enemies/act03/void_imp.tres" id="2_b2m0a"]
+[ext_resource type="Script" path="res://scripts/data/fight_data.gd" id="3_6wtpu"]
+
+[resource]
+script = ExtResource("3_6wtpu")
+display_name = "6/8 · NIX · VOID IMPS"
+enemies = Array[ExtResource("1_4r2uf")]([ExtResource("2_b2m0a"), ExtResource("2_b2m0a")])
+xp = 75
+expected_level = 12

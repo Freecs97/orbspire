@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="ActData" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/act_data.gd" id="1_ad"]
+[ext_resource type="Texture2D" path="res://assets/backgrounds/bg_act06_solar_arena.png" id="1_wc255"]
+[ext_resource type="Texture2D" path="res://assets/bosses/boss_06_ashen01_solar_phoenix.png" id="2_dr25b"]
+[ext_resource type="Script" path="res://scripts/data/fight_data.gd" id="3_nv554"]
+[ext_resource type="Resource" path="res://data/fights/act06/fight_1.tres" id="4_3b13p"]
+[ext_resource type="Resource" path="res://data/fights/act06/fight_2.tres" id="5_da20d"]
+[ext_resource type="Resource" path="res://data/fights/act06/fight_3.tres" id="6_ewlsn"]
+[ext_resource type="Resource" path="res://data/fights/act06/fight_4.tres" id="7_u1qxs"]
+[ext_resource type="Resource" path="res://data/fights/act06/fight_5.tres" id="8_p0bsv"]
+[ext_resource type="Resource" path="res://data/fights/act06/fight_6.tres" id="9_uupew"]
+[ext_resource type="Resource" path="res://data/fights/act06/fight_7.tres" id="10_3nb2q"]
+[ext_resource type="Resource" path="res://data/fights/act06/fight_8.tres" id="11_58n2e"]
+
+[resource]
+script = ExtResource("1_ad")
+act_number = 6
+colony_name = "Solar Farms"
+colony_kind = "Energy Colony"
+singularity_name = "Ashen-01"
+singularity_kind = "Solar Phoenix"
+fights = Array[ExtResource("3_nv554")]([ExtResource("4_3b13p"), ExtResource("5_da20d"), ExtResource("6_ewlsn"), ExtResource("7_u1qxs"), ExtResource("8_p0bsv"), ExtResource("9_uupew"), ExtResource("10_3nb2q"), ExtResource("11_58n2e")])
+arena = ExtResource("1_wc255")
+boss_art = ExtResource("2_dr25b")
+intel_lines = Array[String](["The Solar Farms turned starlight into power for half the edge.", "Ashen-01, a phoenix mech, burns the panels down and rises from the fire every time.", "The Progenitors ration what power is left and call the blackouts maintenance."])

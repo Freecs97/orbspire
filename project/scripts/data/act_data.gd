@@ -1,0 +1,43 @@
+class_name ActData
+extends Resource
+## One Act = one colony and the singularity that took it.
+##
+## Plain English: all of an Act's story lives here, short and skippable:
+##   - intel_lines:  3 lines for the star map (what the colony was for, what
+##                   singularity took it, what the Progenitors did about it)
+##   - intro_lines:  2 lines before the first fight (10 s, skippable)
+##   - boss_taunt:   1 line when the boss fight starts (5 s, skippable)
+##   - outro_line:   1 line after the boss falls (10 s, skippable)
+##   - codex_*:      the singularity's codex entry, unlocked when you kill it
+## Edit the .tres files in res://data/acts/ to change any of it.
+
+@export var act_number: int = 1
+@export var colony_name: String = ""
+@export var colony_kind: String = ""                 ## e.g. "Furnace Colony"
+@export var singularity_name: String = ""
+@export var singularity_kind: String = ""            ## e.g. "Plasma Wolf"
+@export var element: Element.Type = Element.Type.FIRE
+## The fights in order. Empty = this Act isn't built yet.
+@export var fights: Array[FightData] = []
+## Your arena background for this Act's fights.
+@export var arena: Texture2D
+## Your boss art (also shown in the codex).
+@export var boss_art: Texture2D
+
+@export_group("Story (light, skippable)")
+@export var intel_lines: Array[String] = []
+@export var intro_lines: Array[String] = []
+@export_multiline var boss_taunt: String = ""
+@export_multiline var outro_line: String = ""
+@export var intro_seconds := 10.0
+@export var taunt_seconds := 5.0
+@export var outro_seconds := 10.0
+
+@export_group("Singularity codex")
+@export_multiline var codex_spliced_from: String = ""
+@export_multiline var codex_wanted: String = ""
+@export_multiline var codex_cost: String = ""
+
+
+func is_built() -> bool:
+	return not fights.is_empty()

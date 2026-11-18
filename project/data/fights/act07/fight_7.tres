@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="FightData" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/fighter_data.gd" id="1_mur2s"]
+[ext_resource type="Resource" path="res://data/enemies/act07/flood_medic_mini.tres" id="2_t1g2c"]
+[ext_resource type="Script" path="res://scripts/data/fight_data.gd" id="3_p77od"]
+
+[resource]
+script = ExtResource("3_p77od")
+display_name = "7/8 · MINI-BOSS: FLOOD MEDIC"
+enemies = Array[ExtResource("1_mur2s")]([ExtResource("2_t1g2c")])
+xp = 205
+expected_level = 21

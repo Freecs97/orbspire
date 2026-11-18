@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="FightData" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/fighter_data.gd" id="1_02gjd"]
+[ext_resource type="Resource" path="res://data/enemies/act03/prism_wisp.tres" id="2_xxkqr"]
+[ext_resource type="Script" path="res://scripts/data/fight_data.gd" id="3_i6nk7"]
+
+[resource]
+script = ExtResource("3_i6nk7")
+display_name = "5/8 · PRISMA · PRISM WISPS"
+enemies = Array[ExtResource("1_02gjd")]([ExtResource("2_xxkqr"), ExtResource("2_xxkqr")])
+xp = 65
+expected_level = 12

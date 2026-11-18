@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="FighterData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/fighter_data.gd" id="1_fd"]
+[ext_resource type="Texture2D" path="res://assets/enemies/enemy_wood_spore_sprout.png" id="2_art"]
+
+[resource]
+script = ExtResource("1_fd")
+display_name = "SPORE SPROUT"
+element = 2
+role = 4
+max_hp = 360
+atk = 50
+rcv = 0
+def = 0
+armored = false
+is_boss = false
+kind = &"sprout"
+body_color = Color(0.32, 0.55, 0.28, 1)
+figure_height = 260.0
+figure_width = 180.0
+art = ExtResource("2_art")

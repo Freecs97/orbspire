@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="FightData" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/fighter_data.gd" id="1_dix40"]
+[ext_resource type="Resource" path="res://data/enemies/act10/boss_reaper0.tres" id="2_dagda"]
+[ext_resource type="Script" path="res://scripts/data/fight_data.gd" id="3_llo5u"]
+
+[resource]
+script = ExtResource("3_llo5u")
+display_name = "8/8 · BOSS: REAPER-0"
+enemies = Array[ExtResource("1_dix40")]([ExtResource("2_dagda")])
+xp = 615
+expected_level = 29

@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="FighterData" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/bosses/boss_06_ashen01_solar_phoenix.png" id="1_mt7ih"]
+[ext_resource type="Script" path="res://scripts/data/fighter_data.gd" id="2_yi3hx"]
+
+[resource]
+script = ExtResource("2_yi3hx")
+display_name = "ASHEN-01"
+role = 4
+max_hp = 4400
+atk = 362
+armored = true
+is_boss = true
+kind = &"boss"
+art = ExtResource("1_mt7ih")
+figure_height = 400.0
+figure_width = 380.0

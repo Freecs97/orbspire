@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="FighterData" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/enemies/enemy_dark_umbra_hound.png" id="1_gxk56"]
+[ext_resource type="Script" path="res://scripts/data/fighter_data.gd" id="2_0ue7r"]
+
+[resource]
+script = ExtResource("2_0ue7r")
+display_name = "UMBRA"
+title = "Umbra Hound"
+element = 6
+role = 4
+max_hp = 3180
+atk = 340
+armored = true
+is_boss = true
+kind = &"art"
+art = ExtResource("1_gxk56")
+figure_height = 306.8
+figure_width = 306.8

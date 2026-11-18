@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="FightData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/fight_data.gd" id="1_fd"]
+[ext_resource type="Resource" path="res://data/enemies/test_enemy_1.tres" id="e0"]
+
+[resource]
+script = ExtResource("1_fd")
+display_name = "TEST FIGHT 1"
+enemies = Array[Resource]([ExtResource("e0")])

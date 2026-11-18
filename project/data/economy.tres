@@ -1,0 +1,40 @@
+[gd_resource type="Resource" script_class="EconomyTuning" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/meta/economy_tuning.gd" id="1_et"]
+
+[resource]
+script = ExtResource("1_et")
+rarity_names = Array[String](["Scrap", "Alloy", "Forged", "Prime", "Ascendant", "Singularity"])
+rarity_stat_mult = Array[float]([0.85, 0.92, 1.0, 1.08, 1.16, 1.25])
+retire_base_cores = Array[int]([2, 5, 15, 30, 60, 150])
+retire_invested_share = 0.5
+story_rarity = 2
+crafted_rarity = 2
+catch_up_small_gap = 3
+catch_up_small_mult = 1.5
+catch_up_big_gap = 6
+catch_up_big_mult = 2.0
+passive_1_level = 10
+win_credits_base = 20
+win_credits_per_act = 10
+mini_boss_credit_mult = 2
+boss_credit_mult = 4
+lose_credit_share = 0.25
+act_clear_bonus_per_act = 300
+keys_per_act_clear = 1
+essence_regular_chance = 0.15
+essence_mini_min = 1
+essence_mini_max = 2
+essence_boss = 3
+essence_to_craft = 10
+recruit_names = Array[String](["Basic", "Advanced", "Elite"])
+recruit_costs = Array[int]([300, 1000, 3000])
+recruit_odds_basic = Array[int]([50, 35, 12, 3, 0, 0])
+recruit_odds_advanced = Array[int]([15, 35, 30, 15, 4, 1])
+recruit_odds_elite = Array[int]([0, 10, 35, 35, 15, 5])
+key_odds = Array[int]([0, 0, 0, 0, 80, 20])
+roster_cap_start = 30
+roster_expand_slots = 5
+roster_expand_cost = 1000
+core_cost = 50
+core_xp = 100

@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="FighterData" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/enemies/enemy_water_kraken_spawnling.png" id="1_rwb44"]
+[ext_resource type="Script" path="res://scripts/data/fighter_data.gd" id="2_k0vt2"]
+
+[resource]
+script = ExtResource("2_k0vt2")
+display_name = "KRAKEN SPAWNLING"
+element = 1
+role = 4
+max_hp = 680
+atk = 125
+kind = &"art"
+art = ExtResource("1_rwb44")
+figure_height = 240.0
+figure_width = 210.0

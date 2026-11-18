@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="ActData" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/act_data.gd" id="1_ad"]
+[ext_resource type="Texture2D" path="res://assets/backgrounds/bg_act03_greenhouse_arena.png" id="1_vwmky"]
+[ext_resource type="Texture2D" path="res://assets/bosses/boss_03_thornwood_unit.png" id="2_dlv4s"]
+[ext_resource type="Script" path="res://scripts/data/fight_data.gd" id="3_3bhnf"]
+[ext_resource type="Resource" path="res://data/fights/act03/fight_1.tres" id="4_jnu25"]
+[ext_resource type="Resource" path="res://data/fights/act03/fight_2.tres" id="5_pg6yn"]
+[ext_resource type="Resource" path="res://data/fights/act03/fight_3.tres" id="6_bo1il"]
+[ext_resource type="Resource" path="res://data/fights/act03/fight_4.tres" id="7_6mliv"]
+[ext_resource type="Resource" path="res://data/fights/act03/fight_5.tres" id="8_3g8l3"]
+[ext_resource type="Resource" path="res://data/fights/act03/fight_6.tres" id="9_k0uh2"]
+[ext_resource type="Resource" path="res://data/fights/act03/fight_7.tres" id="10_uvq2q"]
+[ext_resource type="Resource" path="res://data/fights/act03/fight_8.tres" id="11_a385b"]
+
+[resource]
+script = ExtResource("1_ad")
+act_number = 3
+colony_name = "Greenhouse Ruins"
+colony_kind = "Bio-Colony"
+singularity_name = "Thornwood Unit"
+singularity_kind = "Overgrowth Golem"
+element = 2
+fights = Array[ExtResource("3_3bhnf")]([ExtResource("4_jnu25"), ExtResource("5_pg6yn"), ExtResource("6_bo1il"), ExtResource("7_6mliv"), ExtResource("8_3g8l3"), ExtResource("9_k0uh2"), ExtResource("10_uvq2q"), ExtResource("11_a385b")])
+arena = ExtResource("1_vwmky")
+boss_art = ExtResource("2_dlv4s")
+intel_lines = Array[String](["The Greenhouse Ruins grew the food and medicine for the colonies on the edge.", "Thornwood Unit, a bark-armoured golem, has rooted itself through every dome.", "The Progenitors cut its supply runs and let the crops grow wild."])

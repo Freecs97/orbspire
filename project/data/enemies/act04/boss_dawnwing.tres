@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="FighterData" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/bosses/boss_04_dawnwing_solar_griffin.png" id="1_4rf08"]
+[ext_resource type="Script" path="res://scripts/data/fighter_data.gd" id="2_65kpq"]
+
+[resource]
+script = ExtResource("2_65kpq")
+display_name = "DAWNWING"
+element = 5
+role = 4
+max_hp = 5890
+atk = 317
+armored = true
+is_boss = true
+kind = &"boss"
+art = ExtResource("1_4rf08")
+figure_height = 400.0
+figure_width = 380.0

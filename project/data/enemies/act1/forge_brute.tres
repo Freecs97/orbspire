@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="FighterData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/fighter_data.gd" id="1_fd"]
+[ext_resource type="Texture2D" path="res://assets/enemies/enemy_fire_forge_brute.png" id="2_art"]
+
+[resource]
+script = ExtResource("1_fd")
+display_name = "FORGE BRUTE"
+element = 0
+role = 4
+max_hp = 2000
+atk = 175
+rcv = 0
+def = 0
+armored = true
+is_boss = true
+kind = &"golem"
+body_color = Color(0.45, 0.4, 0.36, 1)
+figure_height = 390.0
+figure_width = 300.0
+art = ExtResource("2_art")

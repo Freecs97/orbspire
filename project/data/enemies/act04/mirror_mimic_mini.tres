@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="FighterData" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/enemies/enemy_light_mirror_mimic.png" id="1_pf4fy"]
+[ext_resource type="Script" path="res://scripts/data/fighter_data.gd" id="2_851pp"]
+
+[resource]
+script = ExtResource("2_851pp")
+display_name = "ECHO"
+title = "Mirror Mimic"
+element = 5
+role = 4
+max_hp = 4840
+atk = 317
+armored = true
+is_boss = true
+kind = &"art"
+art = ExtResource("1_pf4fy")
+figure_height = 365.79999999999995
+figure_width = 188.79999999999998

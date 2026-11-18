@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="FightData" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/fighter_data.gd" id="1_1ui0d"]
+[ext_resource type="Resource" path="res://data/enemies/act09/eclipse_assassin.tres" id="2_idgfn"]
+[ext_resource type="Script" path="res://scripts/data/fight_data.gd" id="3_gchao"]
+
+[resource]
+script = ExtResource("3_gchao")
+display_name = "6/8 · EREBUS · ECLIPSE ASSASSINS"
+enemies = Array[ExtResource("1_1ui0d")]([ExtResource("2_idgfn"), ExtResource("2_idgfn")])
+xp = 215
+expected_level = 25

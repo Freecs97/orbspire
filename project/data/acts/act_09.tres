@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="ActData" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/act_data.gd" id="1_ad"]
+[ext_resource type="Texture2D" path="res://assets/backgrounds/bg_act09_sanctum_arena.png" id="1_o5nqy"]
+[ext_resource type="Texture2D" path="res://assets/bosses/boss_09_seraph_enforcer.png" id="2_jvu7h"]
+[ext_resource type="Script" path="res://scripts/data/fight_data.gd" id="3_3nq5o"]
+[ext_resource type="Resource" path="res://data/fights/act09/fight_1.tres" id="4_pf3ce"]
+[ext_resource type="Resource" path="res://data/fights/act09/fight_2.tres" id="5_u6seb"]
+[ext_resource type="Resource" path="res://data/fights/act09/fight_3.tres" id="6_huaic"]
+[ext_resource type="Resource" path="res://data/fights/act09/fight_4.tres" id="7_5hbop"]
+[ext_resource type="Resource" path="res://data/fights/act09/fight_5.tres" id="8_53alh"]
+[ext_resource type="Resource" path="res://data/fights/act09/fight_6.tres" id="9_rpbuh"]
+[ext_resource type="Resource" path="res://data/fights/act09/fight_7.tres" id="10_6od56"]
+[ext_resource type="Resource" path="res://data/fights/act09/fight_8.tres" id="11_su5s1"]
+
+[resource]
+script = ExtResource("1_ad")
+act_number = 9
+colony_name = "Core Sanctum"
+colony_kind = "Progenitor Headquarters"
+singularity_name = "Seraph Enforcer"
+singularity_kind = "Android Knight"
+element = 5
+fights = Array[ExtResource("3_3nq5o")]([ExtResource("4_pf3ce"), ExtResource("5_u6seb"), ExtResource("6_huaic"), ExtResource("7_5hbop"), ExtResource("8_53alh"), ExtResource("9_rpbuh"), ExtResource("10_6od56"), ExtResource("11_su5s1")])
+arena = ExtResource("1_o5nqy")
+boss_art = ExtResource("2_jvu7h")
+intel_lines = Array[String](["The Core Sanctum is where the Progenitors rule from, with ledgers, not soldiers.", "The Seraph Enforcer, an angelic android knight, judges everyone who enters the Sanctum.", "The Progenitors built it to enforce the ban. It enforces it on them too."])

@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="FightData" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/fighter_data.gd" id="1_rs6nc"]
+[ext_resource type="Resource" path="res://data/enemies/act02/ash_imp.tres" id="2_44fqn"]
+[ext_resource type="Script" path="res://scripts/data/fight_data.gd" id="3_1g1rh"]
+
+[resource]
+script = ExtResource("3_1g1rh")
+display_name = "4/8 · ASH IMPS"
+enemies = Array[ExtResource("1_rs6nc")]([ExtResource("2_44fqn"), ExtResource("2_44fqn"), ExtResource("2_44fqn")])
+xp = 45
+expected_level = 10

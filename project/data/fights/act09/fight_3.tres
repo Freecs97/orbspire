@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="FightData" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/fighter_data.gd" id="1_ajgar"]
+[ext_resource type="Resource" path="res://data/enemies/act09/halo_guard_mini.tres" id="2_rnc23"]
+[ext_resource type="Script" path="res://scripts/data/fight_data.gd" id="3_qd0kc"]
+
+[resource]
+script = ExtResource("3_qd0kc")
+display_name = "3/8 · MINI-BOSS: AURELIUS (HALO GUARD)"
+enemies = Array[ExtResource("1_ajgar")]([ExtResource("2_rnc23")])
+xp = 260
+expected_level = 24

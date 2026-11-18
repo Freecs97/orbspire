@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="FighterData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/fighter_data.gd" id="1_fd"]
+
+[resource]
+script = ExtResource("1_fd")
+display_name = "TEST ENEMY 2"
+element = 0
+role = 4
+max_hp = 1200
+atk = 150
+rcv = 0
+armored = false
+is_boss = false
+body_color = Color(0.42, 0.3, 0.3, 1)
+figure_height = 330.0
+figure_width = 300.0

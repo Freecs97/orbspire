@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="FighterData" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/enemies/enemy_water_coolant_slime.png" id="1_c2hwk"]
+[ext_resource type="Script" path="res://scripts/data/fighter_data.gd" id="2_2y6oc"]
+
+[resource]
+script = ExtResource("2_2y6oc")
+display_name = "COOLANT SLIME"
+element = 1
+role = 4
+max_hp = 720
+atk = 117
+kind = &"art"
+art = ExtResource("1_c2hwk")
+figure_height = 280.0
+figure_width = 190.0

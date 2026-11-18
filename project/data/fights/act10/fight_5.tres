@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="FightData" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/fighter_data.gd" id="1_7dt18"]
+[ext_resource type="Resource" path="res://data/enemies/act10/radiant_sprite.tres" id="2_xuwlr"]
+[ext_resource type="Script" path="res://scripts/data/fight_data.gd" id="3_bkcfu"]
+
+[resource]
+script = ExtResource("3_bkcfu")
+display_name = "5/8 · LUMEN · RADIANT SPRITES"
+enemies = Array[ExtResource("1_7dt18")]([ExtResource("2_xuwlr"), ExtResource("2_xuwlr")])
+xp = 210
+expected_level = 27

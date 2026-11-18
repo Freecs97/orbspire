@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="FighterData" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/enemies/enemy_light_dawn_acolyte.png" id="1_lk4b2"]
+[ext_resource type="Script" path="res://scripts/data/fighter_data.gd" id="2_1cyj3"]
+
+[resource]
+script = ExtResource("2_1cyj3")
+display_name = "AURORA"
+title = "Dawn Acolyte"
+element = 5
+role = 4
+max_hp = 1230
+atk = 146
+kind = &"art"
+art = ExtResource("1_lk4b2")
+figure_height = 310.0
+figure_width = 160.0

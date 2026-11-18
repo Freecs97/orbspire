@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="FightData" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/fighter_data.gd" id="1_sj0oa"]
+[ext_resource type="Resource" path="res://data/enemies/act02/drowned_drifter.tres" id="2_dc76q"]
+[ext_resource type="Script" path="res://scripts/data/fight_data.gd" id="3_nb4od"]
+
+[resource]
+script = ExtResource("3_nb4od")
+display_name = "1/8 · DROWNED DRIFTERS"
+enemies = Array[ExtResource("1_sj0oa")]([ExtResource("2_dc76q"), ExtResource("2_dc76q")])
+xp = 25
+expected_level = 10

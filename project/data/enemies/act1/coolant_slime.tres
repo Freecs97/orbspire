@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="FighterData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/fighter_data.gd" id="1_fd"]
+[ext_resource type="Texture2D" path="res://assets/enemies/enemy_water_coolant_slime.png" id="2_art"]
+
+[resource]
+script = ExtResource("1_fd")
+display_name = "COOLANT SLIME"
+element = 1
+role = 4
+max_hp = 230
+atk = 40
+rcv = 0
+def = 0
+armored = false
+is_boss = false
+kind = &"slime"
+body_color = Color(0.25, 0.5, 0.7, 1)
+figure_height = 280.0
+figure_width = 190.0
+art = ExtResource("2_art")

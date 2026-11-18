@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="FighterData" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/enemies/enemy_fire_forge_brute.png" id="1_yrril"]
+[ext_resource type="Script" path="res://scripts/data/fighter_data.gd" id="2_2jdjh"]
+
+[resource]
+script = ExtResource("2_2jdjh")
+display_name = "FORGE BRUTE"
+role = 4
+max_hp = 740
+atk = 134
+kind = &"art"
+art = ExtResource("1_yrril")
+figure_height = 330.0
+figure_width = 230.0

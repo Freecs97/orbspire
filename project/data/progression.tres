@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="ProgressionTuning" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/progression_tuning.gd" id="1_pt"]
+
+[resource]
+script = ExtResource("1_pt")
+max_level = 30
+stat_mult_at_max = 3.0
+xp_base = 50
+xp_step = 25
+preview_expected_level = true

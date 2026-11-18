@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="ActData" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/act_data.gd" id="1_ad"]
+[ext_resource type="Texture2D" path="res://assets/backgrounds/bg_act05_void_arena.png" id="1_c6vq5"]
+[ext_resource type="Texture2D" path="res://assets/bosses/boss_05_voidscale_stealth_dragon.png" id="2_yfn43"]
+[ext_resource type="Script" path="res://scripts/data/fight_data.gd" id="3_l8urc"]
+[ext_resource type="Resource" path="res://data/fights/act05/fight_1.tres" id="4_uwx82"]
+[ext_resource type="Resource" path="res://data/fights/act05/fight_2.tres" id="5_v1lq5"]
+[ext_resource type="Resource" path="res://data/fights/act05/fight_3.tres" id="6_4abwr"]
+[ext_resource type="Resource" path="res://data/fights/act05/fight_4.tres" id="7_03mc7"]
+[ext_resource type="Resource" path="res://data/fights/act05/fight_5.tres" id="8_ixggk"]
+[ext_resource type="Resource" path="res://data/fights/act05/fight_6.tres" id="9_17vmr"]
+[ext_resource type="Resource" path="res://data/fights/act05/fight_7.tres" id="10_rgcbn"]
+[ext_resource type="Resource" path="res://data/fights/act05/fight_8.tres" id="11_tikk7"]
+
+[resource]
+script = ExtResource("1_ad")
+act_number = 5
+colony_name = "Void Quarter"
+colony_kind = "Dead-Network Colony"
+singularity_name = "Voidscale"
+singularity_kind = "Stealth Dragon"
+element = 6
+fights = Array[ExtResource("3_l8urc")]([ExtResource("4_uwx82"), ExtResource("5_v1lq5"), ExtResource("6_4abwr"), ExtResource("7_03mc7"), ExtResource("8_ixggk"), ExtResource("9_17vmr"), ExtResource("10_rgcbn"), ExtResource("11_tikk7")])
+arena = ExtResource("1_c6vq5")
+boss_art = ExtResource("2_yfn43")
+intel_lines = Array[String](["The Void Quarter ran the network that kept the colonies talking.", "Voidscale, a stealth dragon, swallowed the signal and went silent with it.", "The Progenitors cut the Quarter's power and erased it from the maps."])

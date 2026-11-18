@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="FighterData" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/bosses/boss_09_seraph_enforcer.png" id="1_lebm8"]
+[ext_resource type="Script" path="res://scripts/data/fighter_data.gd" id="2_c0cu5"]
+
+[resource]
+script = ExtResource("2_c0cu5")
+display_name = "SERAPH ENFORCER"
+element = 5
+role = 4
+max_hp = 8140
+atk = 440
+armored = true
+is_boss = true
+kind = &"boss"
+art = ExtResource("1_lebm8")
+figure_height = 400.0
+figure_width = 380.0

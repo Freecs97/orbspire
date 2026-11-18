@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="StoryData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/story_data.gd" id="1_sd"]
+
+[resource]
+script = ExtResource("1_sd")
+title = "ORBSPIRE"
+introduction = "Humanity left Earth to survive.\nTo survive new worlds, we spliced life with technology.\nWe called it technomancy.\n\nIt worked too well.\n\nThe splices kept evolving. They became singularities —\nliving machines that run rampant, and some of them became gods.\n\nThe Progenitors invented technomancy.\nThen they banned it, to hide where it came from.\nThey did not kill the singularities. They could not.\nThey quarantined the colonies, and let them die quietly.\n\nOut here, on the edge, the singularities are still growing.\nSomeone has to hunt them before they become gods."
+timeline_titles = Array[String](["Year 0-80 · Expansion", "Year 82 · First Splice", "Year 90-120 · Bloom", "Year 121 · The Progenitors ban technomancy", "Year 140+ · Now"])
+timeline_texts = Array[String](["Humanity settles dozens of worlds, each colony built around one life-support system.", "The Progenitors splice a wolf with plasma to guard a furnace.", "Splices evolve on their own, reproduce, mutate, learn.", "Splicing is a capital crime, colonies rationed, disobedient ones go dark.", "Singularities run rampant. Some are animals, some machines, some were people spliced too far. Some are worshipped as gods."])

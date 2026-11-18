@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="FightData" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/fighter_data.gd" id="1_16mb2"]
+[ext_resource type="Resource" path="res://data/enemies/act08/mirror_mimic.tres" id="2_utas0"]
+[ext_resource type="Script" path="res://scripts/data/fight_data.gd" id="3_aum5o"]
+
+[resource]
+script = ExtResource("3_aum5o")
+display_name = "5/8 · ECHO · MIRROR MIMICS"
+enemies = Array[ExtResource("1_16mb2")]([ExtResource("2_utas0"), ExtResource("2_utas0")])
+xp = 115
+expected_level = 22

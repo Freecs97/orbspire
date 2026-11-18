@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="ActData" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/act_data.gd" id="1_ad"]
+[ext_resource type="Texture2D" path="res://assets/backgrounds/bg_act08_gene_arena.png" id="1_fcbv1"]
+[ext_resource type="Texture2D" path="res://assets/bosses/boss_08_mossback_chimera.png" id="2_tr606"]
+[ext_resource type="Script" path="res://scripts/data/fight_data.gd" id="3_i0j4j"]
+[ext_resource type="Resource" path="res://data/fights/act08/fight_1.tres" id="4_6ycus"]
+[ext_resource type="Resource" path="res://data/fights/act08/fight_2.tres" id="5_k4qai"]
+[ext_resource type="Resource" path="res://data/fights/act08/fight_3.tres" id="6_drugr"]
+[ext_resource type="Resource" path="res://data/fights/act08/fight_4.tres" id="7_lcon6"]
+[ext_resource type="Resource" path="res://data/fights/act08/fight_5.tres" id="8_pkfno"]
+[ext_resource type="Resource" path="res://data/fights/act08/fight_6.tres" id="9_fsj33"]
+[ext_resource type="Resource" path="res://data/fights/act08/fight_7.tres" id="10_iiru6"]
+[ext_resource type="Resource" path="res://data/fights/act08/fight_8.tres" id="11_p3m87"]
+
+[resource]
+script = ExtResource("1_ad")
+act_number = 8
+colony_name = "Gene Labs"
+colony_kind = "Splice Labs"
+singularity_name = "Mossback Chimera"
+singularity_kind = "Gene-Splice"
+element = 2
+fights = Array[ExtResource("3_i0j4j")]([ExtResource("4_6ycus"), ExtResource("5_k4qai"), ExtResource("6_drugr"), ExtResource("7_lcon6"), ExtResource("8_pkfno"), ExtResource("9_fsj33"), ExtResource("10_iiru6"), ExtResource("11_p3m87")])
+arena = ExtResource("1_fcbv1")
+boss_art = ExtResource("2_tr606")
+intel_lines = Array[String](["The Gene Labs designed the splices and shipped them to the colonies.", "The Mossback Chimera, a lion spliced with stag and forest, broke out of the last test pen.", "The Progenitors locked the labs from outside and never came back for the staff."])

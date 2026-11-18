@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="ActData" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/backgrounds/bg_act10_core_arena.png" id="1_1m44x"]
+[ext_resource type="Script" path="res://scripts/data/act_data.gd" id="1_ad"]
+[ext_resource type="Texture2D" path="res://assets/bosses/boss_10_reaper0_shadow_reaper.png" id="2_cyst2"]
+[ext_resource type="Script" path="res://scripts/data/fight_data.gd" id="3_adn4m"]
+[ext_resource type="Resource" path="res://data/fights/act10/fight_1.tres" id="4_fsghx"]
+[ext_resource type="Resource" path="res://data/fights/act10/fight_2.tres" id="5_tmgvk"]
+[ext_resource type="Resource" path="res://data/fights/act10/fight_3.tres" id="6_4v6q2"]
+[ext_resource type="Resource" path="res://data/fights/act10/fight_4.tres" id="7_flh2w"]
+[ext_resource type="Resource" path="res://data/fights/act10/fight_5.tres" id="8_tgo62"]
+[ext_resource type="Resource" path="res://data/fights/act10/fight_6.tres" id="9_t3rkw"]
+[ext_resource type="Resource" path="res://data/fights/act10/fight_7.tres" id="10_7ir7u"]
+[ext_resource type="Resource" path="res://data/fights/act10/fight_8.tres" id="11_23e4g"]
+
+[resource]
+script = ExtResource("1_ad")
+act_number = 10
+colony_name = "The Core"
+colony_kind = "Origin World"
+singularity_name = "Reaper-0"
+singularity_kind = "Shadow Reaper"
+element = 6
+fights = Array[ExtResource("3_adn4m")]([ExtResource("4_fsghx"), ExtResource("5_tmgvk"), ExtResource("6_4v6q2"), ExtResource("7_flh2w"), ExtResource("8_tgo62"), ExtResource("9_t3rkw"), ExtResource("10_7ir7u"), ExtResource("11_23e4g")])
+arena = ExtResource("1_1m44x")
+boss_art = ExtResource("2_cyst2")
+intel_lines = Array[String](["The Core is the origin world, where technomancy began.", "Reaper-0, a shadow reaper android, guards the place the first splices were made.", "The Progenitors never quarantined it. They are afraid of what it remembers."])

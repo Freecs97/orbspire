@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="FightData" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/fighter_data.gd" id="1_1bkfw"]
+[ext_resource type="Resource" path="res://data/enemies/act10/glitch_ghost.tres" id="2_j6or3"]
+[ext_resource type="Script" path="res://scripts/data/fight_data.gd" id="3_l6iva"]
+
+[resource]
+script = ExtResource("3_l6iva")
+display_name = "2/8 · SPECTRA · GLITCH GHOSTS"
+enemies = Array[ExtResource("1_1bkfw")]([ExtResource("2_j6or3"), ExtResource("2_j6or3"), ExtResource("2_j6or3")])
+xp = 130
+expected_level = 27

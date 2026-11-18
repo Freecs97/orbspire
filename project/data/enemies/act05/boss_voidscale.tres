@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="FighterData" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/bosses/boss_05_voidscale_stealth_dragon.png" id="1_p06i3"]
+[ext_resource type="Script" path="res://scripts/data/fighter_data.gd" id="2_r4eg5"]
+
+[resource]
+script = ExtResource("2_r4eg5")
+display_name = "VOIDSCALE"
+element = 6
+role = 4
+max_hp = 3890
+atk = 340
+armored = true
+is_boss = true
+kind = &"boss"
+art = ExtResource("1_p06i3")
+figure_height = 400.0
+figure_width = 380.0

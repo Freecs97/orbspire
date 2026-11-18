@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="FighterData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/fighter_data.gd" id="1_fd"]
+[ext_resource type="Texture2D" path="res://assets/characters/biotech/biotech_04_shadow_dark.png" id="2_art"]
+
+[resource]
+script = ExtResource("1_fd")
+display_name = "SELENE DARK"
+title = "Dark Biotech"
+element = 6
+role = 3
+max_hp = 320
+atk = 55
+rcv = 40
+design_id = "biotech_proto"
+leader_skill = &"leader_biotech"
+active_skill = &"mend"
+passives = Array[StringName]([&"time_extend", &"overflow_heal", &"field_medic"])
+body_color = Color(0.2, 0.55, 0.95, 1)
+figure_height = 250.0
+figure_width = 90.0
+art = ExtResource("2_art")

@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="FighterData" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/enemies/enemy_fire_molten_scrapbot.png" id="1_r5vgh"]
+[ext_resource type="Script" path="res://scripts/data/fighter_data.gd" id="2_f2dvm"]
+
+[resource]
+script = ExtResource("2_f2dvm")
+display_name = "MOLTEN SCRAPBOT"
+role = 4
+max_hp = 3590
+atk = 362
+armored = true
+is_boss = true
+kind = &"art"
+art = ExtResource("1_r5vgh")
+figure_height = 389.4
+figure_width = 271.4

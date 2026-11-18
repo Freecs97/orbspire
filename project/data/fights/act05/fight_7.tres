@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="FightData" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/fighter_data.gd" id="1_624f0"]
+[ext_resource type="Resource" path="res://data/enemies/act05/umbra_hound_mini.tres" id="2_55qcx"]
+[ext_resource type="Script" path="res://scripts/data/fight_data.gd" id="3_0ldyt"]
+
+[resource]
+script = ExtResource("3_0ldyt")
+display_name = "7/8 · MINI-BOSS: UMBRA (UMBRA HOUND)"
+enemies = Array[ExtResource("1_624f0")]([ExtResource("2_55qcx")])
+xp = 170
+expected_level = 17

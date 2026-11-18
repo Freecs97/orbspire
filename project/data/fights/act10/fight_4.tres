@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="FightData" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/fighter_data.gd" id="1_cy46r"]
+[ext_resource type="Resource" path="res://data/enemies/act10/forge_brute.tres" id="2_e8ir7"]
+[ext_resource type="Script" path="res://scripts/data/fight_data.gd" id="3_4jl7s"]
+
+[resource]
+script = ExtResource("3_4jl7s")
+display_name = "4/8 · FORGE BRUTES"
+enemies = Array[ExtResource("1_cy46r")]([ExtResource("2_e8ir7"), ExtResource("2_e8ir7"), ExtResource("2_e8ir7")])
+xp = 175
+expected_level = 27

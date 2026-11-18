@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="FighterData" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/enemies/enemy_wood_overgrowth_sproutling.png" id="1_uqfnh"]
+[ext_resource type="Script" path="res://scripts/data/fighter_data.gd" id="2_x21va"]
+
+[resource]
+script = ExtResource("2_x21va")
+display_name = "OVERGROWTH SPROUTLING"
+element = 2
+role = 4
+max_hp = 600
+atk = 76
+kind = &"art"
+art = ExtResource("1_uqfnh")
+figure_height = 240.0
+figure_width = 210.0

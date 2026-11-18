@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="FighterData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/fighter_data.gd" id="1_fd"]
+[ext_resource type="Texture2D" path="res://assets/characters/titan/titan_04_void_dark.png" id="2_art"]
+
+[resource]
+script = ExtResource("1_fd")
+display_name = "DMITRI VOSS"
+title = "Dark Titan"
+element = 6
+role = 1
+max_hp = 420
+atk = 65
+rcv = 22
+design_id = "titan_proto"
+leader_skill = &"leader_titan"
+active_skill = &"bulwark"
+passives = Array[StringName]([&"counter", &"last_stand", &"bind_resist"])
+body_color = Color(0.25, 0.7, 0.32, 1)
+figure_height = 250.0
+figure_width = 120.0
+art = ExtResource("2_art")

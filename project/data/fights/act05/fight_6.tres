@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="FightData" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/fighter_data.gd" id="1_k056l"]
+[ext_resource type="Resource" path="res://data/enemies/act05/dark_hacker.tres" id="2_383up"]
+[ext_resource type="Script" path="res://scripts/data/fight_data.gd" id="3_nf8jm"]
+
+[resource]
+script = ExtResource("3_nf8jm")
+display_name = "6/8 · CIPHER · DARK HACKERS"
+enemies = Array[ExtResource("1_k056l")]([ExtResource("2_383up"), ExtResource("2_383up")])
+xp = 95
+expected_level = 16

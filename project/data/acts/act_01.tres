@@ -1,0 +1,35 @@
+[gd_resource type="Resource" script_class="ActData" load_steps=12 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/act_data.gd" id="1_ad"]
+[ext_resource type="Texture2D" path="res://assets/backgrounds/bg_act01_furnace_arena.png" id="2_arena"]
+[ext_resource type="Texture2D" path="res://assets/bosses/boss_01_emberfang9_plasma_wolf.png" id="3_boss"]
+[ext_resource type="Resource" path="res://data/fights/act1/fight_1.tres" id="f1"]
+[ext_resource type="Resource" path="res://data/fights/act1/fight_2.tres" id="f2"]
+[ext_resource type="Resource" path="res://data/fights/act1/fight_3.tres" id="f3"]
+[ext_resource type="Resource" path="res://data/fights/act1/fight_4.tres" id="f4"]
+[ext_resource type="Resource" path="res://data/fights/act1/fight_5.tres" id="f5"]
+[ext_resource type="Resource" path="res://data/fights/act1/fight_6.tres" id="f6"]
+[ext_resource type="Resource" path="res://data/fights/act1/fight_7.tres" id="f7"]
+[ext_resource type="Resource" path="res://data/fights/act1/fight_8.tres" id="f8"]
+
+[resource]
+script = ExtResource("1_ad")
+act_number = 1
+colony_name = "Orbspire"
+colony_kind = "Furnace Colony"
+singularity_name = "Emberfang-9"
+singularity_kind = "Plasma Wolf"
+element = 0
+fights = Array[Resource]([ExtResource("f1"), ExtResource("f2"), ExtResource("f3"), ExtResource("f4"), ExtResource("f5"), ExtResource("f6"), ExtResource("f7"), ExtResource("f8")])
+arena = ExtResource("2_arena")
+boss_art = ExtResource("3_boss")
+intel_lines = Array[String](["Orbspire was built to burn: its furnace heats every colony on this edge of the map.", "Emberfang-9, the First Splice, took the furnace and guards the heat as its own.", "The Progenitors quarantined Orbspire and ration its heat by the hour."])
+intro_lines = Array[String](["Orbspire was built to burn. Its furnace was spliced with a wolf to guard it.", "The wolf learned to guard something else instead."])
+boss_taunt = "You did not make me. But you made what made me."
+outro_line = "The furnace keeps burning. The colony keeps rationing heat. Killing the wolf did not fix Orbspire. It only proved the wolf could be killed."
+intro_seconds = 10.0
+taunt_seconds = 5.0
+outro_seconds = 10.0
+codex_spliced_from = "A grey wolf and the plasma conduits of Orbspire's furnace. The First Splice, Year 82, made by the Progenitors to guard the heat."
+codex_wanted = "To guard. When the Progenitors banned it, it kept guarding, but not for them. It guarded the furnace from everyone, the Progenitors included."
+codex_cost = "Its memory of being a wolf. The furnace crews who tried to take the heat back. And the Progenitors' secret, now on the record: the first singularity was theirs."

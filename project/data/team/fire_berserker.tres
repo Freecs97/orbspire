@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="FighterData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/fighter_data.gd" id="1_fd"]
+[ext_resource type="Texture2D" path="res://assets/characters/berserker/berserker_01_angel_fire.png" id="2_art"]
+
+[resource]
+script = ExtResource("1_fd")
+display_name = "KAELA RYNN"
+title = "Fire Berserker"
+element = 0
+role = 0
+max_hp = 320
+atk = 95
+rcv = 10
+design_id = "berserker_proto"
+leader_skill = &"leader_berserker"
+active_skill = &"overrun"
+passives = Array[StringName]([&"cleave", &"skill_boost", &"breaker"])
+body_color = Color(0.91, 0.33, 0.16, 1)
+figure_height = 250.0
+figure_width = 110.0
+art = ExtResource("2_art")

@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="FightData" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/fighter_data.gd" id="1_2oddq"]
+[ext_resource type="Resource" path="res://data/enemies/act08/chloro_cultist_mini.tres" id="2_nhqnx"]
+[ext_resource type="Script" path="res://scripts/data/fight_data.gd" id="3_6i42o"]
+
+[resource]
+script = ExtResource("3_6i42o")
+display_name = "3/8 · MINI-BOSS: CHLORO CULTIST"
+enemies = Array[ExtResource("1_2oddq")]([ExtResource("2_nhqnx")])
+xp = 155
+expected_level = 22

@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="FighterData" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/enemies/enemy_dark_nightmare_drone.png" id="1_yuiem"]
+[ext_resource type="Script" path="res://scripts/data/fighter_data.gd" id="2_0wfwa"]
+
+[resource]
+script = ExtResource("2_0wfwa")
+display_name = "MORPHEUS"
+title = "Nightmare Drone"
+element = 6
+role = 4
+max_hp = 490
+atk = 110
+kind = &"art"
+art = ExtResource("1_yuiem")
+figure_height = 240.0
+figure_width = 210.0

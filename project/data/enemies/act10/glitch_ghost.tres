@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="FighterData" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/enemies/enemy_dark_glitch_ghost.png" id="1_kglx4"]
+[ext_resource type="Script" path="res://scripts/data/fighter_data.gd" id="2_xxahe"]
+
+[resource]
+script = ExtResource("2_xxahe")
+display_name = "SPECTRA"
+title = "Glitch Ghost"
+element = 6
+role = 4
+max_hp = 670
+atk = 121
+kind = &"art"
+art = ExtResource("1_kglx4")
+figure_height = 240.0
+figure_width = 210.0

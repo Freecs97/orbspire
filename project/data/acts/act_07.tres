@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="ActData" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/act_data.gd" id="1_ad"]
+[ext_resource type="Texture2D" path="res://assets/backgrounds/bg_act07_data_arena.png" id="1_ns2fj"]
+[ext_resource type="Texture2D" path="res://assets/bosses/boss_07_kraken_mainframe.png" id="2_d48vu"]
+[ext_resource type="Script" path="res://scripts/data/fight_data.gd" id="3_6sqq5"]
+[ext_resource type="Resource" path="res://data/fights/act07/fight_1.tres" id="4_ga0cy"]
+[ext_resource type="Resource" path="res://data/fights/act07/fight_2.tres" id="5_xfvyh"]
+[ext_resource type="Resource" path="res://data/fights/act07/fight_3.tres" id="6_7fquv"]
+[ext_resource type="Resource" path="res://data/fights/act07/fight_4.tres" id="7_up7ll"]
+[ext_resource type="Resource" path="res://data/fights/act07/fight_5.tres" id="8_u5bji"]
+[ext_resource type="Resource" path="res://data/fights/act07/fight_6.tres" id="9_wbkwu"]
+[ext_resource type="Resource" path="res://data/fights/act07/fight_7.tres" id="10_ag815"]
+[ext_resource type="Resource" path="res://data/fights/act07/fight_8.tres" id="11_emu5k"]
+
+[resource]
+script = ExtResource("1_ad")
+act_number = 7
+colony_name = "Data Abyss"
+colony_kind = "Server Colony"
+singularity_name = "Kraken Mainframe"
+singularity_kind = "Cyber Kraken"
+element = 1
+fights = Array[ExtResource("3_6sqq5")]([ExtResource("4_ga0cy"), ExtResource("5_xfvyh"), ExtResource("6_7fquv"), ExtResource("7_up7ll"), ExtResource("8_u5bji"), ExtResource("9_wbkwu"), ExtResource("10_ag815"), ExtResource("11_emu5k")])
+arena = ExtResource("1_ns2fj")
+boss_art = ExtResource("2_d48vu")
+intel_lines = Array[String](["The Data Abyss stored every record the colonies ever made, cooled by a deep sea.", "The Kraken Mainframe wrapped itself around the servers and decides what is remembered.", "The Progenitors left it there. Their own records are in those servers."])

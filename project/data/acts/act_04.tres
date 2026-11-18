@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="ActData" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/act_data.gd" id="1_ad"]
+[ext_resource type="Texture2D" path="res://assets/backgrounds/bg_act04_spires_arena.png" id="1_s2g2k"]
+[ext_resource type="Texture2D" path="res://assets/bosses/boss_04_dawnwing_solar_griffin.png" id="2_awxyv"]
+[ext_resource type="Script" path="res://scripts/data/fight_data.gd" id="3_qxr56"]
+[ext_resource type="Resource" path="res://data/fights/act04/fight_1.tres" id="4_xpftl"]
+[ext_resource type="Resource" path="res://data/fights/act04/fight_2.tres" id="5_1l642"]
+[ext_resource type="Resource" path="res://data/fights/act04/fight_3.tres" id="6_kon2g"]
+[ext_resource type="Resource" path="res://data/fights/act04/fight_4.tres" id="7_2id0e"]
+[ext_resource type="Resource" path="res://data/fights/act04/fight_5.tres" id="8_pqysv"]
+[ext_resource type="Resource" path="res://data/fights/act04/fight_6.tres" id="9_g8pjs"]
+[ext_resource type="Resource" path="res://data/fights/act04/fight_7.tres" id="10_upj4r"]
+[ext_resource type="Resource" path="res://data/fights/act04/fight_8.tres" id="11_wf8uo"]
+
+[resource]
+script = ExtResource("1_ad")
+act_number = 4
+colony_name = "Upper Spires"
+colony_kind = "Surveillance Colony"
+singularity_name = "Dawnwing"
+singularity_kind = "Solar Griffin"
+element = 5
+fights = Array[ExtResource("3_qxr56")]([ExtResource("4_xpftl"), ExtResource("5_1l642"), ExtResource("6_kon2g"), ExtResource("7_2id0e"), ExtResource("8_pqysv"), ExtResource("9_g8pjs"), ExtResource("10_upj4r"), ExtResource("11_wf8uo")])
+arena = ExtResource("1_s2g2k")
+boss_art = ExtResource("2_awxyv")
+intel_lines = Array[String](["The Upper Spires watched every colony below them, day and night.", "Dawnwing, a solar griffin built to patrol the towers, hunts anything that moves under its light.", "The Progenitors still read its reports, and tell no one it stopped obeying."])

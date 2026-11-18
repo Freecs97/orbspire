@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="FightData" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/fighter_data.gd" id="1_mieiu"]
+[ext_resource type="Resource" path="res://data/enemies/act10/void_cultist_mini.tres" id="2_cdswr"]
+[ext_resource type="Script" path="res://scripts/data/fight_data.gd" id="3_ba6vq"]
+
+[resource]
+script = ExtResource("3_ba6vq")
+display_name = "7/8 · MINI-BOSS: OBSIDIAN (VOID CULTIST)"
+enemies = Array[ExtResource("1_mieiu")]([ExtResource("2_cdswr")])
+xp = 420
+expected_level = 28

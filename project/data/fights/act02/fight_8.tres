@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="FightData" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/fighter_data.gd" id="1_4iksr"]
+[ext_resource type="Resource" path="res://data/enemies/act02/boss_tidecoil7.tres" id="2_kbxb3"]
+[ext_resource type="Script" path="res://scripts/data/fight_data.gd" id="3_pcl72"]
+
+[resource]
+script = ExtResource("3_pcl72")
+display_name = "8/8 · BOSS: TIDECOIL-7"
+enemies = Array[ExtResource("1_4iksr")]([ExtResource("2_kbxb3")])
+xp = 165
+expected_level = 11

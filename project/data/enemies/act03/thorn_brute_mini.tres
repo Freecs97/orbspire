@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="FighterData" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/enemies/enemy_wood_thorn_brute.png" id="1_r7wqk"]
+[ext_resource type="Script" path="res://scripts/data/fighter_data.gd" id="2_ca133"]
+
+[resource]
+script = ExtResource("2_ca133")
+display_name = "THORN BRUTE"
+element = 2
+role = 4
+max_hp = 4830
+atk = 295
+armored = true
+is_boss = true
+kind = &"art"
+art = ExtResource("1_r7wqk")
+figure_height = 389.4
+figure_width = 271.4

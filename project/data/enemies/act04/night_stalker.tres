@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="FighterData" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/enemies/enemy_dark_night_stalker.png" id="1_um875"]
+[ext_resource type="Script" path="res://scripts/data/fighter_data.gd" id="2_d74kd"]
+
+[resource]
+script = ExtResource("2_d74kd")
+display_name = "NOCTURNE"
+title = "Night Stalker"
+element = 6
+role = 4
+max_hp = 780
+atk = 136
+kind = &"art"
+art = ExtResource("1_um875")
+figure_height = 310.0
+figure_width = 160.0

@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="ActData" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/act_data.gd" id="1_ad"]
+[ext_resource type="Texture2D" path="res://assets/backgrounds/bg_act02_drowned_arena.png" id="1_mclsk"]
+[ext_resource type="Texture2D" path="res://assets/bosses/boss_02_tidecoil7_flood_serpent.png" id="2_h8kyo"]
+[ext_resource type="Script" path="res://scripts/data/fight_data.gd" id="3_c4j3t"]
+[ext_resource type="Resource" path="res://data/fights/act02/fight_1.tres" id="4_0h4gw"]
+[ext_resource type="Resource" path="res://data/fights/act02/fight_2.tres" id="5_cdosc"]
+[ext_resource type="Resource" path="res://data/fights/act02/fight_3.tres" id="6_25nhr"]
+[ext_resource type="Resource" path="res://data/fights/act02/fight_4.tres" id="7_ki2ww"]
+[ext_resource type="Resource" path="res://data/fights/act02/fight_5.tres" id="8_6ovxc"]
+[ext_resource type="Resource" path="res://data/fights/act02/fight_6.tres" id="9_0otfm"]
+[ext_resource type="Resource" path="res://data/fights/act02/fight_7.tres" id="10_of7ij"]
+[ext_resource type="Resource" path="res://data/fights/act02/fight_8.tres" id="11_nq8kn"]
+
+[resource]
+script = ExtResource("1_ad")
+act_number = 2
+colony_name = "Drowned Metro"
+colony_kind = "Flooded Colony"
+singularity_name = "Tidecoil-7"
+singularity_kind = "Flood Serpent"
+element = 1
+fights = Array[ExtResource("3_c4j3t")]([ExtResource("4_0h4gw"), ExtResource("5_cdosc"), ExtResource("6_25nhr"), ExtResource("7_ki2ww"), ExtResource("8_6ovxc"), ExtResource("9_0otfm"), ExtResource("10_of7ij"), ExtResource("11_nq8kn")])
+arena = ExtResource("1_mclsk")
+boss_art = ExtResource("2_h8kyo")
+intel_lines = Array[String](["Drowned Metro pumped clean water to every colony in the sector.", "Tidecoil-7, a spliced flood serpent, nests in the pump halls and floods any line it wants.", "The Progenitors sealed the tunnels and now ration water by the litre."])

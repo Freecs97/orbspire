@@ -1,0 +1,794 @@
+extends Node2D
+## Runs the whole battle loop. This is the "director".
+##
+## Plain English, one turn:
+##   1. Board unlocks. Tap an enemy to target it (optional). Drag an orb.
+##   2. Board clears combos and reports: combos, orbs of each type, and every group.
+##   3. Hearts heal the team.
+##   4. Each hunter whose element was cleared attacks:
+##        - Berserker with 4+ of its orbs in one group -> hits EVERY enemy
+##        - everyone else -> hits the target (tapped enemy, or the front one)
+##   5. Every enemy still alive attacks the team, one after another.
+##   6. Back to 1, until all enemies or the team are down -> WIN or LOSE.
+##
+## This script builds the screen in code, so the scene file is tiny.
+## Stats live in res://data/*.tres. Edit those, not this file, to rebalance.
+##
+## Screen sizes: the design is 1080 x 1920. On a taller phone the screen gets
+## extra height (stretch aspect = "expand"). _apply_layout() keeps the enemy
+## title at the top, pushes the team + board down to the bottom (thumb zone)
+## and lets the corridor grow to fill the gap. Nothing is stretched.
+
+## The starting story trio (Act 1). Slot 1 is the leader.
+const STORY_TEAM := [
+	preload("res://data/team/fire_berserker.tres"),
+	preload("res://data/team/water_biotech.tres"),
+	preload("res://data/team/wood_titan.tres"),
+]
+## Act 1 (Orbspire, Furnace District): the 8 fights, in the locked order.
+const ACT1_FIGHTS := [
+	preload("res://data/fights/act1/fight_1.tres"),
+	preload("res://data/fights/act1/fight_2.tres"),
+	preload("res://data/fights/act1/fight_3.tres"),
+	preload("res://data/fights/act1/fight_4.tres"),
+	preload("res://data/fights/act1/fight_5.tres"),
+	preload("res://data/fights/act1/fight_6.tres"),
+	preload("res://data/fights/act1/fight_7.tres"),
+	preload("res://data/fights/act1/fight_8.tres"),
+]
+## The old placeholder fights. Only the automated tests use these now.
+const TEST_FIGHTS := [
+	preload("res://data/fights/test_fight_1.tres"),
+	preload("res://data/fights/test_fight_2.tres"),
+	preload("res://data/fights/test_fight_3.tres"),
+	preload("res://data/fights/test_fight_4.tres"),
+]
+const DARK_SPECTRE := preload("res://data/team/dark_spectre.tres")
+const ACT_NAME := "ACT 1"   ## Used when no Act is set (tests).
+const ROLE_NAMES := ["BERSERKER", "TITAN", "SPECTRE", "BIOTECH", "ENEMY"]
+
+# Layout for the base 1080 x 1920 screen.
+const BASE_SIZE := Vector2(1080, 1920)
+const ENEMY_FEET_Y := 560.0
+const ENEMY_X := {1: [540.0], 2: [320.0, 760.0], 3: [190.0, 540.0, 890.0]}
+const ENEMY_BAR_W := {1: 440.0, 2: 330.0, 3: 270.0}
+const TEAM_FEET_Y := 935.0
+const TEAM_X := {3: [250.0, 540.0, 830.0], 4: [150.0, 395.0, 685.0, 930.0]}
+const TEAM_CARD := {3: Vector2(260, 270), 4: Vector2(230, 270)}
+const TEAM_BAR_Y := 975.0
+const TIMER_BAR_Y := 1030.0
+const BOARD_POS := Vector2(45, 1090)
+const FRONT_Z := 11   ## Above the scenery (z 10), which is above the board (z 0).
+
+var stage: Node2D          ## Centres the 1080-wide layout on wider screens.
+var world: Node2D          ## Everything that shakes with the screen.
+var backdrop: Backdrop
+var board: Board
+var enemy_views: Array[FighterView] = []
+var enemy_bars: Array[HpBar] = []
+var team_views: Array[FighterView] = []
+var team_labels: Array[Label] = []
+var team_bar: HpBar
+var timer_bar: MoveTimerBar
+var enemy_title: Label
+var enemy_hint: Label
+var enemy_attack_label: Label
+var team_status_label: Label
+var level_label: Label
+var result_panel: ResultPanel
+var skill_popup: SkillPopup
+
+var team_data: Array[FighterData] = []   ## Who is in the team (set_team to change).
+var team: Team
+var enemies: Array[Enemy] = []
+var act_fights: Array = ACT1_FIGHTS      ## The fights of the Act being played.
+var fight_index := 0
+var team_level := 1                       ## Level the team is shown at in this fight.
+var target_index := -1     ## -1 = no target chosen: attacks go to the front enemy.
+var turn_count := 0
+var _extra_height := 0.0
+
+## Skill charge carries over from fight to fight inside an Act.
+var _act_skill_turns: Array[int] = []    ## charge at the end of the last won fight
+var _fight_start_turns: Array[int] = []  ## charge when this fight began (for Retry)
+var _busy := false                       ## true while a skill animation plays
+var _player_turn := false                ## true until the player picks up an orb
+## Tests only: when set, every fight uses this instead of act_fights.
+var test_fight_override: FightData = null
+
+# --- Set these BEFORE adding the battle to the scene (main.gd does). ---
+## The Act being played: its fights, arena art and story beats. null = plain test mode.
+var act: ActData = null
+## True when there is a home screen to go back to after the last fight.
+var has_home := false
+## Which fight to start on (Continue resumes mid-Act).
+var start_fight := 0
+## Play the Act's 2-line intro before the first fight.
+var play_act_intro := false
+## Show the one-time "a Dark Spectre joins" notice (first time in Act 2+).
+var show_join_notice := false
+## The player's profile (real levels, rewards). null = test mode with the Lv preview.
+var profile: Profile = null
+## true = show the team at each fight's expected level (only without a profile).
+var use_level_preview := true
+var _team_uids: Array = []
+## What the last fight paid out (tests read this).
+var last_rewards: Dictionary = {}
+
+signal progress_changed
+
+var story_beat: StoryBeat
+
+signal fight_won(index: int)
+signal act_won(act: ActData)
+signal home_requested
+signal codex_requested
+
+enum StartMode { NEW_ACT, NEXT_FIGHT, RETRY }
+
+
+func _ready() -> void:
+	if profile:
+		# Your chosen team at their real levels and rarities (3 in Act 1, 4 later).
+		use_level_preview = false
+		_load_profile_team()
+	else:
+		for d in STORY_TEAM:
+			team_data.append(d)
+		# Without a profile (tests), the Dark Spectre fights from Act 2.
+		if act and act.act_number >= 2:
+			team_data.append(DARK_SPECTRE)
+	if act:
+		act_fights = act.fights
+	_build_scene()
+	if act:
+		backdrop.arena = act.arena
+	get_viewport().size_changed.connect(_apply_layout)
+	_start_battle(start_fight, StartMode.NEW_ACT)
+	if play_act_intro and act and not act.intro_lines.is_empty():
+		_play_beat(act.intro_lines, act.intro_seconds, ("%s  ·  %s" % [act.colony_name, act.colony_kind]).to_upper())
+	elif show_join_notice:
+		_play_beat(["A Dark Spectre joins your hunters.", "From Act 2 on, you fight as a team of 4."], 6.0, "NEW HUNTER")
+
+
+## Lock the board, show a story beat, then hand the turn back to the player.
+func _play_beat(lines: Array, seconds: float, speaker: String) -> void:
+	_player_turn = false
+	board.lock()
+	await story_beat.play(lines, seconds, speaker)
+	if not result_panel.visible:
+		_begin_player_turn()
+
+
+func _team_size() -> int:
+	return 3 if act == null or act.act_number == 1 else 4
+
+
+## Rebuild the team from the profile (after level-ups the stats change).
+func _load_profile_team() -> void:
+	_team_uids = profile.team_uids(_team_size())
+	team_data.clear()
+	for f in profile.team_fighters(_team_size()):
+		team_data.append(f)
+
+
+func _act_name() -> String:
+	return "ACT %d" % act.act_number if act else ACT_NAME
+
+
+func _is_boss_fight(index: int) -> bool:
+	return act != null and test_fight_override == null and index == act_fights.size() - 1
+
+
+# ---------------------------------------------------------------- setup
+
+func _build_scene() -> void:
+	stage = Node2D.new()
+	add_child(stage)
+	world = Node2D.new()
+	stage.add_child(world)
+
+	board = Board.new()
+	world.add_child(board)
+
+	backdrop = Backdrop.new()
+	backdrop.z_index = 10
+	world.add_child(backdrop)
+
+	enemy_title = _make_label(Vector2(0, 28), 1080, 44, Color.WHITE)
+	enemy_hint = _make_label(Vector2(0, 88), 1080, 28, Color("d6ccff"))
+	enemy_attack_label = _make_label(Vector2(0, 132), 1080, 26, Color("ff8a8a"))
+
+	team_bar = HpBar.new()
+	team_bar.bar_size = Vector2(990, 38)
+	team_bar.show_heart = true
+	team_bar.z_index = FRONT_Z
+	world.add_child(team_bar)
+
+	timer_bar = MoveTimerBar.new()
+	timer_bar.bar_size = Vector2(990, 28)
+	timer_bar.z_index = FRONT_Z
+	world.add_child(timer_bar)
+
+	# Small line above the team HP bar showing shields / guards that are active.
+	team_status_label = _make_label(Vector2.ZERO, 990, 24, Color("8fd8ff"))
+	team_status_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	# Top-left corner: the Act and the team's level in this fight.
+	level_label = _make_label(Vector2(20, 2), 1040, 22, Color("ffd23f"))
+	level_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+
+	# Pop-up screens live on their own layer so the screen shake doesn't move them.
+	var ui := CanvasLayer.new()
+	add_child(ui)
+	result_panel = ResultPanel.new()
+	ui.add_child(result_panel)
+	skill_popup = SkillPopup.new()
+	ui.add_child(skill_popup)
+	story_beat = StoryBeat.new()
+	ui.add_child(story_beat)
+	result_panel.codex_pressed.connect(func() -> void: codex_requested.emit())
+	skill_popup.use_pressed.connect(func(i: int) -> void: use_skill(i))
+	skill_popup.closed.connect(_on_popup_closed)
+
+	board.move_started.connect(func() -> void: _player_turn = false)
+	board.timer_changed.connect(_on_timer_changed)
+	board.combo_made.connect(_on_combo_made)
+	board.turn_finished.connect(_on_turn_finished)
+	result_panel.retry_pressed.connect(func() -> void: _start_battle(fight_index, StartMode.RETRY))
+	result_panel.next_pressed.connect(_on_next_pressed)
+
+
+## Replace the team (tests use this; Phase 6+ team select will too). Slot 1 leads.
+func set_team(members: Array) -> void:
+	team_data.clear()
+	for m in members:
+		team_data.append(m)
+	_act_skill_turns.clear()   # a new team starts a new Act's charge
+	_fight_start_turns.clear()
+	_build_team_views()
+
+
+func _build_team_views() -> void:
+	for v in team_views:
+		v.queue_free()
+	for l in team_labels:
+		l.queue_free()
+	team_views.clear()
+	team_labels.clear()
+	for d in team_data:
+		var view := FighterView.new()
+		view.z_index = FRONT_Z
+		world.add_child(view)
+		view.card_size = TEAM_CARD[clampi(team_data.size(), 3, 4)]
+		view.setup(d)
+		team_views.append(view)
+		var label := _make_label(Vector2.ZERO, view.card_size.x, 22, Element.color(d.element).lightened(0.4))
+		label.text = d.display_name if d.title != "" else "%s · %s" % [Element.display_name(d.element), ROLE_NAMES[d.role]]
+		team_labels.append(label)
+	_apply_layout()
+
+
+func _build_enemy_views() -> void:
+	for v in enemy_views:
+		v.queue_free()
+	for b in enemy_bars:
+		b.queue_free()
+	enemy_views.clear()
+	enemy_bars.clear()
+	for e in enemies:
+		var view := FighterView.new()
+		view.z_index = FRONT_Z
+		world.add_child(view)
+		view.setup(e.data)
+		view.armor_up = e.armor_up
+		enemy_views.append(view)
+		var bar := HpBar.new()
+		bar.bar_size = Vector2(ENEMY_BAR_W[clampi(enemies.size(), 1, 3)], 30)
+		bar.fill_color = Color("e2456e")
+		bar.tick_color = Color("ffe08a")
+		bar.z_index = FRONT_Z
+		world.add_child(bar)
+		bar.set_values(e.hp, e.data.max_hp, false)
+		enemy_bars.append(bar)
+	_apply_layout()
+
+
+## Place everything for the current screen size.
+## Extra height goes into the corridor; the team, bars and board slide down
+## together so the board always sits at the bottom of the screen.
+func _apply_layout() -> void:
+	if stage == null:
+		return
+	var view := get_viewport_rect().size
+	var extra := maxf(view.y - BASE_SIZE.y, 0.0)
+	var side := maxf(view.x - BASE_SIZE.x, 0.0) * 0.5
+	_extra_height = extra
+	stage.position = Vector2(side, 0.0)
+
+	var enemy_y := ENEMY_FEET_Y + extra * 0.6
+	backdrop.set_layout(extra, side, enemy_y)
+	for i in enemy_views.size():
+		var p := enemy_position(i)
+		enemy_views[i].position = p
+		enemy_bars[i].position = Vector2(p.x - enemy_bars[i].bar_size.x * 0.5, p.y + 40)
+	var n := clampi(team_views.size(), 3, 4)
+	for i in team_views.size():
+		var x: float = TEAM_X[n][mini(i, n - 1)]
+		team_views[i].position = Vector2(x, TEAM_FEET_Y + extra)
+		team_labels[i].position = Vector2(x - team_views[i].card_size.x * 0.5, TEAM_FEET_Y + extra - 4)
+	team_bar.position = Vector2(45, TEAM_BAR_Y + extra)
+	team_status_label.position = Vector2(45, TEAM_BAR_Y + extra - 34)
+	timer_bar.position = Vector2(45, TIMER_BAR_Y + extra)
+	board.position = BOARD_POS + Vector2(0, extra)
+
+
+## Where enemy number i stands (world space).
+func enemy_position(i: int) -> Vector2:
+	var xs: Array = ENEMY_X[clampi(enemies.size(), 1, 3)]
+	return Vector2(xs[mini(i, xs.size() - 1)], ENEMY_FEET_Y + _extra_height * 0.6)
+
+
+## Fresh fight number `index`. Everyone at full HP.
+## Skill charge: NEW_ACT = half charged, NEXT_FIGHT = carried over from the
+## last fight, RETRY = whatever it was when this fight first began.
+func _start_battle(index: int, mode := StartMode.RETRY) -> void:
+	fight_index = index
+	turn_count = 0
+	target_index = -1
+	_busy = false
+	if team_views.size() != team_data.size():
+		_build_team_views()
+	var fight: FightData = test_fight_override if test_fight_override else act_fights[index]
+	# Until Phase 6 levelling exists, the team is shown at the level a player
+	# would normally have reached by this fight (balance is tuned for that).
+	team_level = fight.expected_level if use_level_preview and CombatRules.PROGRESSION.preview_expected_level else 1
+	var leveled: Array[FighterData] = []
+	for d in team_data:
+		leveled.append(CombatRules.at_level(d, team_level))
+	team = Team.new(leveled)
+	if mode == StartMode.RETRY and _fight_start_turns.size() == team_data.size():
+		team.skill_turns = _fight_start_turns.duplicate()
+	elif mode == StartMode.NEXT_FIGHT and _act_skill_turns.size() == team_data.size():
+		team.skill_turns = _act_skill_turns.duplicate()
+	else:
+		for i in team_data.size():
+			team.skill_turns[i] = CombatRules.act_start_turns(team_data[i])
+	_fight_start_turns = team.skill_turns.duplicate()
+	enemies.clear()
+	for d in fight.enemies:
+		enemies.append(Enemy.new(d))
+	_build_enemy_views()
+	for v in team_views:
+		v.animator.reset()
+
+	enemy_title.text = fight.display_name
+	if profile:
+		var lv := []
+		for uid in _team_uids:
+			lv.append(profile.unit(uid)["level"])
+		level_label.text = "%s  ·  TEAM Lv%d-%d" % [_act_name(), lv.min(), lv.max()] if lv.min() != lv.max() else "%s  ·  TEAM Lv%d" % [_act_name(), lv.min()]
+	else:
+		level_label.text = "%s  ·  TEAM Lv%d%s" % [_act_name(), team_level, " (preview)" if team_level > 1 else ""]
+	_update_enemy_labels()
+	team_bar.set_values(team.hp, team.max_hp, false)
+	_refresh_team_ui()
+	result_panel.hide()
+	skill_popup.hide()
+	board.fill_new_board()
+	_begin_player_turn()
+	# Boss fight: the singularity speaks first (5 s, skippable).
+	if _is_boss_fight(index) and act.boss_taunt != "":
+		_play_beat([act.boss_taunt], act.taunt_seconds, act.singularity_name.to_upper())
+
+
+## Unlock the board for a new player turn (skills can be used until an orb is picked up).
+func _begin_player_turn() -> void:
+	_player_turn = true
+	board.move_time = CombatRules.move_time(team)
+	board.begin_player_turn()
+
+
+func _on_next_pressed() -> void:
+	var next := fight_index + 1
+	if next >= act_fights.size() and has_home:
+		home_requested.emit()                 # finished the Act: back to the home screen
+	elif next >= act_fights.size():
+		_start_battle(0, StartMode.NEW_ACT)   # finished the Act: start it over
+	else:
+		_start_battle(next, StartMode.NEXT_FIGHT)
+
+
+## Skill badges, LEADER tag and the shield/guard status line.
+func _refresh_team_ui() -> void:
+	for i in team_views.size():
+		team_views[i].is_leader = (i == 0)
+		var cd := Skills.cooldown(team.members[i].active_skill)
+		team_views[i].set_skill(team.skill_turns[i] if cd > 0 else -1, cd)
+	var parts := PackedStringArray()
+	if team.bulwark_attacks > 0:
+		parts.append("BULWARK: -%d%% x%d" % [roundi((1.0 - Skills.TUNING.bulwark_damage_taken) * 100), team.bulwark_attacks])
+	if team.guard_next_hit:
+		parts.append("GUARD: -%d%% next hit" % roundi((1.0 - Skills.TUNING.leader_titan_damage_taken) * 100))
+	team_status_label.text = "   ".join(parts)
+
+
+# ---------------------------------------------------------------- input
+
+## Taps that the board didn't use: tapping an enemy targets it, tapping a
+## hunter's card opens its skill pop-up.
+func _unhandled_input(event: InputEvent) -> void:
+	var press := event as InputEventMouseButton
+	if press == null or not press.pressed or press.button_index != MOUSE_BUTTON_LEFT:
+		return
+	if board.state != Board.State.READY or result_panel.visible or skill_popup.visible or _busy:
+		return
+	var p := world.get_global_transform_with_canvas().affine_inverse() * press.position
+	for i in team_views.size():
+		if team_views[i].hit_rect().has_point(p - team_views[i].position):
+			open_skill_popup(i)
+			get_viewport().set_input_as_handled()
+			return
+	for i in enemy_views.size():
+		if enemies[i].is_defeated():
+			continue
+		if enemy_views[i].hit_rect().has_point(p - enemy_views[i].position):
+			set_target(-1 if target_index == i else i)
+			get_viewport().set_input_as_handled()
+			return
+
+
+## The board is LOCKED while the pop-up is open, so a tap on the pop-up's
+## buttons can never pick up an orb underneath it.
+func open_skill_popup(i: int) -> void:
+	board.lock()
+	skill_popup.open(i, team.members[i], i == 0, team.skill_turns[i], _player_turn)
+
+
+func _on_popup_closed() -> void:
+	if _player_turn and not _busy and not result_panel.visible:
+		board.begin_player_turn()
+
+
+func _can_use_skills() -> bool:
+	return _player_turn and not _busy and not result_panel.visible \
+		and (board.state == Board.State.READY or board.state == Board.State.LOCKED)
+
+
+# ---------------------------------------------------------------- active skills
+
+## Use hunter i's active skill (only before moving orbs, only when charged).
+## Returns false if it can't be used right now. Never ends the turn.
+func use_skill(i: int) -> bool:
+	if i < 0 or i >= team.members.size() or not team.skill_ready(i):
+		return false
+	if not _can_use_skills():
+		return false
+	_busy = true
+	board.lock()
+	var member := team.members[i]
+	var t := Skills.TUNING
+	team.skill_turns[i] = Skills.cooldown(member.active_skill)
+	team_views[i].light_up()
+	team_views[i].animator.play_attack(Vector2.UP)
+	FloatingText.spawn(world, team_views[i].position + Vector2(0, -team_views[i].card_size.y - 20), Skills.display_name(member.active_skill).to_upper() + "!", Element.color(member.element).lightened(0.4), 58, 50.0, 0.6)
+	await _wait(0.25)
+
+	match member.active_skill:
+		&"overrun":
+			# Every orb of the element this hunter beats becomes its own element.
+			var from: int = Element.BEATS.get(member.element, -1)
+			var changed := board.convert_type(from, member.element)
+			FloatingText.spawn(world, board.position + Vector2(495, 400), "%d %s -> %s" % [changed, Element.display_name(from), Element.display_name(member.element)], Element.color(member.element).lightened(0.4), 52, 40.0, 0.6)
+		&"bulwark":
+			team.bulwark_attacks = t.bulwark_attacks
+		&"execute":
+			var target := CombatRules.pick_target(enemies, target_index)
+			if target >= 0:
+				var enemy := enemies[target]
+				var damage := CombatRules.execute_damage(member, enemy)
+				var dealt := enemy.take_hit(damage, true)   # a skill hit always breaks armour
+				_show_hit(target, dealt, member, 1)
+				_update_enemy_labels()
+		&"mend":
+			var healed := team.heal(roundi(team.max_hp * t.mend_heal_ratio))
+			team_bar.set_values(team.hp, team.max_hp)
+			FloatingText.spawn(world, _team_text_pos(), "+%d" % healed, Color("6dff8a"), 64, 60.0)
+			board.convert_random(t.mend_hearts, Element.Type.HEART)
+	if member.has_passive(&"field_medic"):
+		# Field Medic: using the skill charges every OTHER ally's skill by 1 turn.
+		for j in team.skill_turns.size():
+			if j != i:
+				team.skill_turns[j] = maxi(team.skill_turns[j] - t.field_medic_turns, 0)
+	_refresh_team_ui()
+	await _wait(0.45)
+	if _all_enemies_down():
+		await _wait(0.6)
+		_show_result(true)
+		_busy = false
+		return true
+	_busy = false
+	board.begin_player_turn()
+	return true
+
+
+## Choose which enemy single-target attacks go to (-1 = the front enemy).
+func set_target(i: int) -> void:
+	target_index = i
+	_update_enemy_labels()
+
+
+func _update_enemy_labels() -> void:
+	for i in enemy_views.size():
+		enemy_views[i].targeted = (i == target_index and not enemies[i].is_defeated())
+	var shown := CombatRules.pick_target(enemies, target_index)
+	if shown < 0:
+		return
+	var e := enemies[shown]
+	var prefix := "TARGET: " if target_index >= 0 else ""
+	var who := e.data.display_name + (" (%s)" % e.data.title if e.data.title != "" else "")
+	enemy_hint.text = "%s%s · %s   ·   %s" % [prefix, who, Element.display_name(e.data.element), _matchup_hint(e.data.element)]
+	if enemies.size() == 1:
+		enemy_attack_label.text = "Attacks after your turn  ·  ATK %d" % e.data.atk
+	else:
+		enemy_attack_label.text = "%d enemies · each attacks after your turn · tap one to target it" % enemies.size()
+
+
+# ---------------------------------------------------------------- board events
+
+func _on_timer_changed(ratio: float) -> void:
+	match board.state:
+		Board.State.DRAGGING:
+			timer_bar.set_ratio(ratio, "%.1f s" % (ratio * board.move_time), true)
+		Board.State.READY:
+			timer_bar.set_ratio(1.0, "DRAG AN ORB  ·  %s s starts on pickup" % _seconds_text(board.move_time), false)
+		_:
+			timer_bar.set_ratio(0.0, "", false)
+
+
+## Show "COMBO n" right where the group cleared.
+func _on_combo_made(count: int, _orb_type: int, world_position: Vector2) -> void:
+	var color := Color.WHITE
+	if count >= 8:
+		color = Color("ff7a3d")
+	elif count >= 5:
+		color = Color("ffd23f")
+	FloatingText.spawn(world, world.to_local(world_position), "COMBO %d" % count, color, 58, 40.0, 0.7)
+
+
+## The rest of the turn after the board finishes.
+func _on_turn_finished(combos: int, cleared: Dictionary, groups: Array) -> void:
+	turn_count += 1
+	await _wait(0.15)
+
+	# 1) Healing: Hearts (+ Overflow Heal, + Biotech leader). Never above max HP.
+	var hearts: int = cleared.get(Element.Type.HEART, 0)
+	var heal_amount := CombatRules.turn_heal(team, hearts, groups)
+	if hearts > 0 or heal_amount > 0:
+		var healed := team.heal(heal_amount)
+		team_bar.set_values(team.hp, team.max_hp)
+		FloatingText.spawn(world, _team_text_pos(), "+%d" % healed, Color("6dff8a"), 64, 60.0)
+		await _wait(0.35)
+	# Titan leader: matching Hearts arms a guard against the next enemy hit.
+	if hearts > 0 and team.leader().leader_skill == &"leader_titan":
+		team.guard_next_hit = true
+		_refresh_team_ui()
+
+	# Skills charge by one turn, but only on turns where you made a match.
+	if combos > 0:
+		team.tick_skills()
+		_refresh_team_ui()
+
+	# 2) Each hunter whose element was cleared attacks.
+	for i in team_views.size():
+		var member := team.members[i]
+		var orbs: int = cleared.get(member.element, 0)
+		if orbs <= 0:
+			continue
+		var targets := CombatRules.targets_for(member, groups, enemies, target_index)
+		if targets.is_empty():
+			break
+		var first_attack := not team.has_attacked[i]   # Ambush
+		team.has_attacked[i] = true
+		team_views[i].light_up()
+		team_views[i].animator.play_attack(Vector2.UP)
+		await _wait(0.2)
+		for t in targets:
+			var enemy := enemies[t]
+			# Leader skill x this hunter's passives (worked out before the hit lands).
+			var bonus := CombatRules.leader_multiplier(team.leader(), member, groups, combos) \
+				* CombatRules.passive_multiplier(member, groups, combos, enemy, first_attack)
+			var damage := DamageCalculator.attack_damage(member.atk, orbs, combos, member.element, enemy.data.element, bonus)
+			damage = CombatRules.after_def(damage, enemy)
+			var dealt := enemy.take_hit(damage, CombatRules.breaks_armor(member, groups), CombatRules.ignores_armor(member, groups))
+			_show_hit(t, dealt, member, i)
+		await _wait(0.28)
+		_update_enemy_labels()
+		if _all_enemies_down():
+			break
+
+	if _all_enemies_down():
+		await _wait(0.85)
+		_show_result(true)
+		return
+
+	# 3) Every enemy still alive attacks, one after another.
+	for t in enemies.size():
+		var enemy := enemies[t]
+		if enemy.is_defeated():
+			continue
+		await _wait(0.25)
+		enemy_views[t].animator.play_attack(Vector2.DOWN)
+		await _wait(0.2)
+		var taken := team.take_damage(_enemy_attack_damage(enemy))
+		_refresh_team_ui()
+		for v in team_views:
+			v.animator.play_hit()
+		team_bar.set_values(team.hp, team.max_hp)
+		FloatingText.spawn(world, _team_text_pos(), "-%d" % taken, Color("ff5a5a"), 64, 60.0)
+		_shake_screen(5.0, 0.2)
+		await _wait(0.35)
+		if team.is_defeated():
+			break
+		# Counter (Titan passive): strike back at the enemy that just hit.
+		for k in team.members.size():
+			var m := team.members[k]
+			if m.has_passive(&"counter") and not enemy.is_defeated():
+				var back := roundi(m.atk * Skills.TUNING.counter_atk_mult * Element.multiplier(m.element, enemy.data.element))
+				back = CombatRules.after_def(back, enemy)
+				var dealt_back := enemy.take_hit(back)
+				team_views[k].animator.play_attack(Vector2.UP)
+				_show_hit(t, dealt_back, m, k)
+				await _wait(0.3)
+		if _all_enemies_down():
+			break
+
+	if _all_enemies_down():
+		await _wait(0.85)
+		_show_result(true)
+		return
+
+	if team.is_defeated():
+		for v in team_views:
+			v.animator.play_defeat()
+		await _wait(0.95)
+		_show_result(false)
+		return
+
+	_begin_player_turn()
+
+
+# ---------------------------------------------------------------- helpers
+
+## How hard this enemy's attack lands after every damage cut, and uses them up:
+##   Bulwark (active)      x0.5 for the next 2 attacks
+##   Titan leader guard    x0.75 for the next 1 hit (armed by matching Hearts)
+##   Last Stand (passive)  x0.7 while team HP is below 30%
+func _enemy_attack_damage(enemy: Enemy) -> int:
+	var t := Skills.TUNING
+	var mult := 1.0
+	if team.bulwark_attacks > 0:
+		mult *= t.bulwark_damage_taken
+		team.bulwark_attacks -= 1
+	if team.guard_next_hit:
+		mult *= t.leader_titan_damage_taken
+		team.guard_next_hit = false
+	if CombatRules.team_has(team, &"last_stand") and team.hp_ratio() < t.last_stand_hp_ratio:
+		mult *= t.last_stand_damage_taken
+	return roundi(enemy.data.atk * mult)
+
+
+## One hit landing on enemy t: flash, HP bar, damage number, defeat.
+func _show_hit(t: int, dealt: int, member: FighterData, attacker_index: int) -> void:
+	var enemy := enemies[t]
+	enemy_views[t].animator.play_hit()
+	enemy_bars[t].set_values(enemy.hp, enemy.data.max_hp)
+	_show_damage(dealt, member, t, attacker_index)
+	if enemy_views[t].armor_up and not enemy.armor_up:
+		FloatingText.spawn(world, enemy_position(t) + Vector2(0, -enemy.data.figure_height - 30), "ARMOUR BROKEN!", Color("8fd8ff"), 46, 50.0, 0.6)
+	enemy_views[t].armor_up = enemy.armor_up
+	if enemy.is_defeated():
+		enemy_views[t].targeted = false
+		enemy_views[t].animator.play_defeat()
+
+
+## Damage numbers in the attacker's colour. Super-effective hits are bigger with "!".
+func _show_damage(amount: int, member: FighterData, enemy_i: int, attacker_index: int) -> void:
+	var mult := Element.multiplier(member.element, enemies[enemy_i].data.element)
+	var size := 66
+	var text := str(amount)
+	if mult > 1.0:
+		size = 92
+		text += "!"
+	elif mult < 1.0:
+		size = 48
+	if enemies.size() > 1:
+		size = int(size * 0.8)
+	var spread := 170.0 if enemies.size() == 1 else 70.0
+	var pos := enemy_position(enemy_i) + Vector2(-spread + attacker_index * spread, -230 - attacker_index * 24)
+	FloatingText.spawn(world, pos, text, Element.color(member.element).lightened(0.3), size)
+
+
+func _team_text_pos() -> Vector2:
+	return team_bar.position + Vector2(team_bar.bar_size.x * 0.5, 15)
+
+
+func _all_enemies_down() -> bool:
+	for e in enemies:
+		if not e.is_defeated():
+			return false
+	return true
+
+
+func _matchup_hint(el: int) -> String:
+	if Element.is_light_or_dark(el):
+		return "Weak to %s (2x)" % Element.display_name(Element.beaten_by(el))
+	if el == Element.Type.NONE or not Element.BEATS.has(el):
+		return "No element: every attack is neutral (1x)"
+	return "Weak to %s (2x)  ·  Resists %s (0.5x)" % [
+		Element.display_name(Element.beaten_by(el)),
+		Element.display_name(Element.BEATS[el]),
+	]
+
+
+func _seconds_text(s: float) -> String:
+	return str(int(s)) if is_equal_approx(s, roundf(s)) else "%.1f" % s
+
+
+func _show_result(won: bool) -> void:
+	_player_turn = false
+	board.lock()
+	skill_popup.hide()
+	if won:
+		_act_skill_turns = team.skill_turns.duplicate()   # carry into the next fight
+		fight_won.emit(fight_index)
+	var is_last := fight_index >= act_fights.size() - 1
+	var fight: FightData = test_fight_override if test_fight_override else act_fights[fight_index]
+	var act_clear := won and _is_boss_fight(fight_index)
+	if act_clear:
+		# The Act's last word (10 s, skippable), then the codex entry unlocks.
+		if act.outro_line != "":
+			await story_beat.play([act.outro_line], act.outro_seconds, "")
+		act_won.emit(act)
+	# Rewards (real profile only): XP + level-ups, Credits, Essence, first-clear Keys.
+	var reward_text := ""
+	if profile:
+		var r := profile.fight_rewards(fight, act.act_number if act else 1, won, _team_uids, act_clear)
+		last_rewards = r
+		reward_text = Profile.rewards_text(r)
+		_load_profile_team()   # new levels -> new stats for the next fight
+		progress_changed.emit()
+	var next_text := "Next Fight"
+	if is_last:
+		next_text = "Back to Star Map" if has_home else "Play %s Again" % _act_name().capitalize()
+	result_panel.show_result(won, turn_count, next_text, fight.xp, (_act_name() + " CLEAR!") if won and is_last else "",
+		("CODEX UNLOCKED: " + act.singularity_name.to_upper()) if act_clear else "", reward_text)
+
+
+func _shake_screen(strength: float, duration: float) -> void:
+	var tw := create_tween()
+	var steps := 5
+	for i in steps:
+		var offset := Vector2(randf_range(-1.0, 1.0), randf_range(-1.0, 1.0)) * strength
+		tw.tween_property(world, "position", offset, duration / (steps + 1))
+	tw.tween_property(world, "position", Vector2.ZERO, duration / (steps + 1))
+
+
+func _wait(seconds: float) -> void:
+	await get_tree().create_timer(seconds).timeout
+
+
+func _make_label(pos: Vector2, width: float, font_size: int, color: Color) -> Label:
+	var label := Label.new()
+	var s := LabelSettings.new()
+	s.font_size = font_size
+	s.font_color = color
+	s.outline_size = maxi(5, int(font_size / 5.0))
+	s.outline_color = Color(0.04, 0.02, 0.08)
+	label.label_settings = s
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.position = pos
+	label.size = Vector2(width, font_size * 1.4)
+	label.z_index = FRONT_Z
+	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	world.add_child(label)
+	return label
