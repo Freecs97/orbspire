@@ -53,7 +53,9 @@ if ($LASTEXITCODE -eq 0) { Write-Host "Nothing changed - the site is already up 
 if ($Message -eq "") { $Message = "Update game " + (Get-Date -Format "yyyy-MM-dd HH:mm") }
 & $git -C $site commit -q -m $Message
 if ($LASTEXITCODE -ne 0) { Fail "git commit failed" }
-& $git -C $site push -q origin main
+# Log in with gh's saved GitHub login (only for this push; no global git setting changed).
+$helper = "credential.helper=!'" + ($gh -replace '\\', '/') + "' auth git-credential"
+& $git -C $site -c "credential.helper=" -c $helper push -q origin main
 if ($LASTEXITCODE -ne 0) { Fail "git push failed" }
 $sha = (& $git -C $site rev-parse HEAD).Trim()
 Write-Host "Pushed $($sha.Substring(0,7)): $Message"
