@@ -246,6 +246,31 @@ func _test_continue_and_new_game() -> void:
 	await _frames(4)
 	_check(main.battle != null and main.battle.fight_index == 0 and not main.battle.story_beat.is_open(), "Act 1 REPLAY starts at fight 1 (no intro beat)")
 
+	_log("\n== T6a: MENU button in combat (leave the fight) ==")
+	var lb = main.battle
+	await _frames(2)
+	var mb: Button = lb.menu_button
+	var vr := get_viewport().get_visible_rect()
+	var r := mb.get_global_rect()
+	_check(mb.visible and not mb.disabled and mb.text == "MENU" and r.position.y < 100 and r.end.x <= vr.size.x and r.end.x > vr.size.x - 40,
+		"MENU button sits in the top-right corner and works on your turn")
+	await _click(mb)
+	_check(lb.leave_dialog.visible and lb.board.state == Board.State.LOCKED and lb.leave_yes.text == "YES, LEAVE",
+		"tap MENU -> \"Leave this fight?\" with YES / NO, board locked underneath")
+	await _shot("s11_leave_fight_dialog")
+	await _click(lb.leave_no)
+	_check(not lb.leave_dialog.visible and lb.board.state == Board.State.READY and main.battle == lb, "NO, STAY -> back to the same fight, board ready again")
+	lb._player_turn = false   # pretend the enemies are attacking
+	await _frames(2)
+	_check(mb.disabled and not lb.open_leave_dialog(), "MENU is greyed out (does nothing) while a turn is playing out")
+	lb._player_turn = true
+	await _frames(2)
+	_check(not mb.disabled, "and lights up again on your turn")
+	await _click(mb)
+	await _click(lb.leave_yes)
+	await _frames(3)
+	_check(main.battle == null and m.visible, "YES, LEAVE -> back to the star map")
+
 	_log("\n== T6b: CONTINUE, NEW GAME ==")
 	main.show_title()
 	await _frames(3)

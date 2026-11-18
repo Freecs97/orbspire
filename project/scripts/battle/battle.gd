@@ -118,6 +118,10 @@ var last_rewards: Dictionary = {}
 signal progress_changed
 
 var story_beat: StoryBeat
+var menu_button: Button
+var leave_dialog: Control
+var leave_yes: Button
+var leave_no: Button
 
 signal fight_won(index: int)
 signal act_won(act: ActData)
@@ -226,6 +230,7 @@ func _build_scene() -> void:
 	ui.add_child(skill_popup)
 	story_beat = StoryBeat.new()
 	ui.add_child(story_beat)
+	_build_menu_ui(ui)
 	result_panel.codex_pressed.connect(func() -> void: codex_requested.emit())
 	skill_popup.use_pressed.connect(func(i: int) -> void: use_skill(i))
 	skill_popup.closed.connect(_on_popup_closed)
@@ -236,6 +241,115 @@ func _build_scene() -> void:
 	board.turn_finished.connect(_on_turn_finished)
 	result_panel.retry_pressed.connect(func() -> void: _start_battle(fight_index, StartMode.RETRY))
 	result_panel.next_pressed.connect(_on_next_pressed)
+
+
+## MENU button (top-right) + the "Leave this fight?" check.
+## Plain English: the button only works on your turn (before you pick up an
+## orb), so a fight is never cut off half-way through an attack. YES takes you
+## back to the star map; that fight starts fresh next time.
+func _build_menu_ui(ui: CanvasLayer) -> void:
+	menu_button = Button.new()
+	menu_button.text = "MENU"
+	menu_button.set_anchors_preset(Control.PRESET_TOP_RIGHT)
+	menu_button.offset_left = -170
+	menu_button.offset_right = -14
+	menu_button.offset_top = 10
+	menu_button.offset_bottom = 72
+	MenuStyle.apply(menu_button, 30)
+	menu_button.focus_mode = Control.FOCUS_NONE
+	menu_button.visible = has_home
+	menu_button.pressed.connect(open_leave_dialog)
+	ui.add_child(menu_button)
+
+	leave_dialog = Control.new()
+	leave_dialog.set_anchors_preset(Control.PRESET_FULL_RECT)
+	leave_dialog.mouse_filter = Control.MOUSE_FILTER_STOP
+	leave_dialog.visible = false
+	ui.add_child(leave_dialog)
+	var dim := ColorRect.new()
+	dim.color = Color(0.01, 0.01, 0.04, 0.8)
+	dim.set_anchors_preset(Control.PRESET_FULL_RECT)
+	dim.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	leave_dialog.add_child(dim)
+	var content := Control.new()
+	content.set_anchors_preset(Control.PRESET_CENTER)
+	content.offset_left = -540
+	content.offset_right = 540
+	content.offset_top = -960
+	content.offset_bottom = 960
+	content.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	leave_dialog.add_child(content)
+	var panel := Panel.new()
+	var sb := StyleBoxFlat.new()
+	sb.bg_color = MenuStyle.PANEL
+	sb.set_corner_radius_all(26)
+	sb.set_border_width_all(3)
+	sb.border_color = MenuStyle.NEON
+	panel.add_theme_stylebox_override("panel", sb)
+	panel.position = Vector2(100, 700)
+	panel.size = Vector2(880, 480)
+	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	content.add_child(panel)
+	var l := Label.new()
+	var s := LabelSettings.new()
+	s.font_size = 40
+	s.font_color = Color.WHITE
+	l.label_settings = s
+	l.text = "Leave this fight?\n\nYou go back to the star map.\nThis fight starts over next time."
+	l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	l.position = Vector2(100, 740)
+	l.size = Vector2(880, 260)
+	l.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	content.add_child(l)
+	leave_yes = Button.new()
+	leave_yes.text = "YES, LEAVE"
+	leave_yes.position = Vector2(150, 1030)
+	leave_yes.size = Vector2(360, 110)
+	MenuStyle.apply(leave_yes, 40, Color("ff5a5a"))
+	content.add_child(leave_yes)
+	leave_no = Button.new()
+	leave_no.text = "NO, STAY"
+	leave_no.position = Vector2(570, 1030)
+	leave_no.size = Vector2(360, 110)
+	MenuStyle.apply(leave_no, 40, MenuStyle.NEON)
+	content.add_child(leave_no)
+	leave_yes.pressed.connect(_on_leave_confirmed)
+	leave_no.pressed.connect(close_leave_dialog)
+
+
+## Can the player leave right now? (Their turn, nothing animating, no pop-up.)
+func can_leave() -> bool:
+	return has_home and _player_turn and not _busy and not result_panel.visible \
+		and not skill_popup.visible and not leave_dialog.visible \
+		and (board.state == Board.State.READY or board.state == Board.State.LOCKED)
+
+
+## Returns false (and does nothing) if it isn't safe to leave right now.
+func open_leave_dialog() -> bool:
+	if not can_leave():
+		return false
+	board.lock()   # so a tap on YES / NO can never pick up an orb underneath
+	leave_dialog.visible = true
+	return true
+
+
+func close_leave_dialog() -> void:
+	leave_dialog.visible = false
+	if _player_turn and not _busy and not result_panel.visible:
+		board.begin_player_turn()
+
+
+func _on_leave_confirmed() -> void:
+	leave_dialog.visible = false
+	_player_turn = false
+	board.lock()
+	home_requested.emit()
+
+
+func _process(_delta: float) -> void:
+	if menu_button and menu_button.visible:
+		# Dimmed while enemies attack / combos resolve; lights up on your turn.
+		menu_button.disabled = not can_leave() and not leave_dialog.visible
 
 
 ## Replace the team (tests use this; Phase 6+ team select will too). Slot 1 leads.
