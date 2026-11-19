@@ -1,0 +1,248 @@
+ORBSPIRE UNIVERSE  ·  seed 20261119
+Totals: 10 galaxies, 100 solar systems, 744 worlds, 107 singularities, 1391 wardens
+
+GALAXY 1  Orbspire Galaxy  ring 0  Lv1-30  ·  71 worlds  ·  systems by singularity: Fire 2 / Water 2 / Wood 2 / Light 2 / Dark 2  ·  pure worlds: 4
+    System  1  Orbspire System    ring 0  Lv1-14   5 worlds  singularity: Wood   worlds: Fire 1 / Water 1 / Wood 1 / Light 1 / Dark 1  (STORY)
+    System  2  Spire System       ring 1  Lv14-22   5 worlds  singularity: Water  worlds: Fire 1 / Water 1 / Wood 1 / Light 1 / Dark 1  (STORY)
+    System  3  Core System        ring 2  Lv22-30   5 worlds  singularity: Dark   worlds: Fire 1 / Water 1 / Wood 1 / Light 1 / Dark 1  (STORY)
+    System  4  Lunova System      ring 1  Lv24-26   9 worlds  singularity: Wood   worlds: Fire 2 / Water 2 / Wood 2 / Light 2 / Dark 1
+    System  5  Talundra System    ring 1  Lv24-26  10 worlds  singularity: Light  worlds: Fire 2 / Water 2 / Wood 2 / Light 2 / Dark 2
+    System  6  Halara System      ring 2  Lv26-28   6 worlds  singularity: Dark   worlds: Fire 2 / Water 1 / Wood 1 / Light 1 / Dark 1
+    System  7  Nauova System      ring 2  Lv26-28   9 worlds  singularity: Water  worlds: Fire 2 / Water 2 / Wood 2 / Light 2 / Dark 1
+    System  8  Umban System       ring 3  Lv28-30   7 worlds  singularity: Fire   worlds: Fire 2 / Water 2 / Wood 1 / Light 1 / Dark 1
+    System  9  Rhooria System     ring 3  Lv28-30   5 worlds  singularity: Fire   worlds: Fire 1 / Water 1 / Wood 1 / Light 1 / Dark 1
+    System 10  Talara System      ring 3  Lv28-30  10 worlds  singularity: Light  worlds: Fire 2 / Water 2 / Wood 2 / Light 2 / Dark 2
+
+GALAXY 2  Tide Galaxy  ring 1  Lv31-50  ·  72 worlds  ·  systems by singularity: Fire 2 / Water 2 / Wood 2 / Light 2 / Dark 2  ·  pure worlds: 11
+    System  1  Coran System       ring 0  Lv31-35  10 worlds  singularity: Fire   worlds: Fire 2 / Water 2 / Wood 2 / Light 2 / Dark 2
+    System  2  Heleth System      ring 1  Lv36-40   5 worlds  singularity: Fire   worlds: Fire 1 / Water 1 / Wood 1 / Light 1 / Dark 1
+    System  3  Zaneth System      ring 1  Lv36-40   5 worlds  singularity: Water  worlds: Fire 1 / Water 1 / Wood 1 / Light 1 / Dark 1
+    System  4  Kelari System      ring 1  Lv36-40   7 worlds  singularity: Water  worlds: Fire 2 / Water 2 / Wood 1 / Light 1 / Dark 1
+    System  5  Lyryra System      ring 2  Lv41-45   6 worlds  singularity: Wood   worlds: Fire 2 / Water 1 / Wood 1 / Light 1 / Dark 1
+    System  6  Pyrion System      ring 2  Lv41-45   6 worlds  singularity: Dark   worlds: Fire 2 / Water 1 / Wood 1 / Light 1 / Dark 1
+    System  7  Myrith System      ring 2  Lv41-45   8 worlds  singularity: Wood   worlds: Fire 2 / Water 2 / Wood 2 / Light 1 / Dark 1
+    System  8  Fenem System       ring 3  Lv46-50   7 worlds  singularity: Light  worlds: Fire 2 / Water 2 / Wood 1 / Light 1 / Dark 1
+    System  9  Zerith System      ring 3  Lv46-50   9 worlds  singularity: Light  worlds: Fire 2 / Water 2 / Wood 2 / Light 2 / Dark 1
+    System 10  Nyxan System       ring 3  Lv46-50   9 worlds  singularity: Dark   worlds: Fire 2 / Water 2 / Wood 2 / Light 2 / Dark 1
+
+GALAXY 3  Thorn Galaxy  ring 1  Lv41-60  ·  84 worlds  ·  systems by singularity: Fire 2 / Water 2 / Wood 2 / Light 2 / Dark 2  ·  pure worlds: 6
+    System  1  Solora System      ring 0  Lv41-45   8 worlds  singularity: Wood   worlds: Fire 2 / Water 2 / Wood 2 / Light 1 / Dark 1
+    System  2  Kaeoria System     ring 1  Lv46-50   7 worlds  singularity: Fire   worlds: Fire 2 / Water 2 / Wood 1 / Light 1 / Dark 1
+    System  3  Talion System      ring 1  Lv46-50   6 worlds  singularity: Wood   worlds: Fire 2 / Water 1 / Wood 1 / Light 1 / Dark 1
+    System  4  Teyeon System      ring 1  Lv46-50  10 worlds  singularity: Fire   worlds: Fire 2 / Water 2 / Wood 2 / Light 2 / Dark 2
+    System  5  Eldan System       ring 2  Lv51-55  10 worlds  singularity: Light  worlds: Fire 2 / Water 2 / Wood 2 / Light 2 / Dark 2
+    System  6  Fenion System      ring 2  Lv51-55   8 worlds  singularity: Dark   worlds: Fire 2 / Water 2 / Wood 2 / Light 1 / Dark 1
+    System  7  Cyresh System      ring 2  Lv51-55  10 worlds  singularity: Water  worlds: Fire 2 / Water 2 / Wood 2 / Light 2 / Dark 2
+    System  8  Nyxem System       ring 3  Lv56-60   8 worlds  singularity: Light  worlds: Fire 2 / Water 2 / Wood 2 / Light 1 / Dark 1
+    System  9  Teyoria System     ring 3  Lv56-60   7 worlds  singularity: Dark   worlds: Fire 2 / Water 2 / Wood 1 / Light 1 / Dark 1
+    System 10  Vorem System       ring 3  Lv56-60  10 worlds  singularity: Water  worlds: Fire 2 / Water 2 / Wood 2 / Light 2 / Dark 2
+
+GALAXY 4  Dawn Galaxy  ring 1  Lv51-70  ·  81 worlds  ·  systems by singularity: Fire 2 / Water 2 / Wood 2 / Light 2 / Dark 2  ·  pure worlds: 5
+    System  1  Coreon System      ring 0  Lv51-55   7 worlds  singularity: Light  worlds: Fire 2 / Water 2 / Wood 1 / Light 1 / Dark 1
+    System  2  Keleon System      ring 1  Lv56-60   6 worlds  singularity: Fire   worlds: Fire 2 / Water 1 / Wood 1 / Light 1 / Dark 1
+    System  3  Belith System      ring 1  Lv56-60   8 worlds  singularity: Water  worlds: Fire 2 / Water 2 / Wood 2 / Light 1 / Dark 1
+    System  4  Draundra System    ring 1  Lv56-60  10 worlds  singularity: Dark   worlds: Fire 2 / Water 2 / Wood 2 / Light 2 / Dark 2
+    System  5  Xanari System      ring 2  Lv61-65  10 worlds  singularity: Light  worlds: Fire 2 / Water 2 / Wood 2 / Light 2 / Dark 2
+    System  6  Cyrost System      ring 2  Lv61-65   6 worlds  singularity: Water  worlds: Fire 2 / Water 1 / Wood 1 / Light 1 / Dark 1
+    System  7  Eldora System      ring 2  Lv61-65   9 worlds  singularity: Dark   worlds: Fire 2 / Water 2 / Wood 2 / Light 2 / Dark 1
+    System  8  Ashyra System      ring 3  Lv66-70   9 worlds  singularity: Wood   worlds: Fire 2 / Water 2 / Wood 2 / Light 2 / Dark 1
+    System  9  Joresh System      ring 3  Lv66-70   9 worlds  singularity: Wood   worlds: Fire 2 / Water 2 / Wood 2 / Light 2 / Dark 1
+    System 10  Ithundra System    ring 3  Lv66-70   7 worlds  singularity: Fire   worlds: Fire 2 / Water 2 / Wood 1 / Light 1 / Dark 1
+
+GALAXY 5  Void Galaxy  ring 2  Lv61-80  ·  67 worlds  ·  systems by singularity: Fire 2 / Water 2 / Wood 2 / Light 2 / Dark 2  ·  pure worlds: 5
+    System  1  Zanesh System      ring 0  Lv61-65   5 worlds  singularity: Water  worlds: Fire 1 / Water 1 / Wood 1 / Light 1 / Dark 1
+    System  2  Jorux System       ring 1  Lv66-70   5 worlds  singularity: Light  worlds: Fire 1 / Water 1 / Wood 1 / Light 1 / Dark 1
+    System  3  Coryra System      ring 1  Lv66-70   8 worlds  singularity: Light  worlds: Fire 2 / Water 2 / Wood 2 / Light 1 / Dark 1
+    System  4  Galith System      ring 1  Lv66-70  10 worlds  singularity: Wood   worlds: Fire 2 / Water 2 / Wood 2 / Light 2 / Dark 2
+    System  5  Ithiel System      ring 2  Lv71-75   9 worlds  singularity: Fire   worlds: Fire 2 / Water 2 / Wood 2 / Light 2 / Dark 1
+    System  6  Talora System      ring 2  Lv71-75   6 worlds  singularity: Wood   worlds: Fire 2 / Water 1 / Wood 1 / Light 1 / Dark 1
+    System  7  Belyra System      ring 2  Lv71-75   5 worlds  singularity: Dark   worlds: Fire 1 / Water 1 / Wood 1 / Light 1 / Dark 1
+    System  8  Rhoeth System      ring 3  Lv76-80   5 worlds  singularity: Fire   worlds: Fire 1 / Water 1 / Wood 1 / Light 1 / Dark 1
+    System  9  Ithyra System      ring 3  Lv76-80   6 worlds  singularity: Dark   worlds: Fire 2 / Water 1 / Wood 1 / Light 1 / Dark 1
+    System 10  Corundra System    ring 3  Lv76-80   8 worlds  singularity: Water  worlds: Fire 2 / Water 2 / Wood 2 / Light 1 / Dark 1
+
+GALAXY 6  Ember Galaxy  ring 2  Lv71-90  ·  86 worlds  ·  systems by singularity: Fire 2 / Water 2 / Wood 2 / Light 2 / Dark 2  ·  pure worlds: 5
+    System  1  Zerundra System    ring 0  Lv71-75  10 worlds  singularity: Fire   worlds: Fire 2 / Water 2 / Wood 2 / Light 2 / Dark 2
+    System  2  Ashyra System      ring 1  Lv76-80   8 worlds  singularity: Dark   worlds: Fire 2 / Water 2 / Wood 2 / Light 1 / Dark 1
+    System  3  Talane System      ring 1  Lv76-80   8 worlds  singularity: Light  worlds: Fire 2 / Water 2 / Wood 2 / Light 1 / Dark 1
+    System  4  Oraari System      ring 1  Lv76-80  10 worlds  singularity: Wood   worlds: Fire 2 / Water 2 / Wood 2 / Light 2 / Dark 2
+    System  5  Rhoux System       ring 2  Lv81-85   9 worlds  singularity: Wood   worlds: Fire 2 / Water 2 / Wood 2 / Light 2 / Dark 1
+    System  6  Draux System       ring 2  Lv81-85   8 worlds  singularity: Fire   worlds: Fire 2 / Water 2 / Wood 2 / Light 1 / Dark 1
+    System  7  Ixora System       ring 2  Lv81-85   9 worlds  singularity: Dark   worlds: Fire 2 / Water 2 / Wood 2 / Light 2 / Dark 1
+    System  8  Umbost System      ring 3  Lv86-90   9 worlds  singularity: Water  worlds: Fire 2 / Water 2 / Wood 2 / Light 2 / Dark 1
+    System  9  Lunis System       ring 3  Lv86-90   5 worlds  singularity: Light  worlds: Fire 1 / Water 1 / Wood 1 / Light 1 / Dark 1
+    System 10  Pyrora System      ring 3  Lv86-90  10 worlds  singularity: Water  worlds: Fire 2 / Water 2 / Wood 2 / Light 2 / Dark 2
+
+GALAXY 7  Frost Galaxy  ring 2  Lv81-100  ·  76 worlds  ·  systems by singularity: Fire 2 / Water 2 / Wood 2 / Light 2 / Dark 2  ·  pure worlds: 13
+    System  1  Cyroria System     ring 0  Lv81-85   7 worlds  singularity: Wood   worlds: Fire 2 / Water 2 / Wood 1 / Light 1 / Dark 1
+    System  2  Cyrora System      ring 1  Lv86-90   7 worlds  singularity: Dark   worlds: Fire 2 / Water 2 / Wood 1 / Light 1 / Dark 1
+    System  3  Solora System      ring 1  Lv86-90   7 worlds  singularity: Water  worlds: Fire 2 / Water 2 / Wood 1 / Light 1 / Dark 1
+    System  4  Valiel System      ring 1  Lv86-90   9 worlds  singularity: Fire   worlds: Fire 2 / Water 2 / Wood 2 / Light 2 / Dark 1
+    System  5  Wyrane System      ring 2  Lv91-95   9 worlds  singularity: Light  worlds: Fire 2 / Water 2 / Wood 2 / Light 2 / Dark 1
+    System  6  Quelan System      ring 2  Lv91-95   6 worlds  singularity: Light  worlds: Fire 2 / Water 1 / Wood 1 / Light 1 / Dark 1
+    System  7  Feniel System      ring 2  Lv91-95  10 worlds  singularity: Dark   worlds: Fire 2 / Water 2 / Wood 2 / Light 2 / Dark 2
+    System  8  Halion System      ring 3  Lv96-100   9 worlds  singularity: Water  worlds: Fire 2 / Water 2 / Wood 2 / Light 2 / Dark 1
+    System  9  Oraeth System      ring 3  Lv96-100   6 worlds  singularity: Wood   worlds: Fire 2 / Water 1 / Wood 1 / Light 1 / Dark 1
+    System 10  Ulith System       ring 3  Lv96-100   6 worlds  singularity: Fire   worlds: Fire 2 / Water 1 / Wood 1 / Light 1 / Dark 1
+
+GALAXY 8  Storm Galaxy  ring 3  Lv91-105  ·  64 worlds  ·  systems by singularity: Fire 2 / Water 2 / Wood 2 / Light 2 / Dark 2  ·  pure worlds: 3
+    System  1  Solion System      ring 0  Lv91-94   5 worlds  singularity: Water  worlds: Fire 1 / Water 1 / Wood 1 / Light 1 / Dark 1
+    System  2  Nauiel System      ring 1  Lv95-98   6 worlds  singularity: Dark   worlds: Fire 2 / Water 1 / Wood 1 / Light 1 / Dark 1
+    System  3  Draiel System      ring 1  Lv95-98   6 worlds  singularity: Wood   worlds: Fire 2 / Water 1 / Wood 1 / Light 1 / Dark 1
+    System  4  Xanith System      ring 1  Lv95-98   5 worlds  singularity: Wood   worlds: Fire 1 / Water 1 / Wood 1 / Light 1 / Dark 1
+    System  5  Valova System      ring 2  Lv99-101   6 worlds  singularity: Water  worlds: Fire 2 / Water 1 / Wood 1 / Light 1 / Dark 1
+    System  6  Moresh System      ring 2  Lv99-101   6 worlds  singularity: Fire   worlds: Fire 2 / Water 1 / Wood 1 / Light 1 / Dark 1
+    System  7  Xanion System      ring 2  Lv99-101   9 worlds  singularity: Fire   worlds: Fire 2 / Water 2 / Wood 2 / Light 2 / Dark 1
+    System  8  Nyxix System       ring 3  Lv102-105   6 worlds  singularity: Dark   worlds: Fire 2 / Water 1 / Wood 1 / Light 1 / Dark 1
+    System  9  Myrora System      ring 3  Lv102-105   7 worlds  singularity: Light  worlds: Fire 2 / Water 2 / Wood 1 / Light 1 / Dark 1
+    System 10  Quelost System     ring 3  Lv102-105   8 worlds  singularity: Light  worlds: Fire 2 / Water 2 / Wood 2 / Light 1 / Dark 1
+
+GALAXY 9  Bloom Galaxy  ring 3  Lv101-115  ·  74 worlds  ·  systems by singularity: Fire 2 / Water 2 / Wood 2 / Light 2 / Dark 2  ·  pure worlds: 9
+    System  1  Queliel System     ring 0  Lv101-104  10 worlds  singularity: Light  worlds: Fire 2 / Water 2 / Wood 2 / Light 2 / Dark 2
+    System  2  Teyis System       ring 1  Lv105-108  10 worlds  singularity: Fire   worlds: Fire 2 / Water 2 / Wood 2 / Light 2 / Dark 2
+    System  3  Valux System       ring 1  Lv105-108   5 worlds  singularity: Wood   worlds: Fire 1 / Water 1 / Wood 1 / Light 1 / Dark 1
+    System  4  Fenem System       ring 1  Lv105-108  10 worlds  singularity: Dark   worlds: Fire 2 / Water 2 / Wood 2 / Light 2 / Dark 2
+    System  5  Vesane System      ring 2  Lv109-111   6 worlds  singularity: Fire   worlds: Fire 2 / Water 1 / Wood 1 / Light 1 / Dark 1
+    System  6  Umbem System       ring 2  Lv109-111   8 worlds  singularity: Light  worlds: Fire 2 / Water 2 / Wood 2 / Light 1 / Dark 1
+    System  7  Teyem System       ring 2  Lv109-111   6 worlds  singularity: Wood   worlds: Fire 2 / Water 1 / Wood 1 / Light 1 / Dark 1
+    System  8  Pyrix System       ring 3  Lv112-115   6 worlds  singularity: Water  worlds: Fire 2 / Water 1 / Wood 1 / Light 1 / Dark 1
+    System  9  Heleth System      ring 3  Lv112-115   5 worlds  singularity: Water  worlds: Fire 1 / Water 1 / Wood 1 / Light 1 / Dark 1
+    System 10  Ixost System       ring 3  Lv112-115   8 worlds  singularity: Dark   worlds: Fire 2 / Water 2 / Wood 2 / Light 1 / Dark 1
+
+GALAXY 10  Core Galaxy  ring 3  Lv111-120  ·  69 worlds  ·  systems by singularity: Fire 2 / Water 2 / Wood 2 / Light 2 / Dark 2  ·  pure worlds: 6
+    System  1  Myrix System       ring 0  Lv111-113   8 worlds  singularity: Light  worlds: Fire 2 / Water 2 / Wood 2 / Light 1 / Dark 1
+    System  2  Kelyra System      ring 1  Lv114-115   5 worlds  singularity: Wood   worlds: Fire 1 / Water 1 / Wood 1 / Light 1 / Dark 1
+    System  3  Umbari System      ring 1  Lv114-115   7 worlds  singularity: Fire   worlds: Fire 2 / Water 2 / Wood 1 / Light 1 / Dark 1
+    System  4  Quelis System      ring 1  Lv114-115   9 worlds  singularity: Light  worlds: Fire 2 / Water 2 / Wood 2 / Light 2 / Dark 1
+    System  5  Ulova System       ring 2  Lv116-118   7 worlds  singularity: Dark   worlds: Fire 2 / Water 2 / Wood 1 / Light 1 / Dark 1
+    System  6  Kaeyra System      ring 2  Lv116-118   5 worlds  singularity: Water  worlds: Fire 1 / Water 1 / Wood 1 / Light 1 / Dark 1
+    System  7  Talix System       ring 2  Lv116-118   5 worlds  singularity: Water  worlds: Fire 1 / Water 1 / Wood 1 / Light 1 / Dark 1
+    System  8  Rhoyra System      ring 3  Lv119-120  10 worlds  singularity: Dark   worlds: Fire 2 / Water 2 / Wood 2 / Light 2 / Dark 2
+    System  9  Solane System      ring 3  Lv119-120   7 worlds  singularity: Wood   worlds: Fire 2 / Water 2 / Wood 1 / Light 1 / Dark 1
+    System 10  Nauan System       ring 3  Lv119-120   6 worlds  singularity: Fire   worlds: Fire 2 / Water 1 / Wood 1 / Light 1 / Dark 1
+
+XP TABLE  (XP to reach the next level; total from Lv30)
+  Lv30 -> 31: 9375   (total since Lv30: 9375)   stats x2.550
+  Lv31 -> 32: 15345   (total since Lv30: 24720)   stats x2.600
+  Lv32 -> 33: 16680   (total since Lv30: 41400)   stats x2.650
+  Lv33 -> 34: 18068   (total since Lv30: 59468)   stats x2.700
+  Lv34 -> 35: 19508   (total since Lv30: 78976)   stats x2.750
+  Lv35 -> 36: 21000   (total since Lv30: 99976)   stats x2.800
+  Lv36 -> 37: 22545   (total since Lv30: 122521)   stats x2.850
+  Lv37 -> 38: 24142   (total since Lv30: 146663)   stats x2.900
+  Lv38 -> 39: 25793   (total since Lv30: 172456)   stats x2.950
+  Lv39 -> 40: 27495   (total since Lv30: 199951)   stats x3.000
+  Lv40 -> 41: 29250   (total since Lv30: 229201)   stats x3.050
+  Lv41 -> 42: 31058   (total since Lv30: 260259)   stats x3.100
+  Lv42 -> 43: 32918   (total since Lv30: 293177)   stats x3.150
+  Lv43 -> 44: 34830   (total since Lv30: 328007)   stats x3.200
+  Lv44 -> 45: 36795   (total since Lv30: 364802)   stats x3.250
+  Lv45 -> 46: 38813   (total since Lv30: 403615)   stats x3.300
+  Lv46 -> 47: 40883   (total since Lv30: 444498)   stats x3.350
+  Lv47 -> 48: 43005   (total since Lv30: 487503)   stats x3.400
+  Lv48 -> 49: 45180   (total since Lv30: 532683)   stats x3.450
+  Lv49 -> 50: 47407   (total since Lv30: 580090)   stats x3.500
+  Lv50 -> 51: 49688   (total since Lv30: 629778)   stats x3.550
+  Lv51 -> 52: 52020   (total since Lv30: 681798)   stats x3.600
+  Lv52 -> 53: 54405   (total since Lv30: 736203)   stats x3.650
+  Lv53 -> 54: 56842   (total since Lv30: 793045)   stats x3.700
+  Lv54 -> 55: 59332   (total since Lv30: 852377)   stats x3.750
+  Lv55 -> 56: 61875   (total since Lv30: 914252)   stats x3.800
+  Lv56 -> 57: 64470   (total since Lv30: 978722)   stats x3.850
+  Lv57 -> 58: 67118   (total since Lv30: 1045840)   stats x3.900
+  Lv58 -> 59: 69817   (total since Lv30: 1115657)   stats x3.950
+  Lv59 -> 60: 72570   (total since Lv30: 1188227)   stats x4.000
+  Lv60 -> 61: 75375   (total since Lv30: 1263602)   stats x4.050
+  Lv61 -> 62: 78233   (total since Lv30: 1341835)   stats x4.100
+  Lv62 -> 63: 81143   (total since Lv30: 1422978)   stats x4.150
+  Lv63 -> 64: 84105   (total since Lv30: 1507083)   stats x4.200
+  Lv64 -> 65: 87120   (total since Lv30: 1594203)   stats x4.250
+  Lv65 -> 66: 90188   (total since Lv30: 1684391)   stats x4.300
+  Lv66 -> 67: 93308   (total since Lv30: 1777699)   stats x4.350
+  Lv67 -> 68: 96480   (total since Lv30: 1874179)   stats x4.400
+  Lv68 -> 69: 99705   (total since Lv30: 1973884)   stats x4.450
+  Lv69 -> 70: 102982   (total since Lv30: 2076866)   stats x4.500
+  Lv70 -> 71: 106313   (total since Lv30: 2183179)   stats x4.550
+  Lv71 -> 72: 109695   (total since Lv30: 2292874)   stats x4.600
+  Lv72 -> 73: 113130   (total since Lv30: 2406004)   stats x4.650
+  Lv73 -> 74: 116617   (total since Lv30: 2522621)   stats x4.700
+  Lv74 -> 75: 120157   (total since Lv30: 2642778)   stats x4.750
+  Lv75 -> 76: 123750   (total since Lv30: 2766528)   stats x4.800
+  Lv76 -> 77: 127395   (total since Lv30: 2893923)   stats x4.850
+  Lv77 -> 78: 131093   (total since Lv30: 3025016)   stats x4.900
+  Lv78 -> 79: 134842   (total since Lv30: 3159858)   stats x4.950
+  Lv79 -> 80: 138645   (total since Lv30: 3298503)   stats x5.000
+  Lv80 -> 81: 142500   (total since Lv30: 3441003)   stats x5.050
+  Lv81 -> 82: 146408   (total since Lv30: 3587411)   stats x5.100
+  Lv82 -> 83: 150368   (total since Lv30: 3737779)   stats x5.150
+  Lv83 -> 84: 154380   (total since Lv30: 3892159)   stats x5.200
+  Lv84 -> 85: 158445   (total since Lv30: 4050604)   stats x5.250
+  Lv85 -> 86: 162563   (total since Lv30: 4213167)   stats x5.300
+  Lv86 -> 87: 166733   (total since Lv30: 4379900)   stats x5.350
+  Lv87 -> 88: 170955   (total since Lv30: 4550855)   stats x5.400
+  Lv88 -> 89: 175230   (total since Lv30: 4726085)   stats x5.450
+  Lv89 -> 90: 179558   (total since Lv30: 4905643)   stats x5.500
+  Lv90 -> 91: 183938   (total since Lv30: 5089581)   stats x5.550
+  Lv91 -> 92: 188370   (total since Lv30: 5277951)   stats x5.600
+  Lv92 -> 93: 192855   (total since Lv30: 5470806)   stats x5.650
+  Lv93 -> 94: 197392   (total since Lv30: 5668198)   stats x5.700
+  Lv94 -> 95: 201983   (total since Lv30: 5870181)   stats x5.750
+  Lv95 -> 96: 206625   (total since Lv30: 6076806)   stats x5.800
+  Lv96 -> 97: 211320   (total since Lv30: 6288126)   stats x5.850
+  Lv97 -> 98: 216068   (total since Lv30: 6504194)   stats x5.900
+  Lv98 -> 99: 220867   (total since Lv30: 6725061)   stats x5.950
+  Lv99 -> 100: 225720   (total since Lv30: 6950781)   stats x6.000
+  Lv100 -> 101: 230625   (total since Lv30: 7181406)   stats x6.050
+  Lv101 -> 102: 235582   (total since Lv30: 7416988)   stats x6.100
+  Lv102 -> 103: 240593   (total since Lv30: 7657581)   stats x6.150
+  Lv103 -> 104: 245655   (total since Lv30: 7903236)   stats x6.200
+  Lv104 -> 105: 250770   (total since Lv30: 8154006)   stats x6.250
+  Lv105 -> 106: 255938   (total since Lv30: 8409944)   stats x6.300
+  Lv106 -> 107: 261157   (total since Lv30: 8671101)   stats x6.350
+  Lv107 -> 108: 266430   (total since Lv30: 8937531)   stats x6.400
+  Lv108 -> 109: 271755   (total since Lv30: 9209286)   stats x6.450
+  Lv109 -> 110: 277133   (total since Lv30: 9486419)   stats x6.500
+  Lv110 -> 111: 282563   (total since Lv30: 9768982)   stats x6.550
+  Lv111 -> 112: 288045   (total since Lv30: 10057027)   stats x6.600
+  Lv112 -> 113: 293580   (total since Lv30: 10350607)   stats x6.650
+  Lv113 -> 114: 299168   (total since Lv30: 10649775)   stats x6.700
+  Lv114 -> 115: 304808   (total since Lv30: 10954583)   stats x6.750
+  Lv115 -> 116: 310500   (total since Lv30: 11265083)   stats x6.800
+  Lv116 -> 117: 316245   (total since Lv30: 11581328)   stats x6.850
+  Lv117 -> 118: 322043   (total since Lv30: 11903371)   stats x6.900
+  Lv118 -> 119: 327893   (total since Lv30: 12231264)   stats x6.950
+  Lv119 -> 120: 333795   (total since Lv30: 12565059)   stats x7.000
+
+SAMPLE EXPLORATION FIGHTS (tuned to the typical team at the Recommended Level)
+  1-4-1 Lunova I  Lv24  Dark
+    STAGE 1/5: THORN BRUTE (Wood) HP 978 ATK 177, UMBRA HOUND (Dark) HP 978 ATK 177  ·  good turns 3  ·  XP 570
+    STAGE 2/5: RAIN ASSASSIN (Water) HP 1985 ATK 354  ·  good turns 2  ·  XP 570
+    STAGE 3/5: VOID IMP (Dark) HP 1375 ATK 197, SHADOW THIEF (Dark) HP 1375 ATK 197  ·  good turns 4  ·  XP 684
+    STAGE 4/5  ·  WARDEN: DAWN ACOLYTE (Light) HP 3531 ATK 442  ·  good turns 3  ·  XP 855
+    STAGE 5/5  ·  WORLD BOSS: REAPER ACOLYTE (Dark) HP 6707 ATK 442  ·  good turns 9  ·  XP 1425
+  2-1-1 Coran I  Lv31  Dark
+    STAGE 1/5: ROOT CRAWLER (Wood) HP 1239 ATK 225, SUN SQUIRE (Light) HP 1239 ATK 225  ·  good turns 2  ·  XP 1535
+    STAGE 2/5: ECLIPSE ASSASSIN (Dark) HP 1239 ATK 225, PIPE CRAWLER (Water) HP 1239 ATK 225  ·  good turns 3  ·  XP 1535
+    STAGE 3/5: PLASMA HOUND (Fire) HP 1743 ATK 250, SOLAR FLARE SPRITE (Fire) HP 1743 ATK 250  ·  good turns 3  ·  XP 1841
+    STAGE 4/5  ·  WARDEN: DAWN ACOLYTE (Light) HP 4479 ATK 561  ·  good turns 3  ·  XP 2302
+    STAGE 5/5  ·  WORLD BOSS: DARK HACKER (Dark) HP 8507 ATK 561  ·  good turns 9  ·  XP 3836
+  2-8-1 Fenem I  Lv46  Water
+    STAGE 1/5: PIPE CRAWLER (Water) HP 3265 ATK 581  ·  good turns 2  ·  XP 4088
+    STAGE 2/5: MOLTEN SCRAPBOT (Fire) HP 3265 ATK 581  ·  good turns 3  ·  XP 4088
+    STAGE 3/5: GLITCH GHOST (Dark) HP 2261 ATK 323, LIGHT CULTIST (Light) HP 2261 ATK 323  ·  good turns 4  ·  XP 4906
+    STAGE 4/5  ·  WARDEN: CHLORO CULTIST (Wood) HP 5808 ATK 726  ·  good turns 3  ·  XP 6132
+    STAGE 5/5  ·  WORLD BOSS: FLOOD MEDIC (Water) HP 11032 ATK 726  ·  good turns 7  ·  XP 10221
+  5-5-3 Ithiel III  Lv72  Light
+    STAGE 1/5: HALO GUARD (Light) HP 4835 ATK 862  ·  good turns 2  ·  XP 11313
+    STAGE 2/5: CHLORO CULTIST (Wood) HP 4835 ATK 862  ·  good turns 2  ·  XP 11313
+    STAGE 3/5: FLAME TURRET (Fire) HP 3349 ATK 479, BEACON SNIPER (Light) HP 3349 ATK 479  ·  good turns 3  ·  XP 13576
+    STAGE 4/5  ·  WARDEN: REAPER ACOLYTE (Dark) HP 8601 ATK 1078  ·  good turns 5  ·  XP 16970
+    STAGE 5/5  ·  WORLD BOSS: PRISM WISP (Light) HP 16337 ATK 1078  ·  good turns 6  ·  XP 28283
+  10-9-1 Solane I  Lv119  Fire
+    STAGE 1/5: PIPE CRAWLER (Water) HP 8157 ATK 1454  ·  good turns 3  ·  XP 33380
+    STAGE 2/5: SPORE SPROUT (Wood) HP 4018 ATK 727, SOLAR FLARE SPRITE (Fire) HP 4018 ATK 727  ·  good turns 3  ·  XP 33380
+    STAGE 3/5: MIRROR MIMIC (Light) HP 5649 ATK 808, MOSS ZOMBIE (Wood) HP 5649 ATK 808  ·  good turns 3  ·  XP 40055
+    STAGE 4/5  ·  WARDEN: DROWNED DRIFTER (Water) HP 14512 ATK 1818  ·  good turns 4  ·  XP 50069
+    STAGE 5/5  ·  WORLD BOSS: MOLTEN SCRAPBOT (Fire) HP 27564 ATK 1818  ·  good turns 8  ·  XP 83449
+
+Made in 212 ms

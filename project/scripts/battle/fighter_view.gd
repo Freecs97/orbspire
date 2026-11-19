@@ -168,6 +168,14 @@ func _draw_card() -> void:
 	card.shadow_color = Color(c, 0.25 + glow * 0.55)
 	card.shadow_size = int(10 + glow * 26)
 	draw_style_box(card, rect)
+	# Dual affinity (Stage 3): a second, inner border in the SUB affinity's colour.
+	if data.sub_element >= 0:
+		var inner := StyleBoxFlat.new()
+		inner.bg_color = Color(0, 0, 0, 0)
+		inner.set_corner_radius_all(20)
+		inner.set_border_width_all(4)
+		inner.border_color = Element.color(data.sub_element)
+		draw_style_box(inner, rect.grow(-8))
 	# Face window: a slightly lighter square behind the cropped head.
 	var face := StyleBoxFlat.new()
 	face.bg_color = Color(c, 0.16 + highlight * 0.2)

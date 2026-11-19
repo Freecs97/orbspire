@@ -255,50 +255,59 @@ func _test_codex() -> void:
 
 
 func _test_continue_and_new_game() -> void:
-	_log("\n== T6: star map (test state: Act 1 completed, Act 2 unlocked) ==")
+	_log("\n== T6: universe map (test state: Act 1 completed, Act 2 unlocked) ==")
 	var rp: ResultPanel = main.battle.result_panel
-	_check(rp._next_button.text == "Back to Star Map", "after the Act: \"%s\"" % rp._next_button.text)
+	_check(rp._next_button.text == "Back to Map", "after the Act: \"%s\"" % rp._next_button.text)
 	await _click(rp._next_button)
 	await _frames(4)
-	var m: StarMap = main.star_map
-	_check(m.visible and main.battle == null, "the star map opens")
+	var m: CosmosMap = main.map
+	_check(m.visible and main.battle == null and m.level == "universe", "the universe map opens")
 	var states := []
 	for n in range(1, 11):
-		states.append(m.state(n))
+		states.append(main.journey.world_state(Cosmos.act_world_key(n)))
 	_check(states[0] == "completed" and states[1] == "current" and states.slice(2).all(func(s: String) -> bool: return s == "locked"),
 		"Act 1 completed, Act 2 unlocked, Acts 3-10 locked: %s" % [states])
-	var labels := PackedStringArray()
-	for i in 10:
-		labels.append("%s / %s" % [m._labels[i * 2].text, m._labels[i * 2 + 1].text])
-	_check(labels[0] == "Orbspire / Emberfang-9" and labels[9] == "The Core / Reaper-0", "10 labels (colony / boss) in Godot text: %s" % ", ".join(labels))
+	_check(m.nodes.size() == 10 and m.nodes[0]["data"]["name"] == "Orbspire Galaxy" and m.nodes[9]["data"]["name"] == "Core Galaxy", "10 galaxy nodes, labels in Godot text")
 	_check(m._top_labels.size() == 3 and m.settings_button != null and m.nav_buttons.size() == 5 and m.nav_buttons[0].text == "PLAY",
 		"top bar (Credits, Cores, level, Settings) and bottom nav (Play, Team, Roster, Recruit, Quests)")
+	_check(m.counter_label.text.begins_with("Worlds 1/%d" % Cosmos.total_worlds()) and m.counter_label.text.contains("Singularities 1/107"), "counters: \"%s\"" % m.counter_label.text)
 	var inside := true
-	for i in 10:
-		var p := m.node_pos(i)
-		inside = inside and p.y > StarMap.TOP_BAR_H and p.y < m.size.y - StarMap.NAV_H and p.x > 0 and p.x < m.size.x
-	_check(inside, "all 10 nodes sit between the top bar and the bottom nav")
-	await _shot("m1_star_map")
-	m.show_markers = true
-	await _frames(2)
-	await _shot("m2_star_map_calibration_markers")
-	m.show_markers = false
-	await _click(m.node_buttons[2])
-	_check(not m.panel.visible and m.toast.text == "Finish Act 2 to unlock", "tap locked Act 3: \"%s\"" % m.toast.text)
-	await _click(m.node_buttons[0])
-	_check(m.panel.visible and m.panel_intel.text == "\n".join(PackedStringArray(ACT1.intel_lines)) and m.play_button.text == "REPLAY", "tap Act 1: intel panel (3 lines) + REPLAY, no fight starts by itself")
-	_check(m.rift_button.disabled and m.rift_button.text.begins_with("SIDE RIFT"), "empty \"Side Rift - coming soon\" slot, greyed out")
-	await _shot("m3_intel_panel_act1")
+	var map_rect := Rect2(m.view.global_position, m.view.size)
+	for i in m.nodes.size():
+		inside = inside and map_rect.has_point(m.node_screen_pos(i))
+	_check(inside, "all 10 galaxies sit inside the map area at the widest zoom")
+	await _shot("m1_universe_map")
+	m.open_system(1, 1)
+	await _frames(3)
+	var act3 := -1
+	var act1 := -1
+	var act2 := -1
+	for i in m.nodes.size():
+		match int(m.nodes[i]["data"]["act"]):
+			1: act1 = i
+			2: act2 = i
+			3: act3 = i
+	_check(m.nodes.size() == 5 and act1 >= 0 and act2 >= 0 and act3 >= 0, "System 1 (Orbspire): 5 worlds = Acts 1-3 + 2 side worlds")
+	await _click(m.node_buttons[act3])
+	_check(m.panel.visible and m.panel_play.disabled and m.panel_info.text.contains("LOCKED: Clear Act 2 first"), "tap locked Act 3: preview, PLAY locked (\"Clear Act 2 first\")")
 	await _click(m.panel_close)
-	await _click(m.node_buttons[1])
-	_check(m.panel.visible and not m.play_button.disabled and m.play_button.text == "PLAY" and m.panel_intel.text.contains("Tidecoil-7"), "tap Act 2: its intel and PLAY")
-	await _shot("m4_intel_panel_act2")
-	await _click(m.play_button)
+	await _frames(12)
+	await _click(m.node_buttons[act1])
+	_check(m.panel.visible and m.panel_info.text.contains(ACT1.intel_lines[0]) and m.panel_play.text == "REPLAY", "tap Act 1: its intel lines + REPLAY, no fight starts by itself")
+	await _shot("m3_preview_act1")
+	await _click(m.panel_close)
+	await _frames(12)
+	await _click(m.node_buttons[act2])
+	_check(m.panel.visible and not m.panel_play.disabled and m.panel_play.text == "PLAY" and m.panel_info.text.contains("Tidecoil-7"), "tap Act 2: its preview and PLAY")
+	await _shot("m4_preview_act2")
+	await _click(m.panel_play)
+	if m.warn_panel.visible:
+		await _click(m.warn_go)
 	await _frames(4)
 	var b2 = main.battle
 	var owned: int = main.profile.data["units"].size()
 	_check(b2 != null and b2.act.act_number == 2 and b2.team.members.size() == mini(owned, 4) and b2.backdrop.arena.resource_path.ends_with("bg_act02_drowned_arena.png"),
-		"PLAY Act 2: your own team (%d hunters, nobody given for free) in the Drowned Metro arena" % b2.team.members.size())
+		"PLAY Act 2: your own team (%d hunters, nobody given for free) in the Drowned Metro arena" % (b2.team.members.size() if b2 else 0))
 	_check(b2.story_beat.is_open() and b2.story_beat._speaker.text == "DROWNED METRO  ·  FLOODED COLONY" and b2.story_beat._text.text.contains("Drowned Metro carried water")
 		and 2 in main.save["act_intros"], "Stage 6: Act 2 opens with its 2-line intro (first time only): \"%s\"" % b2.story_beat._text.text.replace("\n", " / "))
 	await _shot("m5a_act2_intro")
@@ -314,14 +323,18 @@ func _test_continue_and_new_game() -> void:
 	await _frames(3)
 	_check(b2.enemies[0].data.display_name == "TIDECOIL-7" and b2.enemies[0].data.art.resource_path.ends_with("boss_02_tidecoil7_flood_serpent.png"), "Act 2 boss: Tidecoil-7 with your boss art")
 	await _shot("m6_act2_boss")
-	main.show_star_map()
+	main.show_map()
 	await _frames(3)
 	await _click(m.nav_buttons[3])
 	_check(main.recruit_screen.visible and not m.visible, "the RECRUIT tab opens the Recruit screen")
 	await _click(main.recruit_screen.nav_buttons[0])
-	_check(m.visible and not main.recruit_screen.visible, "and PLAY brings the star map back")
-	await _click(m.node_buttons[0])
-	await _click(m.play_button)
+	_check(m.visible and not main.recruit_screen.visible, "and PLAY brings the map back")
+	m.open_system(1, 1)
+	await _frames(3)
+	await _click(m.node_buttons[act1])
+	await _click(m.panel_play)
+	if m.warn_panel.visible:
+		await _click(m.warn_go)
 	await _frames(4)
 	_check(main.battle != null and main.battle.fight_index == 0 and not main.battle.story_beat.is_open(), "Act 1 REPLAY starts at fight 1 (no intro beat)")
 
@@ -348,7 +361,7 @@ func _test_continue_and_new_game() -> void:
 	await _click(mb)
 	await _click(lb.leave_yes)
 	await _frames(3)
-	_check(main.battle == null and m.visible, "YES, LEAVE -> back to the star map")
+	_check(main.battle == null and m.visible, "YES, LEAVE -> back to the map")
 
 	_log("\n== T6b: CONTINUE, NEW GAME ==")
 	main.show_title()
@@ -357,7 +370,7 @@ func _test_continue_and_new_game() -> void:
 	_check(title.visible and title.main_button.text == "CONTINUE", "title now says CONTINUE")
 	await _click(title.main_button)
 	await _frames(4)
-	_check(main.star_map.visible and main.battle == null and not main.intro.is_open(), "CONTINUE goes to the star map (no Introduction)")
+	_check(main.map.visible and main.battle == null and not main.intro.is_open(), "CONTINUE goes to the map (no Introduction)")
 	main.show_title()
 	await _frames(3)
 	await _click(title.new_game_button)

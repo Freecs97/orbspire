@@ -437,7 +437,7 @@ func _test_passives() -> void:
 
 func _test_balance() -> void:
 	_log("\n== B: balance with the new skills ==")
-	var act: ActData = StarMap.ACTS[0]
+	var act: ActData = Cosmos.ACTS[0]
 	var roles := ["BERSERKER", "TITAN", "SPECTRE", "BIOTECH"]
 	var by_role := {}
 	for id in Catalog.IDS:
@@ -692,7 +692,7 @@ func _test_enemy_leaders() -> void:
 
 func _test_enemy_lab_and_drops() -> void:
 	_log("\n== EB-L: Lab, Essence drops, Recruit pools ==")
-	var a1: ActData = StarMap.ACTS[0]
+	var a1: ActData = Cosmos.ACTS[0]
 	var q := Profile.new({})
 	q.rng.seed = 21
 	q.choose_starter(Profile.STARTERS[0])
@@ -728,9 +728,11 @@ func _test_enemy_lab_and_drops() -> void:
 		var u := q.unit(uid)
 		_check(uid > 0 and u["level"] == 1 and u["stage"] == 1 and u["rarity"] == Catalog.template(id).fixed_rarity and q.data["essence"][id] == 0,
 			"Lab: 10 %s Essence -> %s at Lv1, Stage 1, %s" % [Catalog.display_name(id), Catalog.display_name(id), Catalog.rarity_name(u["rarity"])])
-	var p0 := Catalog.pool_for_rarity(0).filter(func(id: String) -> bool: return id.begins_with("enemy_"))
-	var p1 := Catalog.pool_for_rarity(1).filter(func(id: String) -> bool: return id.begins_with("enemy_"))
-	var p2 := Catalog.pool_for_rarity(2).filter(func(id: String) -> bool: return id.begins_with("enemy_"))
+	# The 10 NAMED colour versions (the Universe update adds generated ones too,
+	# tested in universe_test).
+	var p0 := Catalog.pool_for_rarity(0).filter(func(id: String) -> bool: return id.begins_with("enemy_") and not Catalog.is_variant(id))
+	var p1 := Catalog.pool_for_rarity(1).filter(func(id: String) -> bool: return id.begins_with("enemy_") and not Catalog.is_variant(id))
+	var p2 := Catalog.pool_for_rarity(2).filter(func(id: String) -> bool: return id.begins_with("enemy_") and not Catalog.is_variant(id))
 	_check(p0.size() == 7 and p1.size() == 3 and p2.is_empty(), "Recruit / fight drops: Scrap pulls can be one of 7 Scrap colour versions, Alloy pulls one of 3; the odds on screen stay exact")
 	var lab := Catalog.lab_ids()
 	_check(lab.size() == 30 and not lab.has("enemy_frost_drone"), "Lab lists 30 (20 humans + 10 enemies); colour versions aren't in the Lab (they never drop Essence)")
@@ -798,7 +800,7 @@ func _test_recolors() -> void:
 
 func _test_enemy_balance() -> void:
 	_log("\n== EB-B: balance with the enemy kits (real leader code) ==")
-	var act: ActData = StarMap.ACTS[0]
+	var act: ActData = Cosmos.ACTS[0]
 	var humans := {T.FIRE: ["berserker_01_angel_fire", "spectre_02_mage_fire"], T.WATER: ["berserker_03_thin_water", "spectre_04_assassin_water"],
 		T.WOOD: ["berserker_02_hulk_wood", "spectre_03_sniper_wood"], T.LIGHT: ["berserker_05_solar_light", "spectre_05_infiltrator_light"],
 		T.DARK: ["berserker_04_void_dark", "spectre_01_rogue_dark"]}
@@ -941,6 +943,7 @@ func _use(i: int, shot_name: String) -> void:
 	if not battle.skill_popup.visible:
 		_check(false, "skill pop-up did not open")
 		return
+	await get_tree().create_timer(SkillPopup.LOCKOUT + 0.05).timeout   # the pop-up ignores taps for 0.2 s
 	var b: Button = battle.skill_popup.use_button
 	var bp := b.get_global_rect().get_center()
 	_press(bp)

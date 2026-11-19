@@ -39,5 +39,25 @@ extends Resource
 @export_multiline var codex_cost: String = ""
 
 
+@export_group("Exploration world (made by Cosmos, never saved)")
+## "g-s-w" for a generated world; "" = a story Act.
+@export var world_key := ""
+@export var rec_level := 0
+## Highest level reachable from these fights (the galaxy cap; Galaxy 1 = 30).
+@export var level_cap := 30
+## Credits are paid as if this were Act N (0 = act_number).
+@export var reward_act := 0
+## Its Stage 5 boss is the solar system's singularity.
+@export var is_gate := false
+## All stages one affinity.
+@export var pure := false
+## The arena picture is an Act arena, hue-shifted by this much (0 = as drawn).
+@export var arena_hue := 0.0
+
+
+func is_world() -> bool:
+	return world_key != ""
+
+
 func is_built() -> bool:
 	return not fights.is_empty()

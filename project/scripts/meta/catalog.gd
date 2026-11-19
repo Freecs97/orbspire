@@ -4,6 +4,8 @@ extends RefCounted
 ##   IDS          - the 20 humans (5 per type, one per element)
 ##   ENEMY_IDS    - 10 enemies made in the Lab from their own Essence (Stage 3 Part B)
 ##   RECOLOR_IDS  - 10 colour versions of those enemies (recoloured in code)
+##   variant_ids() - every human and enemy in all 5 affinities ("<id>@water"...)
+##   DUAL         - the proposed dual-affinity Stage 3 characters
 ##
 ## Plain English: a character "id" is its art file name, e.g. berserker_02_hulk_wood.
 ## The 4 story characters keep their data in data/team/, the other 16 in data/characters/.
@@ -54,8 +56,52 @@ const ELEMENT_SUFFIX := {
 	Element.Type.LIGHT: "light", Element.Type.DARK: "dark",
 }
 
+## COLOUR VERSIONS of every human and enemy character (not bosses, not friends):
+## the same design, archetype and skills in each of the other 4 affinities,
+## recoloured in code (Recolor, no new art), stats tilted about 5%. Ids are
+## "<id>@<affinity>", e.g. "berserker_01_angel_fire@water". They come from Recruit
+## and fight drops only: never in fights, never in the Lab, no Essence. Pairs the
+## 10 named enemy colour versions (RECOLOR_IDS) already cover aren't made twice.
+const VARIANT_SEP := "@"
+## Stat tilt for the NEW affinity: [HP, ATK, RCV].
+const TILT := {
+	Element.Type.FIRE: [1.0, 1.05, 0.95], Element.Type.WATER: [1.0, 0.95, 1.05],
+	Element.Type.WOOD: [1.05, 0.95, 1.0], Element.Type.LIGHT: [0.95, 1.0, 1.05],
+	Element.Type.DARK: [0.95, 1.05, 1.0],
+}
+## Where each affinity sits on the colour wheel (degrees), to turn one into another.
+const HUE_ANCHOR := {Element.Type.FIRE: 20.0, Element.Type.WOOD: 115.0, Element.Type.WATER: 205.0,
+	Element.Type.LIGHT: 50.0, Element.Type.DARK: 280.0}
+
+## DUAL AFFINITY (proposed, needs Bailey's OK): 25% of the Stage 3 final
+## evolutions get a second (sub) affinity: 5 of 20 humans + 3 of 10 enemies.
+## Only at Stage 3. The sub affinity attacks when ITS orbs are matched, for 1/3 of
+## ATK (10% if it is the same as the main one): versatility, not raw power.
+const DUAL := {
+	"berserker_01_angel_fire": Element.Type.LIGHT,
+	"berserker_05_solar_light": Element.Type.FIRE,
+	"biotech_02_splicer_wood": Element.Type.DARK,
+	"spectre_04_assassin_water": Element.Type.DARK,
+	"titan_03_anchor_water": Element.Type.WOOD,
+	"enemy_ember_drone": Element.Type.LIGHT,
+	"enemy_vine_strangler": Element.Type.DARK,
+	"enemy_nix": Element.Type.FIRE,
+}
+## Why each second affinity fits (shown in the report for approval).
+const DUAL_WHY := {
+	"berserker_01_angel_fire": "an angel of fire: wings of light around the flame",
+	"berserker_05_solar_light": "a solar warrior: the sun's light is fire",
+	"biotech_02_splicer_wood": "a gene-splicer: living growth bent by forbidden (dark) technomancy",
+	"spectre_04_assassin_water": "an assassin: strikes from the shadows through the rain",
+	"titan_03_anchor_water": "an anchor: deep-sea growth (kelp, coral) roots it to the seabed",
+	"enemy_ember_drone": "an ember drone: its glowing core is a small lamp of light",
+	"enemy_vine_strangler": "a strangler vine: grows in the dark and chokes the light out",
+	"enemy_nix": "a void imp: hellfire burns in the void",
+}
+
 static var _cache := {}
 static var _recolor_cache := {}
+static var _variants: Array = []
 
 
 ## Everyone you can make in the Lab: the 20 humans + the 10 enemy characters.
@@ -63,24 +109,109 @@ static func lab_ids() -> Array:
 	return IDS + ENEMY_IDS
 
 
-## Every playable character (humans, enemies, enemy colour versions, friends).
+## Every playable character (humans, enemies, colour versions, friends).
 static func all_ids() -> Array:
-	return IDS + ENEMY_IDS + RECOLOR_IDS + FRIEND_IDS
+	return IDS + ENEMY_IDS + RECOLOR_IDS + FRIEND_IDS + variant_ids()
 
 
 static func is_friend(id: String) -> bool:
 	return id in FRIEND_IDS
 
 
-## Who Recruit / fight drops can give at this rarity: every human (any rarity)
-## plus the enemy colour versions whose fixed rarity is exactly this one.
-## (So the odds shown on the Recruit screen stay exact.)
+## Who Recruit / fight drops can give at this rarity: every human and every
+## human colour version (any rarity), plus the enemy colour versions whose fixed
+## rarity is exactly this one. (So the odds shown on the Recruit screen stay exact.)
 static func pool_for_rarity(rarity: int) -> Array:
 	var out: Array = IDS.duplicate()
-	for id in RECOLOR_IDS:
-		if template(id).fixed_rarity == rarity:
+	for id in variant_ids():
+		if base_of(id) in IDS:
+			out.append(id)
+	for id in RECOLOR_IDS + variant_ids():
+		if not base_of(id) in IDS and template(id).fixed_rarity == rarity:
 			out.append(id)
 	return out
+
+
+# ---------------------------------------------------------------- colour versions
+
+## Every colour version id (110: 80 human + 30 enemy).
+static func variant_ids() -> Array:
+	if _variants.is_empty():
+		var taken := {}
+		for rid in RECOLOR_IDS:
+			var rt := template(rid)
+			taken["%s|%d" % [rt.art.resource_path, rt.element]] = true
+		for id in IDS + ENEMY_IDS:
+			var t := template(id)
+			for el in ELEMENT_SUFFIX:
+				if el == t.element or taken.has("%s|%d" % [t.art.resource_path, el]):
+					continue
+				_variants.append("%s%s%s" % [id, VARIANT_SEP, ELEMENT_SUFFIX[el]])
+	return _variants
+
+
+static func is_variant(id: String) -> bool:
+	return id.contains(VARIANT_SEP)
+
+
+## Any colour version (a named enemy one or a generated one).
+static func is_colour_version(id: String) -> bool:
+	return is_variant(id) or id in RECOLOR_IDS
+
+
+static func base_of(id: String) -> String:
+	return id.get_slice(VARIANT_SEP, 0)
+
+
+static func variant_element(id: String) -> int:
+	var suffix := id.get_slice(VARIANT_SEP, 1)
+	for el in ELEMENT_SUFFIX:
+		if ELEMENT_SUFFIX[el] == suffix:
+			return el
+	return Element.Type.FIRE
+
+
+static func _make_variant(id: String) -> FighterData:
+	var base := template(base_of(id))
+	var el := variant_element(id)
+	var v: FighterData = base.duplicate()
+	v.element = el
+	v.design_id = id
+	var old_word := Element.display_name(base.element).capitalize()
+	var new_word := Element.display_name(el).capitalize()
+	v.title = base.title.replace(old_word, new_word) if base.title.contains(old_word) else "%s %s" % [new_word, base.title]
+	var tilt: Array = TILT[el]
+	v.max_hp = roundi(base.max_hp * float(tilt[0]))
+	v.atk = roundi(base.atk * float(tilt[1]))
+	v.rcv = roundi(base.rcv * float(tilt[2]))
+	v.recolor_hue = float(HUE_ANCHOR[el]) - float(HUE_ANCHOR.get(base.element, 20.0))
+	v.recolor_value = 1.0
+	v.recolor_tint = Color(1, 1, 1, 0)
+	if el == Element.Type.LIGHT:
+		v.recolor_value = 1.3
+		v.recolor_tint = Color(1, 0.85, 0.45, 0.3)
+	elif el == Element.Type.DARK:
+		v.recolor_value = 0.65
+		v.recolor_tint = Color(0.65, 0.35, 1, 0.35)
+	elif base.element == Element.Type.DARK:
+		v.recolor_value = 1.25
+	elif base.element == Element.Type.LIGHT:
+		v.recolor_value = 0.9
+	return v
+
+
+# ---------------------------------------------------------------- dual affinity
+
+## The sub affinity of a character at this evolution stage (-1 = none). Stage 3 only.
+static func sub_element(id: String, stage: int) -> int:
+	if stage < 3:
+		return -1
+	return int(DUAL.get(base_of(id), -1))
+
+
+## Its planned sub affinity, whatever its stage (-1 = not a dual character).
+static func dual_of(id: String) -> int:
+	return int(DUAL.get(base_of(id), -1))
 
 
 ## The playable enemy whose OWN Essence this enemy drops ("" if none).
@@ -92,8 +223,11 @@ static func own_essence_id(enemy: FighterData) -> String:
 
 static func template(id: String) -> FighterData:
 	if not _cache.has(id):
-		var path: String = STORY_IDS.get(id, "res://data/characters/%s.tres" % id)
-		_cache[id] = load(path)
+		if is_variant(id):
+			_cache[id] = _make_variant(id)
+		else:
+			var path: String = STORY_IDS.get(id, "res://data/characters/%s.tres" % id)
+			_cache[id] = load(path)
 	return _cache[id]
 
 
@@ -136,6 +270,13 @@ static func essence_for(enemy: FighterData, act_number: int) -> String:
 ## The character's art at an evolution stage (1-3). Stage 2 / 3 art lives next to
 ## the base art as <id>_stage2.png / <id>_stage3.png; falls back to the base art.
 static func art(id: String, stage := 1) -> Texture2D:
+	if is_variant(id):
+		# A colour version: the original's art at this stage, recoloured in code (cached).
+		var key := "%s#%d" % [id, stage]
+		if not _recolor_cache.has(key):
+			var v := template(id)
+			_recolor_cache[key] = Recolor.apply(art(base_of(id), stage), v.recolor_hue, v.recolor_value, v.recolor_tint)
+		return _recolor_cache[key]
 	if stage > 1:
 		var path := "res://assets/characters/%s/%s_stage%d.png" % [id.get_slice("_", 0), id, stage]
 		if ResourceLoader.exists(path):

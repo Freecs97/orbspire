@@ -33,7 +33,7 @@ func _ready() -> void:
 			await _shot("gallery_act%02d_boss_taunt" % n)   # Stage 6: every boss has a taunt
 		await _settle(main)
 		await _shot("gallery_act%02d_boss" % n)
-		main.show_star_map()
+		main.show_map()
 		await _frames(3)
 	await _shot("gallery_star_map_all_cleared")
 	if FileAccess.file_exists("user://gallery_save.json"):

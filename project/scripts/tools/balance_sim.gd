@@ -56,8 +56,23 @@ static func attack(team: Array[FighterData], groups: Array, combos: int, enemies
 			var e := enemies[t]
 			# The enemy is passed so HP-based leaders (Cold Precision, Backstab, Void Hunger) count.
 			var bonus := CombatRules.leader_multiplier(team[0], m, groups, combos, e) * CombatRules.passive_multiplier(m, groups, combos, e, false)
-			var dmg := CombatRules.after_def(DamageCalculator.attack_damage(m.atk, orbs, combos, m.element, e.data.element, bonus), e)
+			var dmg := CombatRules.after_def(DamageCalculator.attack_damage(m.atk, orbs, combos, m.element, e.data.element, bonus), e, m.element)
 			total += e.take_hit(dmg, CombatRules.breaks_armor(m, groups), CombatRules.ignores_armor(m, groups))
+	# Dual affinity (Stage 3): the sub affinity's orbs make a second, smaller hit.
+	for m in team:
+		if m.sub_element < 0:
+			continue
+		var sub_orbs := 0
+		for g in groups:
+			if g["type"] == m.sub_element:
+				sub_orbs += (g["cells"] as Array).size()
+		if sub_orbs == 0:
+			continue
+		for t in CombatRules.targets_for(m, groups, enemies, -1):
+			var e := enemies[t]
+			var bonus := CombatRules.leader_multiplier(team[0], m, groups, combos, e)
+			var dmg := CombatRules.after_def(DamageCalculator.attack_damage(roundi(m.atk * CombatRules.sub_share(m)), sub_orbs, combos, m.sub_element, e.data.element, bonus), e, m.sub_element)
+			total += e.take_hit(dmg, false, false)
 	return total
 
 

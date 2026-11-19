@@ -215,7 +215,7 @@ func _test_drops() -> void:
 	_check(text.contains("ULTRA RARE! JAKE (Prime) joined your team!"), "the result screen says so: \"%s\"" % text.get_slice("\n", 1))
 	var w := Profile.new({})
 	w.choose_starter(Profile.STARTERS[0])
-	var r := w.fight_rewards(StarMap.ACTS[0].fights[1], 1, true, w.team_uids(3), false, 2)
+	var r := w.fight_rewards(Cosmos.ACTS[0].fights[1], 1, true, w.team_uids(3), false, 2)
 	_check(r.has("friend"), "every won fight rolls for it (fight_rewards has a \"friend\" entry)")
 
 
@@ -361,7 +361,7 @@ func _test_friend_passives() -> void:
 
 func _test_balance() -> void:
 	_log("\n== FB: not overpowered (the same Act 1 balance test every character passes) ==")
-	var act: ActData = StarMap.ACTS[0]
+	var act: ActData = Cosmos.ACTS[0]
 	var humans := {T.FIRE: ["berserker_01_angel_fire", "spectre_02_mage_fire"], T.LIGHT: ["berserker_05_solar_light", "spectre_05_infiltrator_light"], T.DARK: ["berserker_04_void_dark", "spectre_01_rogue_dark"]}
 	var trio_ok := true
 	var lead_ok := true

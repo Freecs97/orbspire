@@ -270,14 +270,29 @@ func _fill(u: Dictionary) -> void:
 	# Stats.
 	stats_label.text = "HP %d     ATK %d     RCV %d" % [f.max_hp, f.atk, f.rcv]
 	var cap := p.level_cap(stage)
+	var aff := Element.display_name(f.element).capitalize()
+	var dual := Catalog.dual_of(String(u.get("id", "")))
+	if f.sub_element >= 0:
+		aff += " + %s (dual)" % Element.display_name(f.sub_element).capitalize()
+	elif dual >= 0:
+		aff += " (+ %s at Stage 3)" % Element.display_name(dual).capitalize()
 	level_label.text = "LEVEL %d  (Stage %d cap: Lv%d)\nAFFINITY  %s   ·   ARCHETYPE  %s   ·   RARITY  %s" % [level, stage, cap,
-		Element.display_name(f.element).capitalize(), ROLE_WORDS[f.role] if f.role < 4 else "Enemy", Catalog.rarity_name(rarity)]
+		aff, ROLE_WORDS[f.role] if f.role < 4 else "Enemy", Catalog.rarity_name(rarity)]
+	if profile:
+		cap = profile.level_cap(u)   # the galaxy cap too (Galaxy 1 = Lv30)
 	var ratio := 1.0
 	if profile == null:
 		xp_label.text = "Test fight: no save"
 		ratio = 0.0
 	elif level >= cap:
-		xp_label.text = "MAX LEVEL" if cap >= p.max_level else "Lv%d CAP: evolve to level further" % cap
+		if cap >= p.max_level:
+			xp_label.text = "MAX LEVEL"
+		elif profile.at_galaxy_cap(u):
+			xp_label.text = "Lv%d: galaxy cap (a farther galaxy lets you level on)" % cap
+		elif stage >= p.built_stages:
+			xp_label.text = "Lv%d: top level for now (Stage 4 evolution comes later)" % cap
+		else:
+			xp_label.text = "Lv%d CAP: evolve to level further" % cap
 	else:
 		var need := p.xp_to_next(level)
 		ratio = clampf(float(u["xp"]) / maxi(need, 1), 0.0, 1.0)
@@ -339,7 +354,7 @@ func _fill(u: Dictionary) -> void:
 	elif Catalog.lab_ids().has(id):
 		var have := int(profile.data["essence"].get(id, 0)) if profile else 0
 		essence_label.text = "%s Essence: %d / %d. At %d you can craft another one in the Lab." % [f.display_name, have, e.essence_to_craft, e.essence_to_craft]
-	elif Catalog.RECOLOR_IDS.has(id):
+	elif Catalog.is_colour_version(id):
 		essence_label.text = "A colour version: found through Recruit and fight drops. No Essence."
 	else:
 		essence_label.text = "No Essence for this one."
@@ -352,9 +367,10 @@ func _refresh_buttons(u: Dictionary) -> void:
 	var has_save := profile != null
 	use_core_button.visible = has_save and not in_battle
 	evolve_button.visible = has_save and not in_battle
-	lock_button.visible = has_save
-	retire_button.visible = has_save
-	note_label.text = "Train and evolve from the Roster (not mid-fight)." if has_save and in_battle else ("" if has_save else "Test fight: no save to change.")
+	# In combat this screen is READ-ONLY: no training, evolving, locking or retiring.
+	lock_button.visible = has_save and not in_battle
+	retire_button.visible = has_save and not in_battle
+	note_label.text = "Read-only in combat. Train, evolve and change the team from the Roster." if has_save and in_battle else ("" if has_save else "Test fight: no save to change.")
 	if not has_save:
 		return
 	var stage := int(u["stage"])

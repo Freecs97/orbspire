@@ -20,7 +20,8 @@ const TEAM_SLOTS := 4
 ## switch it off so a 1-in-400 friend can't join their teams at random.
 static var friend_drops := true
 const DEFAULTS := {"units": [], "next_uid": 1, "team": [], "credits": 0, "cores": 0, "keys": 0,
-	"essence": {}, "roster_cap": 30, "first_clears": [], "starter": "", "fight_clears": []}
+	"essence": {}, "roster_cap": 30, "first_clears": [], "starter": "", "fight_clears": [], "level_ceiling": 30,
+	"explore_clears": []}
 
 var data: Dictionary
 var rng := RandomNumberGenerator.new()
@@ -77,13 +78,25 @@ func add_unit(id: String, rarity: int, level := 1) -> int:
 	return uid
 
 
-## Highest level this unit can reach at its evolution stage (Stage 1 = Lv15).
+## Highest level this unit can reach right now: its evolution stage's cap
+## (Stage 1 = Lv15, 2 = Lv30, 3 = Lv60) and the galaxy cap you have unlocked
+## (Galaxy 1 = Lv30; it goes up when you reach a farther galaxy).
 func level_cap(u: Dictionary) -> int:
-	return PROGRESSION.level_cap(int(u.get("stage", 1)))
+	return mini(PROGRESSION.level_cap(int(u.get("stage", 1))), int(data.get("level_ceiling", 30)))
+
+
+## True if this unit is held back by the GALAXY cap, not by its evolution stage.
+func at_galaxy_cap(u: Dictionary) -> bool:
+	return int(u["level"]) >= int(data.get("level_ceiling", 30)) and int(data.get("level_ceiling", 30)) < PROGRESSION.level_cap(int(u.get("stage", 1)))
 
 
 ## The highest Act you have unlocked (1 + Acts cleared). Sets the Recruit odds band.
+## Galaxies 2-10: once a hunter reaches Lv31 (a Ring 1 galaxy's Recommended Level)
+## the odds move to the exploration band ("Act 11"), where Singularity can also
+## come from Advanced / Elite Recruit.
 func progress_act() -> int:
+	if highest_level() > PROGRESSION.stat_linear_until:
+		return 11
 	var best := 0
 	for a in data["first_clears"]:
 		best = maxi(best, int(a))
@@ -125,6 +138,7 @@ func fighter(uid: int) -> FighterData:
 	f.cooldown_cut = stage - 1
 	f.passives_unlocked = mini((1 if u["level"] >= ECONOMY.passive_1_level else 0) + stage - 1, base.passives.size())
 	f.art = Catalog.art(u["id"], stage)
+	f.sub_element = Catalog.sub_element(u["id"], stage)
 	return f
 
 
@@ -206,7 +220,9 @@ func xp_falloff_for(uids: Array, fight_level: int) -> float:
 
 ## Give XP to these units (catch-up bonus for ones far below your highest;
 ## less XP from fights far below the team). Returns lines like "MIRA SOLACE Lv10! Passive unlocked".
-func grant_xp(uids: Array, amount: int, fight_level := 0) -> Array[String]:
+## galaxy_cap > 0: this fight's galaxy cap (you can't level past it while you
+## fight in that galaxy, e.g. Lv30 in Galaxy 1).
+func grant_xp(uids: Array, amount: int, fight_level := 0, galaxy_cap := 0) -> Array[String]:
 	var lines: Array[String] = []
 	var top := highest_level()
 	var falloff := xp_falloff_for(uids, fight_level) if fight_level > 0 else 1.0
@@ -219,20 +235,38 @@ func grant_xp(uids: Array, amount: int, fight_level := 0) -> Array[String]:
 		elif gap >= ECONOMY.catch_up_small_gap:
 			mult *= ECONOMY.catch_up_small_mult
 		var before: int = u["level"]
-		add_xp(u, roundi(amount * mult))
+		add_xp(u, roundi(amount * mult), galaxy_cap)
 		if u["level"] > before:
 			var line := "%s Lv%d!" % [Catalog.display_name(u["id"]), u["level"]]
 			if before < ECONOMY.passive_1_level and u["level"] >= ECONOMY.passive_1_level:
 				line += " Passive unlocked"
-			if u["level"] >= level_cap(u):
-				line += " (Lv%d cap: evolve to go higher)" % level_cap(u)
+			var cap := _cap_for(u, galaxy_cap)
+			if u["level"] >= cap:
+				if cap < PROGRESSION.level_cap(int(u["stage"])):
+					line += " (Lv%d: galaxy cap)" % cap
+				elif int(u["stage"]) >= PROGRESSION.built_stages:
+					line += " (Lv%d: top level for now)" % cap
+				else:
+					line += " (Lv%d cap: evolve to go higher)" % cap
 			lines.append(line)
 	return lines
 
 
-## Add XP and level up, never past the cap for the unit's evolution stage.
-func add_xp(u: Dictionary, amount: int) -> void:
+func _cap_for(u: Dictionary, galaxy_cap: int) -> int:
 	var cap := level_cap(u)
+	if galaxy_cap > 0:
+		cap = mini(cap, galaxy_cap)
+	return cap
+
+
+## Add XP and level up, never past the cap (evolution stage, galaxy). A unit
+## already ABOVE a cap (e.g. Lv45 replaying Galaxy 1) keeps its level; it just
+## gains nothing there.
+func add_xp(u: Dictionary, amount: int, galaxy_cap := 0) -> void:
+	var cap := _cap_for(u, galaxy_cap)
+	if u["level"] >= cap:
+		u["xp"] = 0
+		return
 	u["xp"] = int(u["xp"]) + amount
 	while u["level"] < cap and u["xp"] >= PROGRESSION.xp_to_next(u["level"]):
 		u["xp"] -= PROGRESSION.xp_to_next(u["level"])
@@ -248,7 +282,10 @@ func add_xp(u: Dictionary, amount: int) -> void:
 ## WIN: XP to the team, Credits, Essence drops; first Act clear: bonus + Keys.
 ## LOSE: a share of the Credits only.
 ## fight_no (1-8) turns on Scrap character drops; 0 = no drop (tests, sims).
-func fight_rewards(fight: FightData, act_number: int, won: bool, team: Array, is_act_clear: bool, fight_no := 0) -> Dictionary:
+## Exploration worlds pass galaxy_cap (no levelling past it), world_key and is_gate
+## (a system's singularity gives 1 Key + bonus Credits the first time) and
+## fight_no 0 (no Scrap drops); act_number is the world's reward level.
+func fight_rewards(fight: FightData, act_number: int, won: bool, team: Array, is_act_clear: bool, fight_no := 0, galaxy_cap := 30, world_key := "", is_gate := false) -> Dictionary:
 	var e := ECONOMY
 	var credits := e.win_credits_base + e.win_credits_per_act * act_number
 	var top := fight.enemies[0]
@@ -264,7 +301,7 @@ func fight_rewards(fight: FightData, act_number: int, won: bool, team: Array, is
 	r["credits"] = credits
 	r["xp"] = fight.xp
 	r["xp"] = roundi(fight.xp * xp_falloff_for(team, fight.expected_level))
-	r["level_ups"] = grant_xp(team, fight.xp, fight.expected_level)
+	r["level_ups"] = grant_xp(team, fight.xp, fight.expected_level, galaxy_cap)
 	# Essence: each enemy drops for a human character, or (the 10 playable
 	# enemies, 50/50) for ITSELF. Regular enemies: 30% chance of 2.
 	for d in fight.enemies:
@@ -282,7 +319,13 @@ func fight_rewards(fight: FightData, act_number: int, won: bool, team: Array, is
 				id = own
 			r["essence"][id] = int(r["essence"].get(id, 0)) + n
 			data["essence"][id] = int(data["essence"].get(id, 0)) + n
-	if is_act_clear and not act_number in data["first_clears"]:
+	if world_key != "":
+		if is_act_clear and is_gate and not world_key in data["explore_clears"]:
+			data["explore_clears"].append(world_key)
+			r["credits"] += e.act_clear_bonus_per_act * act_number / 2
+			r["keys"] = e.keys_per_act_clear
+			data["keys"] += r["keys"]
+	elif is_act_clear and not act_number in data["first_clears"]:
 		data["first_clears"].append(act_number)
 		r["credits"] += e.act_clear_bonus_per_act * act_number
 		r["keys"] = e.keys_per_act_clear
@@ -290,6 +333,7 @@ func fight_rewards(fight: FightData, act_number: int, won: bool, team: Array, is
 	data["credits"] += r["credits"]
 	if fight_no > 0:
 		r["new_unit"] = _scrap_drop(fight, act_number, fight_no)
+	if fight_no > 0 or world_key != "":
 		r["friend"] = friend_drop() if friend_drops else {}
 	return r
 
@@ -333,7 +377,7 @@ func _scrap_drop(fight: FightData, act_number: int, fight_no: int) -> Dictionary
 		return {"id": "", "roster_full": true}
 	var pool: Array = Catalog.pool_for_rarity(0)   # humans + Scrap enemy colour versions
 	if guaranteed and fight_no == 1:
-		var acts := StarMap.ACTS
+		var acts := Cosmos.ACTS
 		var boss: FighterData = acts[act_number - 1].fights[-1].enemies[0]
 		var counter := Element.beaten_by(boss.element)
 		pool = pool.filter(func(id: String) -> bool: return Catalog.template(id).element == counter)
@@ -509,14 +553,14 @@ func toggle_lock(uid: int) -> void:
 
 ## JSON turns every number into a float; put the ints back.
 func _fix_types() -> void:
-	for k in ["next_uid", "credits", "cores", "keys", "roster_cap"]:
+	for k in ["next_uid", "credits", "cores", "keys", "roster_cap", "level_ceiling"]:
 		data[k] = int(data[k])
 	for u in data["units"]:
 		if not u.has("stage"):
 			u["stage"] = 1
 		for k in ["uid", "level", "xp", "rarity", "cores", "stage"]:
 			u[k] = int(u[k])
-		u["level"] = mini(int(u["level"]), level_cap(u))   # old saves: clamp to the new cap
+		u["level"] = mini(int(u["level"]), PROGRESSION.level_cap(int(u["stage"])))   # old saves: clamp to the stage cap
 	var team := []
 	for t in data["team"]:
 		team.append(int(t))

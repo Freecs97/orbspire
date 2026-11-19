@@ -91,7 +91,7 @@ func _test_names() -> void:
 		spot = spot and Catalog.template(id).display_name == parts[0] and Catalog.template(id).title == parts[1]
 	_check(all_named and spot, "all 20 hunters have a name + title (e.g. KAELA RYNN · Fire Berserker, ROWAN TIDE · Water Titan)")
 	var light_dark := {}
-	for a in StarMap.ACTS:
+	for a in Cosmos.ACTS:
 		for f in a.fights:
 			for d in f.enemies:
 				if (d.element == Element.Type.LIGHT or d.element == Element.Type.DARK) and not d.is_boss or (d.is_boss and d.title != ""):
@@ -123,7 +123,7 @@ func _test_battle_levels_and_rewards() -> void:
 	await _click(b.result_panel._next_button)
 	await _frames(3)
 	_check(b.team.max_hp > hp_before, "next fight: the team has its new Lv2 stats (HP %d -> %d)" % [hp_before, b.team.max_hp])
-	main.show_star_map()
+	main.show_map()
 	await _frames(2)
 
 
@@ -152,7 +152,7 @@ func _test_xp_rules() -> void:
 	p.add_xp(p.unit(cap), 999999)
 	_check(p.unit(cap)["level"] == 30, "Stage 3 (both evolutions) caps at Lv30")
 	var drops := p.add_unit("titan_04_void_dark", 2, 14)
-	var lowfight: FightData = StarMap.ACTS[0].fights[0]
+	var lowfight: FightData = Cosmos.ACTS[0].fights[0]
 	_check(is_equal_approx(p.xp_falloff_for([drops], lowfight.expected_level), 0.25) and is_equal_approx(p.xp_falloff_for([drops], 12), 1.0) and is_equal_approx(p.xp_falloff_for([drops], 11), 0.5),
 		"XP falloff: a fight 13 levels below the team gives x0.25, 3 below x0.5, 2 below full XP")
 	p.unit(drops)["level"] = 15
@@ -166,8 +166,8 @@ func _test_xp_rules() -> void:
 
 func _test_credits_rules() -> void:
 	_log("\n== C4: Credits (win / lose / mini-boss / boss / first clear + Key) ==")
-	var a1: ActData = StarMap.ACTS[0]
-	var a3: ActData = StarMap.ACTS[2]
+	var a1: ActData = Cosmos.ACTS[0]
+	var a3: ActData = Cosmos.ACTS[2]
 	p.rng.seed = 7
 	var c0: int = p.data["credits"]
 	var r := p.fight_rewards(a3.fights[0], 3, false, [], false)
@@ -189,7 +189,7 @@ func _test_essence_rules() -> void:
 	}
 	var ok := true
 	var shown := PackedStringArray()
-	for f in StarMap.ACTS[0].fights:
+	for f in Cosmos.ACTS[0].fights:
 		var d: FighterData = f.enemies[0]
 		if map.has(d.display_name):
 			var got := Catalog.essence_for(d, 1)
@@ -197,7 +197,7 @@ func _test_essence_rules() -> void:
 			shown.append("%s -> %s" % [d.display_name, Catalog.display_name(got)])
 	_check(ok, "each enemy drops Essence for one specific character: %s" % ", ".join(shown))
 	p.rng.seed = 11
-	var regular: FightData = StarMap.ACTS[0].fights[3]   # 2 Spore Sprouts
+	var regular: FightData = Cosmos.ACTS[0].fights[3]   # 2 Spore Sprouts
 	var drops := 0
 	var trials := 3000
 	for k in trials:
@@ -208,20 +208,20 @@ func _test_essence_rules() -> void:
 	_check(per_enemy > 0.54 and per_enemy < 0.66, "regular enemies: 30%% chance of 2 Essence = %.2f Essence per enemy per win (target 0.60; Stage 3 Part B, was 15%% x 1)" % per_enemy)
 	var mini_ok := true
 	for k in 200:
-		var r := p.fight_rewards(StarMap.ACTS[0].fights[2], 1, true, [], false)
+		var r := p.fight_rewards(Cosmos.ACTS[0].fights[2], 1, true, [], false)
 		var n := 0
 		for id in r["essence"]:
 			n += r["essence"][id]
 		mini_ok = mini_ok and n >= 1 and n <= 2
 	_check(mini_ok, "mini-bosses always drop 1-2 Essence")
-	var rb := p.fight_rewards(StarMap.ACTS[0].fights[7], 1, true, [], false)
+	var rb := p.fight_rewards(Cosmos.ACTS[0].fights[7], 1, true, [], false)
 	_check(rb["essence"].get("berserker_01_angel_fire", 0) == 3, "the boss always drops 3 Essence (%s)" % [rb["essence"]])
 
 
 ## Stage 2: Scrap characters from fights (a separate profile, so the main one stays small).
 func _test_scrap_drops() -> void:
 	_log("\n== C5b: Scrap characters from fights ==")
-	var a1: ActData = StarMap.ACTS[0]
+	var a1: ActData = Cosmos.ACTS[0]
 	for sid in Profile.STARTERS:
 		var q := Profile.new({})
 		q.rng.seed = 3
@@ -250,7 +250,7 @@ func _test_scrap_drops() -> void:
 	var act3_drops := 0
 	for k in 300:
 		boss_drops += 1 if q.fight_rewards(a1.fights[7], 1, true, [], false, 8)["new_unit"].has("id") else 0
-		act3_drops += 1 if q.fight_rewards(StarMap.ACTS[2].fights[0], 3, true, [], false, 1)["new_unit"].has("id") else 0
+		act3_drops += 1 if q.fight_rewards(Cosmos.ACTS[2].fights[0], 3, true, [], false, 1)["new_unit"].has("id") else 0
 	_check(boss_drops == 0 and act3_drops == 0, "bosses never drop one, and from Act 3 on they stop (%d boss, %d Act 3 in 300 wins each)" % [boss_drops, act3_drops])
 	var f := Profile.new({})
 	f.choose_starter(Profile.STARTERS[0])
@@ -456,7 +456,7 @@ func _test_team_select() -> void:
 	await _frames(4)
 	var b = main.battle
 	_check(b.team.members.size() == 3 and b.team.members[0].display_name == "IRIS VALE" and b.team.leader().leader_skill == &"leader_riptide", "Act 1 fights with the chosen team (leader: %s, her own leader skill Riptide)" % b.team.members[0].display_name)
-	main.show_star_map()
+	main.show_map()
 	await _frames(2)
 
 

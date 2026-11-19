@@ -86,16 +86,21 @@ static func at_level(d: FighterData, level: int) -> FighterData:
 ## Preview level for fights with no save behind them (tests, the balance tools):
 ## like at_level, but above the Stage 1 cap (Lv15) a hunter must have evolved once
 ## in the real game, so it gets Evolution 1's +10% stats and cooldown -1 too.
+## Above Lv30 (the Stage 2 cap) it must have evolved twice: Evolution 2 too.
 static func preview_at_level(d: FighterData, level: int) -> FighterData:
 	var c := at_level(d, level)
-	if level <= PROGRESSION.level_cap(1):
+	var evos := 0
+	for s in range(1, PROGRESSION.built_stages):
+		if level > PROGRESSION.level_cap(s):
+			evos = s
+	if evos == 0:
 		return c
-	var m := 1.0 + ECONOMY.evo_stat_bonus
+	var m := 1.0 + ECONOMY.evo_stat_bonus * evos
 	c.max_hp = roundi(c.max_hp * m)
 	c.atk = roundi(c.atk * m)
 	c.rcv = roundi(c.rcv * m)
-	c.stage = maxi(c.stage, 2)
-	c.cooldown_cut = maxi(c.cooldown_cut, 1)
+	c.stage = maxi(c.stage, 1 + evos)
+	c.cooldown_cut = maxi(c.cooldown_cut, evos)
 	return c
 
 
@@ -103,10 +108,29 @@ const ECONOMY: EconomyTuning = preload("res://data/economy.tres")
 
 
 ## DEF: an orb attack loses the enemy's DEF in damage, but always does at least 1.
-static func after_def(damage: int, enemy: Enemy) -> int:
+## Element Shield (exploration Wardens and bosses only): an orb attack of the
+## element it RESISTS does nothing at all (a Water boss shrugs off Fire), so a
+## team of one affinity can't clear a galaxy on its own.
+static func after_def(damage: int, enemy: Enemy, attacker_element := -1) -> int:
+	if attacker_element >= 0 and shields_against(enemy.data, attacker_element):
+		return 0
 	if enemy.data.def <= 0 or damage <= 0:
 		return damage
 	return maxi(damage - enemy.data.def, 1)
+
+
+## Dual affinity: the sub affinity hits for 1/3 of ATK, or 10% if it is the same
+## as the main affinity.
+const SUB_SHARE := 1.0 / 3.0
+const SUB_SAME_SHARE := 0.1
+
+
+static func sub_share(m: FighterData) -> float:
+	return SUB_SAME_SHARE if m.sub_element == m.element else SUB_SHARE
+
+
+static func shields_against(d: FighterData, attacker_element: int) -> bool:
+	return d.element_shield and Element.multiplier(attacker_element, d.element) < 1.0
 
 
 # ---------------------------------------------------------------- board patterns

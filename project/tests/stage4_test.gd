@@ -211,7 +211,7 @@ func _test_enemy_size() -> void:
 	var fights := 0
 	var top_min := 9999.0
 	var top_name := ""
-	for act in StarMap.ACTS:
+	for act in Cosmos.ACTS:
 		for i in act.fights.size():
 			var f: FightData = act.fights[i]
 			fights += 1
@@ -240,7 +240,7 @@ func _test_enemy_size() -> void:
 	var bar_bottom: float = battle.ENEMY_FEET_Y + 26 + 30
 	var plate_top: float = battle.TEAM_FEET_Y - FighterView.DEFAULT_CARD.y + 22 - 16
 	_check(bar_bottom < plate_top, "enemy HP bars (end y %.0f) stay above the party plates (start y %.0f)" % [bar_bottom, plate_top])
-	var act1: ActData = StarMap.ACTS[0]
+	var act1: ActData = Cosmos.ACTS[0]
 	battle.set_team([Catalog.template("berserker_01_angel_fire"), Catalog.template("biotech_01_medic_water"), Catalog.template("titan_01_shield_wood")])
 	battle.test_fight_override = null
 	battle.act_fights = act1.fights

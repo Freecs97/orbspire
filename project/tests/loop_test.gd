@@ -468,6 +468,7 @@ func _test_active_skills() -> void:
 	await _click_card(1)
 	_check(battle.skill_popup.visible and battle.skill_popup.use_button.disabled, "tapping a card that is still charging opens the pop-up with USE greyed out")
 	await _shot("a_popup_charging")
+	await get_tree().create_timer(SkillPopup.LOCKOUT + 0.05).timeout   # the pop-up ignores taps for 0.2 s
 	await _click(battle.skill_popup.close_button)
 	_ready_skill(0)
 	var turns_before: int = battle.turn_count
@@ -723,7 +724,7 @@ func _test_passives() -> void:
 
 func _test_stacking() -> void:
 	_log("\n== S: damage stacking (numbers for tuning) ==")
-	var boss_hp: int = StarMap.ACTS[0].fights[7].enemies[0].max_hp
+	var boss_hp: int = Cosmos.ACTS[0].fights[7].enemies[0].max_hp
 	var empty: Array = []
 	var fire5 := [{"type": Element.Type.FIRE, "cells": [Vector2i(0, 0), Vector2i(1, 0), Vector2i(2, 0), Vector2i(3, 0), Vector2i(4, 0)]}]
 	var b1 := _unlocked(BERSERKER, 1)
@@ -750,7 +751,7 @@ func _test_balance() -> void:
 	var p := CombatRules.PROGRESSION
 	var xp := 0
 	var end_levels := []
-	for act in StarMap.ACTS:
+	for act in Cosmos.ACTS:
 		var n: int = act.act_number
 		var good_turns := []
 		var all_survive := true
@@ -800,7 +801,7 @@ func _test_later_acts() -> void:
 
 
 func _test_act_fights(n: int, speed: float) -> void:
-	var act: ActData = StarMap.ACTS[n - 1]
+	var act: ActData = Cosmos.ACTS[n - 1]
 	battle.set_team(_team_for_act(n))
 	battle.act_fights = act.fights
 	# Acts 2-10: the battle knows its Act (titles, "ACT n CLEAR!"); their story beats
@@ -1011,6 +1012,7 @@ func _use_skill_by_tapping(i: int) -> void:
 	if not battle.skill_popup.visible:
 		_check(false, "skill pop-up did not open for card %d" % i)
 		return
+	await get_tree().create_timer(SkillPopup.LOCKOUT + 0.05).timeout   # the pop-up ignores taps for 0.2 s
 	await _click(battle.skill_popup.use_button)
 	var t := 0.0
 	while battle._busy and t < 5.0:

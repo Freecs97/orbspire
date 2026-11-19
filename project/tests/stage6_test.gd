@@ -39,7 +39,7 @@ func _test_acts() -> void:
 	var levels := []
 	var p: ProgressionTuning = load("res://data/progression.tres")
 	for n in range(1, 11):
-		var act: ActData = StarMap.ACTS[n - 1]
+		var act: ActData = Cosmos.ACTS[n - 1]
 		var f8: FightData = act.fights[7] if act.fights.size() == 8 else null
 		var counts := act.fights.map(func(f: FightData) -> int: return f.enemies.size())
 		var good: bool = act.act_number == n and act.fights.size() == 8 and act.arena.resource_path.ends_with(ARENA[n] + ".png") \
@@ -60,7 +60,7 @@ func _test_story() -> void:
 	var banned := ["The Ban", "the Ban", "Mara", "June"]
 	var clean := true
 	for n in range(1, 11):
-		var act: ActData = StarMap.ACTS[n - 1]
+		var act: ActData = Cosmos.ACTS[n - 1]
 		var all := " ".join(PackedStringArray(act.intel_lines)) + " " + " ".join(PackedStringArray(act.intro_lines)) + " " + act.boss_taunt + " " + act.outro_line \
 			+ " " + act.codex_spliced_from + " " + act.codex_wanted + " " + act.codex_cost
 		var has := act.intro_lines.size() == 2 and act.boss_taunt != "" and act.outro_line != "" and act.codex_spliced_from != "" and act.codex_wanted != "" and act.codex_cost != "" and act.intel_lines.size() == 3
@@ -78,13 +78,13 @@ func _test_story() -> void:
 
 func _test_unlock_and_intro() -> void:
 	_log("\n== S6-U / S6-I: unlocking and intros ==")
-	var m := StarMap.new()
-	m.cleared = []
-	var s0 := [m.state(1), m.state(2)]
-	m.cleared = [1, 2, 3]
-	var s1 := [m.state(4), m.state(5), m.state(3)]
-	m.free()
-	_check(s0 == ["current", "locked"] and s1 == ["current", "locked", "completed"], "the star map unlocks an Act only after the Act before it is cleared (%s, %s)" % [s0, s1])
+	var save0 := {"cleared_acts": []}
+	var j0 := Journey.new(save0)
+	var s0 := [j0.world_state(Cosmos.act_world_key(1)), j0.world_state(Cosmos.act_world_key(2))]
+	var save1 := {"cleared_acts": [1, 2, 3]}
+	var j1 := Journey.new(save1)
+	var s1 := [j1.world_state(Cosmos.act_world_key(4)), j1.world_state(Cosmos.act_world_key(5)), j1.world_state(Cosmos.act_world_key(3))]
+	_check(s0 == ["current", "locked"] and s1 == ["current", "locked", "completed"], "the map unlocks an Act only after the Act before it is cleared (%s, %s)" % [s0, s1])
 	if FileAccess.file_exists(SAVE):
 		DirAccess.remove_absolute(ProjectSettings.globalize_path(SAVE))
 	var main := MainScene.instantiate()
@@ -96,19 +96,19 @@ func _test_unlock_and_intro() -> void:
 	main.save["slot4_notice"] = true
 	main.save["cleared_acts"] = [1, 2]
 	main.profile.choose_starter(Profile.STARTERS[0])
-	main.star_map.play_pressed.emit(3)
+	main.play_world(Cosmos.act_world_key(3), 0)
 	await _frames(4)
 	var b = main.battle
 	var first: bool = b != null and b.act.act_number == 3 and b.story_beat.is_open() and b.story_beat._speaker.text.begins_with("GREENHOUSE RUINS")
 	b.story_beat.close()
 	await _frames(2)
-	main.show_star_map()
+	main.show_map()
 	await _frames(2)
-	main.star_map.play_pressed.emit(3)
+	main.play_world(Cosmos.act_world_key(3), 0)
 	await _frames(4)
 	var again: bool = main.battle.story_beat.is_open()
 	_check(first and not again and 3 in main.save["act_intros"], "Act 3's intro plays the first time you start it, not the second time")
-	main.show_star_map()
+	main.show_map()
 	main.queue_free()
 	await _frames(2)
 	if FileAccess.file_exists(SAVE):
@@ -120,7 +120,7 @@ func _test_balance() -> void:
 	var hp := []
 	var atk := []
 	var mini := []
-	for act in StarMap.ACTS:
+	for act in Cosmos.ACTS:
 		hp.append(act.fights[7].enemies[0].max_hp)
 		atk.append(act.fights[7].enemies[0].atk)
 		mini.append(act.fights[2].enemies[0].atk)
@@ -137,7 +137,7 @@ func _test_balance() -> void:
 		f.passives_unlocked = 3
 		team.append(f)
 	var left := []
-	for act in StarMap.ACTS:
+	for act in Cosmos.ACTS:
 		var g := BalanceSim.great_turn(act.fights[7].enemies, team)
 		left.append(g["left"])
 		held = held and g["left"] > 0

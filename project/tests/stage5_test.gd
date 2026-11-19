@@ -4,8 +4,8 @@ extends Node
 ##         from the Roster (sorts, IN SLOT tags), the old one goes back to the Roster
 ##   5B    Kaela Rynn's detail screen: full art, stats, XP, rarity stars, evolution
 ##         1/3-3/3, next evolution, every skill in full words, Essence, Lock / Retire
-##   5A-B  In battle: tap a plate -> USE / REPLACE / DETAILS / CLOSE. Replace before
-##         the first move = joins now; after = joins from the next fight
+##   5A-B  In battle: tap a plate -> USE / DETAILS / CLOSE (Replace is Team-screen only
+##         since the Universe update); DETAILS is read-only
 ## Run:  Godot_v4.7.2-stable_win64_console.exe --path . res://tests/stage5_test.tscn
 ## Results: tests/report_stage5.txt, screenshots tests/screenshots/s6_*.png
 
@@ -220,52 +220,31 @@ func _test_battle() -> void:
 	await _until(func() -> bool: return b.board.state == Board.State.READY, 5.0)
 	await _tap_plate(b, 0)
 	var pop: SkillPopup = b.skill_popup
-	_check(pop.visible and pop.use_button.visible and not pop.replace_button.disabled and pop.details_button.text == "DETAILS" and pop.close_button.text == "CLOSE",
-		"tapping Kaela's plate: USE / REPLACE / DETAILS / CLOSE")
+	_check(pop.visible and pop.use_button.visible and not "replace_button" in pop and pop.details_button.text == "DETAILS" and pop.close_button.text == "CLOSE",
+		"tapping Kaela's plate: USE / DETAILS / CLOSE (Universe update: no REPLACE in combat)")
 	await _shot("s6_battle_popup")
+	await get_tree().create_timer(SkillPopup.LOCKOUT + 0.05).timeout
 	await _click(pop.details_button)
 	var d: UnitDetail = b.unit_detail
-	_check(d.visible and d.name_label.text == "KAELA RYNN" and not d.use_core_button.visible and not d.evolve_button.visible and d.note_label.text.contains("from the Roster")
-		and b.board.state == Board.State.LOCKED, "DETAILS in battle: the full detail screen (training / evolving hidden mid-fight), board locked under it")
+	_check(d.visible and d.name_label.text == "KAELA RYNN" and not d.use_core_button.visible and not d.evolve_button.visible and not d.lock_button.visible
+		and not d.retire_button.visible and d.note_label.text.contains("Read-only") and b.board.state == Board.State.LOCKED,
+		"DETAILS in battle: the full detail screen, READ-ONLY (no train / evolve / lock / retire), board locked under it")
 	await _shot("s6_battle_detail")
 	await _click(d.close_button)
 	_check(not d.visible and b.board.state == Board.State.READY, "closing it gives the turn back")
-	# Replace before the first move: joins now.
+	# The team is changed on the TEAM screen (Replace there); the battle picks it up next fight.
 	var mira_name: String = b.team.members[1].display_name
-	await _tap_plate(b, 1)
-	await _click(pop.replace_button)
-	var pk: RosterPicker = b.roster_picker
-	_check(pk.visible and pk.title_label.text == "REPLACE " + mira_name and b.board.state == Board.State.LOCKED, "REPLACE in battle opens the Roster picker (\"%s\")" % pk.title_label.text)
-	await _shot("s6_battle_replace")
-	await _click(_card(pk, iris))
-	await _frames(3)
-	_check(b.team.members[1].display_name == "IRIS VALE" and p.data["team"][1] == iris and not p.unit(mira).is_empty() and b.turn_count == 0
-		and b.enemies[0].hp == b.enemies[0].data.max_hp and b.notice_label.text.contains("joins the team now") and b.board.state == Board.State.READY,
-		"before your first move: Iris joins right away (\"%s\"); Mira is back in the Roster" % b.notice_label.text)
-	await _shot("s6_battle_joined_now")
-	# Replace after a move: joins from the next fight.
-	await _turn(b, FIRE3)
-	var charge0: int = b.team.skill_turns[0]
-	await _tap_plate(b, 2)
-	await _click(pop.replace_button)
-	await _click(_card(pk, drek))
-	await _frames(2)
-	_check(b.team.members[2].display_name == "BRAM STONE" and p.data["team"][2] == drek and b.notice_label.text.contains("joins from the next fight"),
-		"after a move: Drek joins from the NEXT fight; Bram finishes this one (\"%s\")" % b.notice_label.text)
-	await _shot("s6_battle_next_fight")
-	# Win, then the next fight has Drek, with a fresh half charge (Bram's doesn't carry over).
+	p.set_team_slot(1, iris)
+	main._write()
 	for e in b.enemies:
 		e.hp = 1
 	await _turn(b, FIRE3)
 	await _until(func() -> bool: return b.result_panel.visible, 6.0)
-	var carried: Array = b.team.skill_turns.duplicate()
 	await _click(b.result_panel._next_button)
 	await _frames(4)
-	var want_drek := CombatRules.act_start_turns(b.team_data[2])
-	_check(b.fight_index == 1 and b.team.members[2].display_name == "DREK VANE" and b.team.skill_turns[2] == want_drek and b.team.skill_turns[0] == carried[0],
-		"next fight: Drek is in (half charged: %d turns), Kaela keeps her charge (%d)" % [b.team.skill_turns[2], b.team.skill_turns[0]])
-	_log("INFO  Kaela's charge before the win: %d" % charge0)
-	main.show_star_map()
+	_check(b.fight_index == 1 and b.team.members[1].display_name == "IRIS VALE" and mira_name != "IRIS VALE",
+		"a team change made on the TEAM screen shows up from the next fight (%s -> IRIS VALE)" % mira_name)
+	main.show_map()
 	await _frames(3)
 
 
@@ -277,13 +256,13 @@ func _test_battle_without_save() -> void:
 	await _until(func() -> bool: return tb.board.state == Board.State.READY, 5.0)
 	tb.open_skill_popup(0)
 	await _frames(2)
-	var no_replace: bool = tb.skill_popup.replace_button.disabled
+	var no_replace: bool = not "replace_button" in tb.skill_popup
 	tb.skill_popup.details_pressed.emit(0)
 	tb.skill_popup.visible = false
 	await _frames(2)
 	var d: UnitDetail = tb.unit_detail
 	_check(no_replace and d.visible and not d.lock_button.visible and not d.retire_button.visible and d.close_button.visible,
-		"no save behind the fight: REPLACE greyed out, DETAILS still shows the card (only CLOSE)")
+		"no save behind the fight: no REPLACE, DETAILS still shows the card (only CLOSE)")
 	tb.queue_free()
 	await _frames(2)
 

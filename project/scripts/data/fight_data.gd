@@ -12,4 +12,4 @@ extends Resource
 @export var xp: int = 0
 ## The level the story team is expected to be at during this fight, if the
 ## player wins each fight once. Balance is tuned against this level.
-@export_range(1, 30) var expected_level: int = 1
+@export_range(1, 120) var expected_level: int = 1

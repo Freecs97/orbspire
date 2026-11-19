@@ -38,6 +38,9 @@ enum Role { BERSERKER, TITAN, SPECTRE, BIOTECH, ENEMY }
 @export var cooldown_cut: int = 0
 ## Evolution stage 1-3 (set from the save; templates are Stage 1).
 @export var stage: int = 1
+## Dual affinity (Stage 3 only, Catalog.DUAL): the second affinity, -1 = none.
+## It attacks when ITS orbs are matched, for 1/3 of ATK (10% if same as main).
+@export var sub_element: int = -1
 ## Rarity 0-5 of the owned unit (set from the save; -1 = a template / test fighter).
 ## Stage 3 or Singularity (5) = the long 2 s skill cut-in.
 @export var rarity: int = -1
@@ -50,6 +53,8 @@ enum Role { BERSERKER, TITAN, SPECTRE, BIOTECH, ENEMY }
 @export var armored := false
 ## Bosses can't be killed instantly by Execute (they take a bigger hit instead).
 @export var is_boss := false
+## Exploration Wardens / bosses: orb attacks of the element it resists do nothing.
+@export var element_shield := false
 ## Which placeholder body to draw: blob, drone, slime, human, sprout, golem, wolf.
 @export var kind: StringName = &"blob"
 

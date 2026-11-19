@@ -6,9 +6,10 @@ extends Node
 ##     screen (pick ONE of 3 Berserkers: Fire, Water or Wood), then Act 1 starts
 ##     with its 2-line intro, then fight 1 (the tutorial). Everyone else is earned.
 ##   - After that: CONTINUE goes to the home screens. The bottom nav switches
-##     between PLAY (star map), TEAM, ROSTER (+ Lab) and RECRUIT.
-##   - An Act unlocks when the one before it is cleared. From Act 2 team slot 4
-##     opens (a one-time notice).
+##     between PLAY (the universe map), TEAM, ROSTER (+ Lab) and RECRUIT.
+##   - The main story is Galaxy 1, Systems 1-3 (Acts 1-10, each Act one world).
+##     After Reaper-0 the rest of the universe opens, ring by ring (Cosmos, Journey).
+##     From Act 2 team slot 4 opens (a one-time notice).
 ##   - NEW GAME asks "Are you sure? This wipes your save" first.
 ## Everything you own lives in a Profile, saved to user://save.json after every change.
 
@@ -20,8 +21,9 @@ const NEW_SAVE := {"intro_seen": false, "cleared_acts": [], "act_fight": {}, "co
 var save_path := "user://save.json"
 var save: Dictionary = {}
 var profile: Profile
+var journey: Journey
 var title: TitleScreen
-var star_map: StarMap
+var map: CosmosMap
 var team_screen: TeamScreen
 var roster_screen: RosterScreen
 var recruit_screen: RecruitScreen
@@ -30,6 +32,7 @@ var codex: CodexScreen
 var starter_screen: StarterScreen
 var battle: Node2D
 var current_act: ActData
+var _unsaved_time := 0.0
 
 
 func _ready() -> void:
@@ -38,11 +41,11 @@ func _ready() -> void:
 	var ui := CanvasLayer.new()
 	ui.layer = 10
 	add_child(ui)
-	star_map = StarMap.new()
+	map = CosmosMap.new()
 	team_screen = TeamScreen.new()
 	roster_screen = RosterScreen.new()
 	recruit_screen = RecruitScreen.new()
-	for page in [star_map, team_screen, roster_screen, recruit_screen]:
+	for page in [map, team_screen, roster_screen, recruit_screen]:
 		page.visible = false
 		ui.add_child(page)
 		page.tab_pressed.connect(show_page)
@@ -60,13 +63,20 @@ func _ready() -> void:
 	ui.add_child(codex)
 	title.start_pressed.connect(_on_start)
 	title.new_game_confirmed.connect(_on_new_game)
-	# An Act's 2-line intro plays once: the first time you start it at fight 1.
-	star_map.play_pressed.connect(func(n: int) -> void:
-		var fight := _act_fight(n)
-		start_act(n, fight, fight == 0 and not n in save.get("act_intros", [])))
+	map.play_world.connect(play_world)
 	if "--map-test-state" in OS.get_cmdline_user_args():
 		_set_map_test_state()
 	show_title()
+
+
+## Lifetime play time (Profile / Stats), saved about once a minute.
+func _process(delta: float) -> void:
+	if journey == null or (title and title.visible):
+		return
+	journey.add_play_time(delta)
+	_unsaved_time += delta
+	if _unsaved_time > 60.0:
+		_write()
 
 
 func show_title() -> void:
@@ -93,20 +103,19 @@ func show_page(tab: String) -> void:
 			recruit_screen.visible = true
 			recruit_screen.refresh()
 		_:
-			star_map.cleared = save["cleared_acts"]
-			star_map.credits = save["credits"]
-			star_map.training_cores = save["cores"]
-			star_map.player_level = profile.highest_level()
-			star_map.refresh()
-			star_map.visible = true
+			map.journey = journey
+			map.profile = profile
+			map.visible = true
+			map.refresh()
 
 
-func show_star_map() -> void:
+## The PLAY screen (the universe map, at the level you were last on).
+func show_map() -> void:
 	show_page("PLAY")
 
 
 func _hide_pages() -> void:
-	for page in [star_map, team_screen, roster_screen, recruit_screen]:
+	for page in [map, team_screen, roster_screen, recruit_screen]:
 		page.visible = false
 
 
@@ -135,22 +144,58 @@ func _on_start() -> void:
 	elif first_time:
 		start_act(1, 0, true)
 	else:
-		show_star_map()
+		show_map()
 
 
 func _on_new_game() -> void:
 	save = NEW_SAVE.duplicate(true)
 	_make_profile()
+	map.cur_g = 1
+	map.level = "universe"
 	_write()
 	title.set_has_save(false)
 	_on_start()
 
 
+## PLAY from the map (after the danger warning): a story Act world or a generated one.
+func play_world(key: String, stage: int) -> void:
+	var w := Cosmos.world_by_key(key)
+	if int(w["act"]) > 0:
+		var n := int(w["act"])
+		start_act(n, stage, stage == 0 and not n in save.get("act_intros", []))
+	else:
+		start_world(key, stage)
+
+
 ## Start Act `n` at fight index `fight`. with_intro plays its 2-line intro first.
 func start_act(n: int, fight: int, with_intro: bool) -> void:
-	var a: ActData = StarMap.ACTS[n - 1]
+	var a: ActData = Cosmos.ACTS[n - 1]
 	if not a.is_built():
 		return
+	journey.c["last_world"] = Cosmos.act_world_key(n)
+	if with_intro:
+		if not save.has("act_intros"):
+			save["act_intros"] = []
+		if not n in save["act_intros"]:
+			save["act_intros"].append(n)
+	var show_notice := false
+	if n >= 2 and not save.get("slot4_notice", save.get("spectre_joined", false)):
+		show_notice = true
+		save["slot4_notice"] = true
+	_start_battle_for(a, fight, with_intro, show_notice)
+
+
+## Start a generated world (Cosmos) at stage index `stage`.
+func start_world(key: String, stage: int) -> void:
+	var w := Cosmos.world_by_key(key)
+	var a := Cosmos.build_world(int(w["g"]), int(w["s"]), int(w["w"]))
+	journey.c["last_world"] = key
+	# Entering a farther galaxy raises the level ceiling (Training Cores too).
+	profile.data["level_ceiling"] = maxi(int(profile.data["level_ceiling"]), Cosmos.galaxy_cap(int(w["g"])))
+	_start_battle_for(a, stage, false, false)
+
+
+func _start_battle_for(a: ActData, fight: int, with_intro: bool, show_notice: bool) -> void:
 	current_act = a
 	title.visible = false
 	_hide_pages()
@@ -160,21 +205,15 @@ func start_act(n: int, fight: int, with_intro: bool) -> void:
 	battle.profile = profile
 	battle.start_fight = clampi(fight, 0, a.fights.size() - 1)
 	battle.play_act_intro = with_intro
-	if with_intro:
-		if not save.has("act_intros"):
-			save["act_intros"] = []
-		if not n in save["act_intros"]:
-			save["act_intros"].append(n)
-	if n >= 2 and not save.get("slot4_notice", save.get("spectre_joined", false)):
-		battle.show_join_notice = true
-		save["slot4_notice"] = true
+	battle.show_join_notice = show_notice
 	_write()
 	add_child(battle)
 	battle.fight_won.connect(_on_fight_won)
 	battle.act_won.connect(_on_act_won)
 	battle.progress_changed.connect(_write)
 	battle.codex_requested.connect(open_codex)
-	battle.home_requested.connect(show_star_map)
+	battle.home_requested.connect(show_map)
+	battle.turn_combos.connect(func(n: int) -> void: journey.note_combo(n))
 
 
 func open_codex() -> void:
@@ -187,11 +226,19 @@ func _act_fight(n: int) -> int:
 
 
 func _on_fight_won(index: int) -> void:
-	save["act_fight"][str(current_act.act_number)] = (index + 1) % current_act.fights.size()
+	if current_act.is_world():
+		journey.world_fight_won(current_act, index)
+	else:
+		save["act_fight"][str(current_act.act_number)] = (index + 1) % current_act.fights.size()
+		journey.story_fight_won(current_act, index)
 	_write()
 
 
 func _on_act_won(a: ActData) -> void:
+	if a.is_world():
+		journey.world_cleansed_now(a)
+		_write()
+		return
 	if not a.act_number in save["cleared_acts"]:
 		save["cleared_acts"].append(a.act_number)
 	if not a.singularity_name in save["codex"]:
@@ -199,7 +246,7 @@ func _on_act_won(a: ActData) -> void:
 	_write()
 
 
-## The star map test state: Act 1 completed, Act 2 unlocked.
+## The map test state: Act 1 completed, Act 2 unlocked.
 func _set_map_test_state() -> void:
 	save["intro_seen"] = true
 	if profile.needs_starter():
@@ -212,9 +259,13 @@ func _set_map_test_state() -> void:
 
 func _make_profile() -> void:
 	profile = Profile.new(save)
+	journey = Journey.new(save)
 	for page in [team_screen, roster_screen, recruit_screen]:
 		if page:
 			page.profile = profile
+	if map:
+		map.journey = journey
+		map.profile = profile
 
 
 func _load() -> void:
@@ -251,6 +302,7 @@ func _load() -> void:
 
 
 func _write() -> void:
+	_unsaved_time = 0.0
 	var f := FileAccess.open(save_path, FileAccess.WRITE)
 	if f:
 		f.store_string(JSON.stringify(save))

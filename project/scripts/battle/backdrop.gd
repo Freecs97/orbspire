@@ -24,6 +24,29 @@ var arena: Texture2D:
 		queue_redraw()
 
 
+## Exploration worlds: turn the arena's colours by this much (0 = as drawn).
+var arena_hue := 0.0:
+	set(value):
+		arena_hue = value
+		if _layer:
+			_layer.material = MapArt.material(value) if not is_zero_approx(value) else null
+		queue_redraw()
+var _layer: Node2D
+var _arena_rect: Array = []
+
+
+func _arena_layer() -> Node2D:
+	if _layer == null:
+		_layer = Node2D.new()
+		_layer.show_behind_parent = true
+		_layer.material = MapArt.material(arena_hue)
+		_layer.draw.connect(func() -> void:
+			if arena and not _arena_rect.is_empty() and not is_zero_approx(arena_hue):
+				_layer.draw_texture_rect_region(arena, _arena_rect[0], _arena_rect[1]))
+		add_child(_layer)
+	return _layer
+
+
 ## Tall screens: the scenery grows taller (extra) and wider (side); nothing stretches.
 func set_layout(extra: float, side: float, enemy_y: float) -> void:
 	extra_height = extra
@@ -52,7 +75,13 @@ func _draw_arena() -> void:
 	var src_size := dest.size / s
 	var src_y := clampf(tex.y * 0.62 - src_size.y * 0.75, 0.0, tex.y - src_size.y)
 	var src := Rect2((tex.x - src_size.x) * 0.5, src_y, src_size.x, src_size.y)
-	draw_texture_rect_region(arena, dest, src)
+	if is_zero_approx(arena_hue):
+		draw_texture_rect_region(arena, dest, src)
+	else:
+		# Exploration worlds re-use an Act arena, hue-shifted (MapArt shader). It is
+		# drawn on a child layer behind this node so only the arena is recoloured.
+		_arena_rect = [dest, src]
+		_arena_layer().queue_redraw()
 	var fade := Color(0.02, 0.01, 0.06, 0.75)
 	var clear := Color(0.02, 0.01, 0.06, 0.0)
 	_quad([Vector2(left, 0), Vector2(right, 0), Vector2(right, 190), Vector2(left, 190)], [fade, fade, clear, clear])

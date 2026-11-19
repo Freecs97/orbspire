@@ -84,11 +84,10 @@ var team_status_label: Label
 var combo_counter: ComboCounter   ## Stage 4: live "COMBO 3  x1.50" next to the board
 var cut_in: SkillCutIn            ## Skill cut-in: the hunter's portrait over the BOARD (never the arena)
 var cut_in_toggle: Button         ## In the MENU dialog: Skill Cut-ins ON / OFF
-var roster_picker: RosterPicker   ## Stage 5A: REPLACE from the plate pop-up
-var unit_detail: UnitDetail       ## Stage 5B: DETAILS from the plate pop-up
-var notice_label: Label           ## short notes ("DREK VANE joins from the next fight")
+var unit_detail: UnitDetail       ## DETAILS from the plate pop-up (read-only in combat)
+var notice_label: Label           ## short notes shown over the arena
 var _notice_tween: Tween
-var _replace_slot := -1
+var _plate_press := -1            ## the plate a tap STARTED on (it opens on release)
 var _skill_used_this_fight := false
 var _act_skill_uids: Array = []   ## whose charge _act_skill_turns holds (games with a save)
 var _fight_start_uids: Array = []
@@ -147,6 +146,8 @@ var leave_no: Button
 
 signal fight_won(index: int)
 signal act_won(act: ActData)
+## Combos made in one player turn (for the Highest Combo stat).
+signal turn_combos(combos: int)
 signal home_requested
 signal codex_requested
 
@@ -169,6 +170,7 @@ func _ready() -> void:
 	_build_scene()
 	if act:
 		backdrop.arena = act.arena
+		backdrop.arena_hue = act.arena_hue
 	get_viewport().size_changed.connect(_apply_layout)
 	_start_battle(start_fight, StartMode.NEW_ACT)
 	# The Act's intro (first time only), then the one-time "slot 4 is open" notice.
@@ -201,7 +203,7 @@ func _play_beat(lines: Array, seconds: float, speaker: String) -> void:
 
 
 func _team_size() -> int:
-	return 3 if act == null or act.act_number == 1 else 4
+	return 3 if act == null or (act.act_number == 1 and not act.is_world()) else 4
 
 
 ## Rebuild the team from the profile (after level-ups the stats change).
@@ -213,6 +215,8 @@ func _load_profile_team() -> void:
 
 
 func _act_name() -> String:
+	if act and act.is_world():
+		return act.colony_name.to_upper()
 	return "ACT %d" % act.act_number if act else ACT_NAME
 
 
@@ -276,9 +280,8 @@ func _build_scene() -> void:
 	ui.add_child(skill_popup)
 	story_beat = StoryBeat.new()
 	ui.add_child(story_beat)
-	# Stage 5: REPLACE (Roster picker) and DETAILS (full detail screen) from the pop-up.
-	roster_picker = RosterPicker.new()
-	ui.add_child(roster_picker)
+	# DETAILS (full detail screen, read-only) from the pop-up. No REPLACE in combat:
+	# changing the team is a Roster / Team job.
 	unit_detail = UnitDetail.new()
 	ui.add_child(unit_detail)
 	notice_label = Label.new()
@@ -311,11 +314,8 @@ func _build_scene() -> void:
 	_build_menu_ui(ui)
 	result_panel.codex_pressed.connect(func() -> void: codex_requested.emit())
 	skill_popup.use_pressed.connect(func(i: int) -> void: use_skill(i))
-	skill_popup.replace_pressed.connect(open_replace)
 	skill_popup.details_pressed.connect(open_details)
 	skill_popup.closed.connect(_on_popup_closed)
-	roster_picker.picked.connect(_on_replace_picked)
-	roster_picker.closed.connect(_resume_after_overlay)
 	unit_detail.closed.connect(_resume_after_overlay)
 	unit_detail.changed.connect(func() -> void: progress_changed.emit())
 
@@ -735,20 +735,31 @@ func _refresh_team_ui() -> void:
 
 # ---------------------------------------------------------------- input
 
-## Taps that the board didn't use: tapping an enemy targets it, tapping a
-## hunter's card opens its skill pop-up.
+## Taps that the board didn't use: tapping an enemy targets it (on press);
+## tapping a hunter's head plate opens its pop-up on RELEASE, and only if the tap
+## started on that same plate (so one tap can never open and close it).
 func _unhandled_input(event: InputEvent) -> void:
-	var press := event as InputEventMouseButton
-	if press == null or not press.pressed or press.button_index != MOUSE_BUTTON_LEFT:
+	var mb := event as InputEventMouseButton
+	if mb == null or mb.button_index != MOUSE_BUTTON_LEFT:
 		return
 	if board.state != Board.State.READY or result_panel.visible or skill_popup.visible or _busy or _overlay_open():
+		_plate_press = -1
 		return
-	var p := world.get_global_transform_with_canvas().affine_inverse() * press.position
+	var p := world.get_global_transform_with_canvas().affine_inverse() * mb.position
+	var plate := -1
 	for i in team_views.size():
 		if team_views[i].hit_rect().has_point(p - team_views[i].position):
-			open_skill_popup(i)
+			plate = i
+	if not mb.pressed:
+		if plate >= 0 and plate == _plate_press:
+			open_skill_popup(plate)
 			get_viewport().set_input_as_handled()
-			return
+		_plate_press = -1
+		return
+	_plate_press = plate
+	if plate >= 0:
+		get_viewport().set_input_as_handled()
+		return
 	for i in enemy_views.size():
 		if enemies[i].is_defeated():
 			continue
@@ -762,7 +773,7 @@ func _unhandled_input(event: InputEvent) -> void:
 ## buttons can never pick up an orb underneath it.
 func open_skill_popup(i: int) -> void:
 	board.lock()
-	skill_popup.open(i, team.members[i], i == 0, team.skill_turns[i], _player_turn, profile != null and i < _team_uids.size())
+	skill_popup.open(i, team.members[i], i == 0, team.skill_turns[i], _player_turn)
 
 
 func _on_popup_closed() -> void:
@@ -770,9 +781,9 @@ func _on_popup_closed() -> void:
 		board.begin_player_turn()
 
 
-## The Replace picker or the detail screen is up (the board stays locked under them).
+## The detail screen is up (the board stays locked under it).
 func _overlay_open() -> bool:
-	return (roster_picker != null and roster_picker.visible) or (unit_detail != null and unit_detail.visible)
+	return unit_detail != null and unit_detail.visible
 
 
 func _resume_after_overlay() -> void:
@@ -780,53 +791,21 @@ func _resume_after_overlay() -> void:
 		board.begin_player_turn()
 
 
-# ---------------------------------------------------------------- Stage 5: Replace / Details
+# ---------------------------------------------------------------- Details (read-only)
 
 ## Has anything happened in this fight yet? (A move or a skill.)
 func fight_started() -> bool:
 	return turn_count > 0 or _skill_used_this_fight
 
 
-## REPLACE (plate i): pick a hunter from the Roster for that team slot.
-func open_replace(i: int) -> void:
-	if profile == null or i >= _team_uids.size():
-		return
-	board.lock()
-	_replace_slot = profile.data["team"].find(_team_uids[i])
-	roster_picker.open(profile, _replace_slot)
-
-
-## DETAILS (plate i): the full detail screen (training / evolving stay on the Roster).
+## DETAILS (plate i): the full detail screen, read-only in combat (no training,
+## evolving or team changes; those are on the Roster / Team screens).
 func open_details(i: int) -> void:
 	board.lock()
 	if profile and i < _team_uids.size():
 		unit_detail.open_unit(profile, _team_uids[i], true)
 	else:
 		unit_detail.open_fighter(team.members[i], team_level)
-
-
-## The replacement goes into the team (saved). Before the first move of a fight
-## it joins right away (the fight starts fresh); otherwise it joins from the next
-## fight and the current team finishes this one. The old hunter goes back to the
-## Roster (or swaps slots if the new one was already in the team).
-func _on_replace_picked(uid: int) -> void:
-	var slot := _replace_slot
-	var team_list: Array = profile.data["team"]
-	var old: int = int(team_list[slot]) if slot >= 0 and slot < team_list.size() else -1
-	profile.set_team_slot(slot, uid)
-	progress_changed.emit()
-	var new_name := Catalog.display_name(profile.unit(uid)["id"])
-	var where := ""
-	if old >= 0 and old != uid:
-		var moved: int = profile.data["team"].find(old)
-		where = "  ·  %s %s" % [Catalog.display_name(profile.unit(old)["id"]), "moves to slot %d" % (moved + 1) if moved >= 0 else "goes back to your Roster"]
-	if not fight_started():
-		_load_profile_team()
-		_start_battle(fight_index, StartMode.RETRY)
-		show_notice("%s joins the team now%s" % [new_name, where])
-	else:
-		show_notice("%s joins from the next fight%s" % [new_name, where])
-
 
 func show_notice(text: String) -> void:
 	notice_label.text = text
@@ -1183,6 +1162,8 @@ func _update_enemy_labels() -> void:
 	var prefix := "TARGET: " if target_index >= 0 else ""
 	var who := e.data.display_name + (" (%s)" % e.data.title if e.data.title != "" else "")
 	enemy_hint.text = "%s%s · %s   ·   %s" % [prefix, who, Element.display_name(e.data.element), _matchup_hint(e.data.element)]
+	if e.data.element_shield and Element.BEATS.has(e.data.element) and not Element.is_light_or_dark(e.data.element):
+		enemy_hint.text += "   ·   SHIELD: %s does nothing" % Element.display_name(Element.BEATS[e.data.element])
 	if enemies.size() == 1 and e.stunned_attacks > 0:
 		enemy_attack_label.text = "STUNNED  ·  skips its next attack"
 	elif enemies.size() == 1 and e.turn_room() >= 0:
@@ -1221,6 +1202,7 @@ func _on_combo_made(count: int, _orb_type: int, world_position: Vector2) -> void
 ## The rest of the turn after the board finishes.
 func _on_turn_finished(combos: int, cleared: Dictionary, groups: Array) -> void:
 	turn_count += 1
+	turn_combos.emit(combos)   # Profile / Stats: Highest Combo
 	await _wait(0.15)
 
 	# 1) Healing: Hearts (+ Overflow Heal, + Biotech leader). Never above max HP.
@@ -1283,7 +1265,7 @@ func _on_turn_finished(combos: int, cleared: Dictionary, groups: Array) -> void:
 				* CombatRules.passive_multiplier(member, groups, combos, enemy, first_attack, team) \
 				* team.boost_for(member)
 			var damage := DamageCalculator.attack_damage(member.atk, orbs, combos, member.element, enemy.data.element, bonus)
-			damage = CombatRules.after_def(damage, enemy)
+			damage = CombatRules.after_def(damage, enemy, member.element)
 			var dealt := enemy.take_hit(damage, CombatRules.breaks_armor(member, groups), CombatRules.ignores_armor(member, groups))
 			_show_hit(t, dealt, member, i, DamageCalculator.combo_multiplier(combos))
 			# The attack animation of the hunter's element (doesn't slow the turn down).
@@ -1292,6 +1274,30 @@ func _on_turn_finished(combos: int, cleared: Dictionary, groups: Array) -> void:
 		_update_enemy_labels()
 		if _all_enemies_down():
 			break
+
+	# 2b) Dual affinity (Stage 3 final evolutions only): the SUB affinity attacks
+	# too when ITS orbs were cleared, for 1/3 of ATK (10% if the same as the main).
+	for i in team_views.size():
+		var member := team.members[i]
+		if member.sub_element < 0 or _all_enemies_down():
+			continue
+		var sub_orbs: int = cleared.get(member.sub_element, 0)
+		if sub_orbs <= 0:
+			continue
+		var targets := CombatRules.targets_for(member, groups, enemies, target_index)
+		team_views[i].light_up()
+		await _wait(0.12)
+		for t in targets:
+			var enemy := enemies[t]
+			var marked := target_index >= 0 and t == target_index
+			var bonus := CombatRules.leader_multiplier(team.leader(), member, groups, combos, enemy, team, marked) * team.boost_for(member)
+			var damage := DamageCalculator.attack_damage(roundi(member.atk * CombatRules.sub_share(member)), sub_orbs, combos, member.sub_element, enemy.data.element, bonus)
+			damage = CombatRules.after_def(damage, enemy, member.sub_element)
+			var dealt := enemy.take_hit(damage, false, false)
+			_show_hit(t, dealt, member, i, DamageCalculator.combo_multiplier(combos))
+			SkillFx.sheet(world, _enemy_center(t), SkillFx.SHEET_FOR_ELEMENT.get(member.sub_element, ""), ATTACK_FX_HEIGHT * 0.8, ATTACK_FX_TIME)
+		await _wait(0.2)
+		_update_enemy_labels()
 	team.boost_element = -1   # one-turn skill boosts (Solar Flare, Cauterize) end here
 	combo_counter.fade_out()  # the combo never carries over to the enemy turn
 
@@ -1350,7 +1356,7 @@ func _on_turn_finished(combos: int, cleared: Dictionary, groups: Array) -> void:
 				hits += Skills.TUNING.forge_guard_counter_mult
 			if hits > 0.0 and not enemy.is_defeated():
 				var back := roundi(m.atk * hits * Element.multiplier(m.element, enemy.data.element))
-				back = CombatRules.after_def(back, enemy)
+				back = CombatRules.after_def(back, enemy, m.element)
 				var dealt_back := enemy.take_hit(back)
 				team_views[k].animator.play_attack(Vector2.UP)
 				SkillFx.streak(world, team_views[k].position + Vector2(0, -150), _enemy_center(t), Element.color(m.element), 12.0, 0.25)
@@ -1512,18 +1518,33 @@ func _show_result(won: bool) -> void:
 		act_won.emit(act)
 	# Rewards (real profile only): XP + level-ups, Credits, Essence, first-clear Keys.
 	var reward_text := ""
+	var world := act != null and act.is_world()
 	if profile:
 		var fight_no := fight_index + 1 if act and test_fight_override == null else 0
-		var r := profile.fight_rewards(fight, act.act_number if act else 1, won, _team_uids, act_clear, fight_no)
+		var r: Dictionary
+		if world:
+			# Exploration world: Credits as if Act N, the galaxy's level cap, a Key for
+			# a system's singularity (first time), no Scrap drops.
+			r = profile.fight_rewards(fight, act.reward_act, won, _team_uids, act_clear, 0, act.level_cap, act.world_key, act.is_gate)
+		else:
+			r = profile.fight_rewards(fight, act.act_number if act else 1, won, _team_uids, act_clear, fight_no)
 		last_rewards = r
 		reward_text = Profile.rewards_text(r)
 		_load_profile_team()   # new levels -> new stats for the next fight
 		progress_changed.emit()
 	var next_text := "Next Fight"
 	if is_last:
-		next_text = "Back to Star Map" if has_home else "Play %s Again" % _act_name().capitalize()
-	result_panel.show_result(won, turn_count, next_text, fight.xp, (_act_name() + " CLEAR!") if won and is_last else "",
-		("CODEX UNLOCKED: " + act.singularity_name.to_upper()) if act_clear else "", reward_text)
+		next_text = "Back to Map" if has_home else "Play %s Again" % _act_name().capitalize()
+	var banner := ""
+	if won and is_last:
+		banner = "WORLD CLEANSED!" if world else _act_name() + " CLEAR!"
+	var sub := ""
+	if act_clear:
+		if world:
+			sub = ("SINGULARITY DEFEATED: " if act.is_gate else "WARDEN DEFEATED: ") + act.singularity_name.to_upper()
+		else:
+			sub = "CODEX UNLOCKED: " + act.singularity_name.to_upper()
+	result_panel.show_result(won, turn_count, next_text, fight.xp, banner, sub, reward_text)
 
 
 func _shake_screen(strength: float, duration: float) -> void:

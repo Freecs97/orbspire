@@ -82,7 +82,8 @@ extends Resource
 ##   Band 1 = Acts 1-2, Band 2 = Acts 3-4, Band 3 = Acts 5-6, Band 4 = Acts 7-10.
 ## Prime first appears in Band 2 (Act 3+), Ascendant in Band 3 (Act 5+),
 ## Singularity in Band 4 (Act 7+) and ONLY from a Key.
-@export var band_first_act: Array[int] = [1, 3, 5, 7]
+## Band 5 ("Act 11") = Galaxies 2-10 once your team is Lv31+ (Profile.progress_act).
+@export var band_first_act: Array[int] = [1, 3, 5, 7, 11]
 ## Odds in percent per rarity (Scrap .. Singularity), each row adds up to 100.
 ## One block of 4 rows per band: Basic, Advanced, Elite, Key.
 @export var recruit_odds: Array[Array] = [

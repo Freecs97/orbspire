@@ -54,7 +54,19 @@ func show_unit(unit: Dictionary, leader := false, card_size := Vector2(220, 300)
 		_art.texture = Catalog.art(unit["id"], stage)
 		_name.text = t.display_name
 		_kind.text = t.title + ("  ·  Stage %d" % stage if stage > 1 else "")
+		var sub := Catalog.sub_element(unit["id"], stage)
+		if sub >= 0:
+			_kind.text = "%s + %s  ·  Stage 3" % [Element.display_name(t.element).capitalize(), Element.display_name(sub).capitalize()]
 		_name.label_settings.font_color = Element.color(t.element).lightened(0.35)
+		# Dual affinity: a second glow in the SUB colour behind the rarity border
+		# (the name stays in the main colour).
+		if sub >= 0:
+			var dual: StyleBoxFlat = sb.duplicate()
+			dual.shadow_color = Color(Element.color(sub), 0.85)
+			dual.shadow_size = 8
+			dual.shadow_offset = Vector2(5, 5)
+			for s in ["normal", "hover", "pressed", "focus", "disabled"]:
+				add_theme_stylebox_override(s, dual)
 		_info.text = "Lv%d  ·  %s%s" % [unit["level"], Catalog.rarity_name(rarity), "  · LOCK" if unit.get("locked", false) else ""]
 		_info.label_settings.font_color = border.lightened(0.2)
 		_tag.visible = leader

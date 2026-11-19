@@ -75,7 +75,9 @@ func refresh() -> void:
 	tier_buttons[3].text = "KEY RECRUIT  ·  1 Key  (up to %s)" % e.rarity_names[e.best_rarity(3, act)]
 	var band := e.band_for_act(act)
 	var last_act := e.band_first_act[band + 1] - 1 if band + 1 < e.band_first_act.size() else 10
-	var lines := PackedStringArray(["ODDS (%%) for Acts %d-%d (you have unlocked Act %d):" % [e.band_first_act[band], last_act, act]])
+	var lines := PackedStringArray(["ODDS (%%) for Acts %d-%d (you have unlocked Act %d):" % [e.band_first_act[band], mini(last_act, 10), mini(act, 10)]])
+	if act > 10:
+		lines = PackedStringArray(["ODDS (%) for Galaxies 2-10 (your team has reached Lv31+):"])
 	for i in 4:
 		var odds := e.odds_for(i, act)
 		var parts := PackedStringArray()
@@ -84,6 +86,7 @@ func refresh() -> void:
 				parts.append("%s %d" % [e.rarity_names[r], odds[r]])
 		lines.append("%s:  %s" % ["Key" if i == 3 else e.recruit_names[i], "  ·  ".join(parts)])
 	lines.append("\nBetter rarities unlock as you clear Acts: Prime from Act 3, Ascendant from Act 5, Singularity from Act 7 (Key only).")
+	lines.append("Galaxies 2-10: once your team is Lv31+, Singularity can also come from Advanced and Elite Recruit.")
 	lines.append("Keys: 1 for the first clear of each Act. Any of the 20 characters can appear. Duplicates are allowed.")
 	odds_label.text = "\n".join(lines)
 
