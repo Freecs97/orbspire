@@ -9,4 +9,4 @@ script = ExtResource("3_6b3ym")
 display_name = "8/8 · BOSS: MOSSBACK CHIMERA"
 enemies = Array[ExtResource("1_8xkum")]([ExtResource("2_5sfrn")])
 xp = 2765
-expected_level = 23
+expected_level = 24

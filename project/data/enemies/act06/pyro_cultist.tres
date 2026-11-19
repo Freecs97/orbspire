@@ -7,8 +7,8 @@
 script = ExtResource("2_ajxhv")
 display_name = "PYRO CULTIST"
 role = 4
-max_hp = 700
-atk = 108
+max_hp = 650
+atk = 118
 kind = &"art"
 art = ExtResource("1_taq0v")
 figure_height = 310.0

@@ -7,8 +7,8 @@
 script = ExtResource("2_btb52")
 display_name = "INFERNO BIKER"
 role = 4
-max_hp = 4270
-atk = 403
+max_hp = 3890
+atk = 447
 armored = true
 is_boss = true
 kind = &"art"

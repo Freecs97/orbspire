@@ -7,8 +7,8 @@
 script = ExtResource("2_tm5ej")
 display_name = "SOLAR FLARE SPRITE"
 role = 4
-max_hp = 700
-atk = 134
+max_hp = 640
+atk = 148
 kind = &"art"
 art = ExtResource("1_tqnxu")
 figure_height = 240.0

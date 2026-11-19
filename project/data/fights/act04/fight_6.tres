@@ -9,4 +9,4 @@ script = ExtResource("3_8pghd")
 display_name = "6/8 · NOCTURNE · NIGHT STALKERS"
 enemies = Array[ExtResource("1_n7444")]([ExtResource("2_fmpro"), ExtResource("2_fmpro")])
 xp = 385
-expected_level = 14
+expected_level = 15

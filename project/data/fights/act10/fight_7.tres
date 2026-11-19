@@ -9,4 +9,4 @@ script = ExtResource("3_ba6vq")
 display_name = "7/8 · MINI-BOSS: OBSIDIAN (VOID CULTIST)"
 enemies = Array[ExtResource("1_mieiu")]([ExtResource("2_cdswr")])
 xp = 4655
-expected_level = 28
+expected_level = 29

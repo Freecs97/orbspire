@@ -9,4 +9,4 @@ script = ExtResource("3_qd0kc")
 display_name = "3/8 · MINI-BOSS: AURELIUS (HALO GUARD)"
 enemies = Array[ExtResource("1_ajgar")]([ExtResource("2_rnc23")])
 xp = 2505
-expected_level = 24
+expected_level = 25

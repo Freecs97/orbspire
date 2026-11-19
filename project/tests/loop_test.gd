@@ -125,6 +125,10 @@ func _run(section: String) -> bool:
 func _process(_delta: float) -> void:
 	if battle and battle.team:
 		max_team_hp_seen = maxi(max_team_hp_seen, battle.team.hp)
+	# Acts 2-10 have story beats since Stage 6 (boss taunt, outro): skip them here
+	# (they are tested in story_test); the rules are what this test checks.
+	if battle and battle.act != null and battle.story_beat.is_open():
+		battle.story_beat.close()
 
 
 # ---------------------------------------------------------------- original loop tests (new numbers)
@@ -799,7 +803,8 @@ func _test_act_fights(n: int, speed: float) -> void:
 	var act: ActData = StarMap.ACTS[n - 1]
 	battle.set_team(_team_for_act(n))
 	battle.act_fights = act.fights
-	# Acts 2-10 have no story beats, so the battle can know its Act (titles, "ACT n CLEAR!").
+	# Acts 2-10: the battle knows its Act (titles, "ACT n CLEAR!"); their story beats
+	# are skipped by _process. Act 1 runs without one (its beats are story_test's job).
 	battle.act = act if n >= 2 else null
 	Engine.time_scale = speed   # play animations faster; the rules don't change
 	for i in act.fights.size():

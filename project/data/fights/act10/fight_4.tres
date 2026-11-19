@@ -9,4 +9,4 @@ script = ExtResource("3_4jl7s")
 display_name = "4/8 · FORGE BRUTES"
 enemies = Array[ExtResource("1_cy46r")]([ExtResource("2_e8ir7"), ExtResource("2_e8ir7"), ExtResource("2_e8ir7")])
 xp = 1970
-expected_level = 27
+expected_level = 28

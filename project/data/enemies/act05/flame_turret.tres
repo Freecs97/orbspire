@@ -7,8 +7,8 @@
 script = ExtResource("2_2net5")
 display_name = "FLAME TURRET"
 role = 4
-max_hp = 650
-atk = 111
+max_hp = 560
+atk = 117
 kind = &"art"
 art = ExtResource("1_c1xw2")
 figure_height = 260.0

@@ -9,4 +9,4 @@ script = ExtResource("3_llo5u")
 display_name = "8/8 · BOSS: REAPER-0"
 enemies = Array[ExtResource("1_dix40")]([ExtResource("2_dagda")])
 xp = 6800
-expected_level = 29
+expected_level = 30

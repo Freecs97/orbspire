@@ -14,7 +14,7 @@ extends Node
 
 const BATTLE := preload("res://scenes/battle.tscn")
 const STORY: StoryData = preload("res://data/story/story.tres")
-const NEW_SAVE := {"intro_seen": false, "cleared_acts": [], "act_fight": {}, "codex": [], "slot4_notice": false}
+const NEW_SAVE := {"intro_seen": false, "cleared_acts": [], "act_fight": {}, "codex": [], "slot4_notice": false, "act_intros": []}
 
 ## Tests point this somewhere else so they never touch your real save.
 var save_path := "user://save.json"
@@ -60,7 +60,10 @@ func _ready() -> void:
 	ui.add_child(codex)
 	title.start_pressed.connect(_on_start)
 	title.new_game_confirmed.connect(_on_new_game)
-	star_map.play_pressed.connect(func(n: int) -> void: start_act(n, _act_fight(n), false))
+	# An Act's 2-line intro plays once: the first time you start it at fight 1.
+	star_map.play_pressed.connect(func(n: int) -> void:
+		var fight := _act_fight(n)
+		start_act(n, fight, fight == 0 and not n in save.get("act_intros", [])))
 	if "--map-test-state" in OS.get_cmdline_user_args():
 		_set_map_test_state()
 	show_title()
@@ -157,6 +160,11 @@ func start_act(n: int, fight: int, with_intro: bool) -> void:
 	battle.profile = profile
 	battle.start_fight = clampi(fight, 0, a.fights.size() - 1)
 	battle.play_act_intro = with_intro
+	if with_intro:
+		if not save.has("act_intros"):
+			save["act_intros"] = []
+		if not n in save["act_intros"]:
+			save["act_intros"].append(n)
 	if n >= 2 and not save.get("slot4_notice", save.get("spectre_joined", false)):
 		battle.show_join_notice = true
 		save["slot4_notice"] = true
@@ -221,10 +229,24 @@ func _load() -> void:
 				save["cleared_acts"].append(1)
 			if data.has("act1_fight"):
 				save["act_fight"]["1"] = int(data["act1_fight"])
+			# Saves from before Stage 6: Acts already started or cleared skip their intro.
+			if not data.has("act_intros"):
+				var seen := []
+				if save["intro_seen"]:
+					seen.append(1)
+				for a in save["cleared_acts"]:
+					seen.append(int(a))
+				for k in save["act_fight"]:
+					seen.append(int(k))
+				save["act_intros"] = seen
 	var ints: Array = []
 	for n in save["cleared_acts"]:
 		ints.append(int(n))
 	save["cleared_acts"] = ints
+	var seen_ints: Array = []
+	for n in save.get("act_intros", []):
+		seen_ints.append(int(n))
+	save["act_intros"] = seen_ints
 	_make_profile()
 
 

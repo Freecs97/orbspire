@@ -1,90 +1,123 @@
+STAGE 6 · Acts 2-10 rebuilt one at a time on the new balance (2026-11-19)
+Player model: 240 simulated players, real reward / Recruit / Lab / evolution / level-cap code, every fight won on the first try.
+They spend: Keys -> Key Recruit, Essence -> craft, capped hunters -> evolve (buying Cores), save for the next evolution, Basic Recruits up to 8 characters, then Training Cores for the lowest hunter.
+Team = their 4 strongest hunters (3 in Act 1). Fights are tuned to the TYPICAL team (median per slot), element-neutral; win rates use each player's own team and real elements.
 
-ACT 2 · DROWNED METRO · WATER · 1450 XP (Lv10 -> Lv12)
-  1/8 · DROWNED DRIFTERS                 Lv10  2 x   560 HP  ATK   99  | good 2, avg  4, idle 11, survives good yes / avg yes, great turn KILLS | 65 XP
-  2/8 · PIPE CRAWLERS                    Lv10  3 x   560 HP  ATK   80  | good 3, avg  6, idle 10, survives good yes / avg yes, great turn KILLS | 85 XP
-  3/8 · MINI-BOSS: TIDE GUARD            Lv10  1 x  3290 HP  ATK  296 ARMOUR  | good 5, avg 12, idle  8, survives good yes / avg yes, great turn leaves 1395 | 195 XP
-  4/8 · ASH IMPS                         Lv10  3 x   510 HP  ATK   89  | good 3, avg  6, idle  9, survives good yes / avg yes, great turn KILLS | 120 XP
-  5/8 · MIRAGE · HOLO DECOYS             Lv10  2 x  1160 HP  ATK  133  | good 3, avg  6, idle  9, survives good yes / avg yes, great turn KILLS | 140 XP
-  6/8 · SPECTRA · GLITCH GHOSTS          Lv10  2 x   780 HP  ATK  133  | good 3, avg  6, idle  9, survives good yes / avg yes, great turn KILLS | 160 XP
-  7/8 · MINI-BOSS: DEEP DIVER MUTANT     Lv11  1 x  3600 HP  ATK  306 ARMOUR  | good 6, avg 13, idle  8, survives good yes / avg yes, great turn leaves 1540 | 280 XP
-  8/8 · BOSS: TIDECOIL-7                 Lv11  1 x  4370 HP  ATK  306 ARMOUR  | good 7, avg 15, idle  8, survives good yes / avg NO, great turn leaves 2124 | 405 XP
+ACT 1 · ORBSPIRE (already built, Stage 1 numbers, not changed; played here so Act 2 starts from real teams)
+  1/8 · HELIOS · SOLAR DRONE                 Lv 1 1 x   330 HP ATK   58 | typical team: good 2, avg  3, idle  6, great turn KILLS | players win: good play 100% (K 100% / U 100%), average 100%, median 2 turns | 100 XP
+  2/8 · COOLANT SLIME                        Lv 2 1 x   300 HP ATK   52 | typical team: good 2, avg  3, idle 13, great turn KILLS | players win: good play 100% (K 100% / U 100%), average 100%, median 1 turns | 135 XP
+  3/8 · MINI-BOSS: FURNACE WORKER            Lv 3 1 x  1950 HP ATK  192 ARMOUR | typical team: good 7, avg 14, idle  6, great turn leaves 975 | players win: good play  98% (K 99% / U 98%), average  47%, median 5 turns | 300 XP
+  4/8 · SPORE SPROUTS                        Lv 5 2 x   460 HP ATK   64 | typical team: good 4, avg  8, idle 10, great turn KILLS | players win: good play 100% (K 100% / U 100%), average 100%, median 3 turns | 185 XP
+  5/8 · EMBER DRONE                          Lv 5 1 x   600 HP ATK   96 | typical team: good 2, avg  4, idle 13, great turn KILLS | players win: good play 100% (K 100% / U 100%), average 100%, median 2 turns | 215 XP
+  6/8 · SHADE · SHADOW THIEVES               Lv 6 2 x   560 HP ATK   98 | typical team: good 4, avg  8, idle  7, great turn KILLS | players win: good play 100% (K 100% / U 100%), average 100%, median 3 turns | 250 XP
+  7/8 · MINI-BOSS: FORGE BRUTE               Lv 7 1 x  2600 HP ATK  210 ARMOUR | typical team: good 8, avg 16, idle  7, great turn leaves 1300 | players win: good play 100% (K 100% / U 100%), average  46%, median 5 turns | 430 XP
+  8/8 · BOSS: EMBERFANG-9                    Lv 8 1 x  2900 HP ATK  216 ARMOUR | typical team: good 8, avg 16, idle  7, great turn leaves 1505 | players win: good play 100% (K 100% / U 100%), average  47%, median 5 turns | 635 XP
+  After the boss: team levels Lv10 / Lv10 / Lv9 (strongest first) · team rarity: Scrap 67%, Forged 33% · evolution: Stage 1 100%, Stage 2 0%, Stage 3 0% · lead evolved: 0% · owns 6 characters · 40 Credits left (medians)
 
-ACT 3 · GREENHOUSE RUINS · WOOD · 2350 XP (Lv12 -> Lv14)
-  1/8 · POLLEN WISPS                     Lv12  2 x   710 HP  ATK  108  | good 2, avg  4, idle 11, survives good yes / avg yes, great turn KILLS | 105 XP
-  2/8 · OVERGROWTH SPROUTLINGS           Lv12  3 x   710 HP  ATK   86  | good 3, avg  6, idle  9, survives good yes / avg yes, great turn KILLS | 140 XP
-  3/8 · MINI-BOSS: VINE STRANGLER        Lv12  1 x  5490 HP  ATK  321 ARMOUR  | good 6, avg 11, idle  8, survives good yes / avg yes, great turn leaves 2320 | 315 XP
-  4/8 · BUBBLE BOMBERS                   Lv12  3 x   610 HP  ATK   95  | good 3, avg  9, idle  8, survives good yes / avg yes, great turn KILLS | 190 XP
-  5/8 · PRISMA · PRISM WISPS             Lv12  2 x  1260 HP  ATK  144  | good 3, avg  6, idle  8, survives good yes / avg yes, great turn KILLS | 225 XP
-  6/8 · NIX · VOID IMPS                  Lv12  2 x   850 HP  ATK  144  | good 3, avg  6, idle  8, survives good yes / avg yes, great turn KILLS | 260 XP
-  7/8 · MINI-BOSS: THORN BRUTE           Lv13  1 x  5690 HP  ATK  333 ARMOUR  | good 6, avg 11, idle  8, survives good yes / avg yes, great turn leaves 2415 | 455 XP
-  8/8 · BOSS: THORNWOOD UNIT             Lv13  1 x  6730 HP  ATK  333 ARMOUR  | good 7, avg 14, idle  8, survives good yes / avg NO, great turn leaves 2855 | 660 XP
+ACT 2 · DROWNED METRO (Flooded Colony) · TIDECOIL-7 · WATER · arena bg_act02_drowned_arena · 1450 XP
+  Typical team at the start: Lv10 Forged St1 Berserker (469/139/15), Lv10 Scrap St1 Biotech (436/90/57), Lv9 Scrap St1 Titan (565/94/31), Lv1 Alloy St1 Spectre (212/101/7)
+  1/8 · DROWNED DRIFTERS                     Lv10 2 x   340 HP ATK   89 | typical team: good 2, avg  4, idle 10, great turn KILLS | players win: good play 100% (K 100% / U 100%), average 100%, median 2 turns | 65 XP
+  2/8 · PIPE CRAWLERS                        Lv10 3 x   350 HP ATK   71 | typical team: good 3, avg  9, idle  8, great turn KILLS | players win: good play 100% (K 100% / U 100%), average 100%, median 3 turns | 85 XP
+  3/8 · MINI-BOSS: TIDE GUARD                Lv10 1 x  3110 HP ATK  274 ARMOUR | typical team: good 7, avg 15, idle  7, great turn leaves 1555 | players win: good play  96% (K 98% / U 95%), average  61%, median 4 turns | 195 XP
+  4/8 · ASH IMPS                             Lv10 3 x   380 HP ATK   81 | typical team: good 3, avg  9, idle  8, great turn KILLS | players win: good play 100% (K 100% / U 100%), average 100%, median 2 turns | 120 XP
+  5/8 · MIRAGE · HOLO DECOYS                 Lv11 2 x   640 HP ATK  125 | typical team: good 4, avg  8, idle  8, great turn KILLS | players win: good play 100% (K 100% / U 100%), average 100%, median 3 turns | 140 XP
+  6/8 · SPECTRA · GLITCH GHOSTS              Lv11 2 x   690 HP ATK  128 | typical team: good 4, avg  8, idle  8, great turn KILLS | players win: good play 100% (K 100% / U 100%), average 100%, median 3 turns | 160 XP
+  7/8 · MINI-BOSS: DEEP DIVER MUTANT         Lv11 1 x  3350 HP ATK  295 ARMOUR | typical team: good 7, avg 16, idle  7, great turn leaves 1675 | players win: good play  97% (K 98% / U 97%), average  61%, median 4 turns | 280 XP
+  8/8 · BOSS: TIDECOIL-7                     Lv11 1 x  3910 HP ATK  298 ARMOUR | typical team: good 8, avg 19, idle  7, great turn leaves 1955 | players win: good play  94% (K 93% / U 94%), average  45%, median 5 turns | 405 XP
+  After the boss: team levels Lv12 / Lv12 / Lv12 / Lv12 (strongest first) · team rarity: Scrap 45%, Alloy 16%, Forged 39% · evolution: Stage 1 100%, Stage 2 0%, Stage 3 0% · lead evolved: 0% · owns 8 characters · 10 Credits left (medians)
 
-ACT 4 · UPPER SPIRES · LIGHT · 3450 XP (Lv14 -> Lv16)
-  1/8 · LUMEN · RADIANT SPRITES          Lv14  2 x   780 HP  ATK  116  | good 2, avg  4, idle 11, survives good yes / avg yes, great turn KILLS | 155 XP
-  2/8 · SOL · SUN SQUIRES                Lv14  3 x   780 HP  ATK   93  | good 3, avg  6, idle  9, survives good yes / avg yes, great turn KILLS | 205 XP
-  3/8 · MINI-BOSS: AURELIUS (HALO GUARD) Lv14  1 x  5580 HP  ATK  348 ARMOUR  | good 6, avg  9, idle  8, survives good yes / avg yes, great turn leaves 2330 | 460 XP
-  4/8 · MOSS ZOMBIES                     Lv14  3 x   780 HP  ATK  103  | good 3, avg  6, idle  8, survives good yes / avg yes, great turn KILLS | 280 XP
-  5/8 · LUX · BEACON SNIPERS             Lv14  2 x  1370 HP  ATK  155  | good 4, avg  6, idle  8, survives good yes / avg yes, great turn KILLS | 330 XP
-  6/8 · NOCTURNE · NIGHT STALKERS        Lv14  2 x   940 HP  ATK  155  | good 3, avg  6, idle  8, survives good yes / avg yes, great turn KILLS | 385 XP
-  7/8 · MINI-BOSS: ECHO (MIRROR MIMIC)   Lv15  1 x  5750 HP  ATK  360 ARMOUR  | good 6, avg  9, idle  8, survives good yes / avg yes, great turn leaves 2420 | 665 XP
-  8/8 · BOSS: DAWNWING                   Lv15  1 x  7000 HP  ATK  360 ARMOUR  | good 7, avg 11, idle  8, survives good yes / avg yes, great turn leaves 3186 | 970 XP
+ACT 3 · GREENHOUSE RUINS (Bio-Colony) · THORNWOOD UNIT · WOOD · arena bg_act03_greenhouse_arena · 2350 XP
+  Typical team at the start: Lv12 Forged St1 Berserker (502/149/16), Lv12 Forged St1 Biotech (549/113/72), Lv12 Scrap St1 Titan (627/104/35), Lv12 Alloy St1 Spectre (332/159/12)
+  1/8 · POLLEN WISPS                         Lv12 2 x   450 HP ATK  107 | typical team: good 2, avg  6, idle 10, great turn KILLS | players win: good play 100% (K 100% / U 100%), average 100%, median 2 turns | 105 XP
+  2/8 · OVERGROWTH SPROUTLINGS               Lv12 3 x   450 HP ATK   85 | typical team: good 3, avg  9, idle  8, great turn KILLS | players win: good play 100% (K 100% / U 100%), average 100%, median 3 turns | 140 XP
+  3/8 · MINI-BOSS: VINE STRANGLER            Lv12 1 x  3240 HP ATK  320 ARMOUR | typical team: good 8, avg 16, idle  7, great turn leaves 1620 | players win: good play  96% (K 97% / U 96%), average  56%, median 5 turns | 315 XP
+  4/8 · BUBBLE BOMBERS                       Lv13 3 x   450 HP ATK   95 | typical team: good 3, avg  9, idle  8, great turn KILLS | players win: good play 100% (K 100% / U 100%), average 100%, median 3 turns | 190 XP
+  5/8 · PRISMA · PRISM WISPS                 Lv13 2 x   750 HP ATK  142 | typical team: good 4, avg  8, idle  8, great turn KILLS | players win: good play 100% (K 100% / U 100%), average 100%, median 3 turns | 225 XP
+  6/8 · NIX · VOID IMPS                      Lv13 2 x   750 HP ATK  142 | typical team: good 4, avg  8, idle  8, great turn KILLS | players win: good play 100% (K 100% / U 100%), average 100%, median 3 turns | 260 XP
+  7/8 · MINI-BOSS: THORN BRUTE               Lv13 1 x  3670 HP ATK  326 ARMOUR | typical team: good 7, avg 17, idle  7, great turn leaves 1835 | players win: good play  97% (K 96% / U 98%), average  55%, median 5 turns | 455 XP
+  8/8 · BOSS: THORNWOOD UNIT                 Lv13 1 x  4280 HP ATK  334 ARMOUR | typical team: good 8, avg 20, idle  7, great turn leaves 2140 | players win: good play  90% (K 89% / U 92%), average  40%, median 6 turns | 660 XP
+  After the boss: team levels Lv14 / Lv14 / Lv14 / Lv14 (strongest first) · team rarity: Scrap 33%, Alloy 17%, Forged 46%, Prime 3% · evolution: Stage 1 100%, Stage 2 0%, Stage 3 0% · lead evolved: 0% · owns 9 characters · 1460 Credits left (medians)
 
-ACT 5 · VOID QUARTER · DARK · 4750 XP (Lv16 -> Lv18)
-  1/8 · MORPHEUS · NIGHTMARE DRONES      Lv16  2 x   600 HP  ATK  126  | good 2, avg  4, idle 11, survives good yes / avg yes, great turn KILLS | 210 XP
-  2/8 · OBSIDIAN · VOID CULTISTS         Lv16  3 x   600 HP  ATK  101  | good 3, avg  6, idle  9, survives good yes / avg yes, great turn KILLS | 280 XP
-  3/8 · MINI-BOSS: EREBUS (ECLIPSE ASSASSIN) Lv16  1 x  3740 HP  ATK  376 ARMOUR  | good 6, avg 11, idle  7, survives good yes / avg yes, great turn leaves 1540 | 635 XP
-  4/8 · FLAME TURRETS                    Lv16  3 x   650 HP  ATK  111  | good 3, avg  6, idle  8, survives good yes / avg yes, great turn KILLS | 385 XP
-  5/8 · AURORA · DAWN ACOLYTES           Lv16  2 x  1500 HP  ATK  168  | good 4, avg  6, idle  8, survives good yes / avg yes, great turn KILLS | 455 XP
-  6/8 · CIPHER · DARK HACKERS            Lv16  2 x  1020 HP  ATK  168  | good 3, avg  6, idle  8, survives good yes / avg yes, great turn KILLS | 530 XP
-  7/8 · MINI-BOSS: UMBRA (UMBRA HOUND)   Lv17  1 x  3850 HP  ATK  386 ARMOUR  | good 6, avg 11, idle  7, survives good yes / avg yes, great turn leaves 1590 | 915 XP
-  8/8 · BOSS: VOIDSCALE                  Lv17  1 x  4710 HP  ATK  386 ARMOUR  | good 7, avg 13, idle  7, survives good yes / avg NO, great turn leaves 1945 | 1340 XP
+ACT 4 · UPPER SPIRES (Surveillance Colony) · DAWNWING · LIGHT · arena bg_act04_spires_arena · 3450 XP
+  Typical team at the start: Lv14 Forged St1 Berserker (535/159/17), Lv14 Forged St1 Biotech (585/120/77), Lv14 Alloy St1 Titan (723/120/40), Lv14 Alloy St1 Spectre (354/169/12)
+  1/8 · LUMEN · RADIANT SPRITES              Lv14 2 x   500 HP ATK  119 | typical team: good 3, avg  6, idle 10, great turn KILLS | players win: good play 100% (K 100% / U 100%), average 100%, median 2 turns | 155 XP
+  2/8 · SOL · SUN SQUIRES                    Lv14 3 x   500 HP ATK   95 | typical team: good 5, avg  9, idle  8, great turn KILLS | players win: good play 100% (K 100% / U 100%), average 100%, median 3 turns | 205 XP
+  3/8 · MINI-BOSS: AURELIUS (HALO GUARD)     Lv14 1 x  3370 HP ATK  355 ARMOUR | typical team: good 7, avg 16, idle  7, great turn leaves 1685 | players win: good play 100% (K 100% / U 100%), average  45%, median 5 turns | 460 XP
+  4/8 · MOSS ZOMBIES                         Lv14 3 x   500 HP ATK  106 | typical team: good 5, avg  9, idle  7, great turn KILLS | players win: good play 100% (K 100% / U 100%), average 100%, median 3 turns | 280 XP
+  5/8 · LUX · BEACON SNIPERS                 Lv15 2 x   880 HP ATK  164 | typical team: good 4, avg  8, idle  7, great turn KILLS | players win: good play 100% (K 100% / U 100%), average 100%, median 3 turns | 330 XP
+  6/8 · NOCTURNE · NIGHT STALKERS            Lv15 2 x   880 HP ATK  164 | typical team: good 4, avg  8, idle  7, great turn KILLS | players win: good play 100% (K 100% / U 100%), average 100%, median 3 turns | 385 XP
+  7/8 · MINI-BOSS: ECHO (MIRROR MIMIC)       Lv15 1 x  4350 HP ATK  375 ARMOUR | typical team: good 7, avg 17, idle  7, great turn leaves 2175 | players win: good play  98% (K 98% / U 98%), average  30%, median 6 turns | 665 XP
+  8/8 · BOSS: DAWNWING                       Lv15 1 x  5070 HP ATK  375 ARMOUR | typical team: good 9, avg 20, idle  7, great turn leaves 2535 | players win: good play  93% (K 91% / U 94%), average  21%, median 6 turns | 970 XP
+  After the boss: team levels Lv16 / Lv15 / Lv15 / Lv15 (strongest first) · team rarity: Scrap 29%, Alloy 12%, Forged 53%, Prime 7% · evolution: Stage 1 50%, Stage 2 50%, Stage 3 0% · lead evolved: 100% · owns 10 characters · 940 Credits left (medians)
 
-ACT 6 · SOLAR FARMS · FIRE · 6250 XP (Lv18 -> Lv20)
-  1/8 · SOLAR FLARE SPRITES              Lv18  2 x   700 HP  ATK  134  | good 2, avg  4, idle 11, survives good yes / avg yes, great turn KILLS | 280 XP
-  2/8 · PYRO CULTISTS                    Lv18  3 x   700 HP  ATK  108  | good 3, avg  6, idle  9, survives good yes / avg yes, great turn KILLS | 370 XP
-  3/8 · MINI-BOSS: INFERNO BIKER         Lv18  1 x  4270 HP  ATK  403 ARMOUR  | good 6, avg 12, idle  7, survives good yes / avg yes, great turn leaves 1735 | 835 XP
-  4/8 · ROOT CRAWLERS                    Lv18  3 x   910 HP  ATK  120  | good 3, avg  6, idle  8, survives good yes / avg yes, great turn KILLS | 510 XP
-  5/8 · CASSIAN · LIGHT CULTISTS         Lv18  2 x  1620 HP  ATK  180  | good 4, avg  6, idle  8, survives good yes / avg yes, great turn KILLS | 600 XP
-  6/8 · MORTIS · REAPER ACOLYTES         Lv18  2 x  1090 HP  ATK  180  | good 3, avg  6, idle  8, survives good yes / avg yes, great turn KILLS | 695 XP
-  7/8 · MINI-BOSS: MOLTEN SCRAPBOT       Lv19  1 x  4390 HP  ATK  415 ARMOUR  | good 6, avg 12, idle  7, survives good yes / avg yes, great turn leaves 1795 | 1205 XP
-  8/8 · BOSS: ASHEN-01                   Lv19  1 x  5380 HP  ATK  415 ARMOUR  | good 7, avg 14, idle  7, survives good yes / avg NO, great turn leaves 2200 | 1755 XP
+ACT 5 · VOID QUARTER (Dead-Network Colony) · VOIDSCALE · DARK · arena bg_act05_void_arena · 4750 XP
+  Typical team at the start: Lv16 Forged St2 Berserker (625/186/20), Lv15 Forged St2 Biotech (664/137/87), Lv15 Alloy St1 Titan (746/124/41), Lv15 Forged St1 Spectre (397/190/14)
+  1/8 · MORPHEUS · NIGHTMARE DRONES          Lv16 2 x   580 HP ATK  134 | typical team: good 3, avg  6, idle 10, great turn KILLS | players win: good play 100% (K 100% / U 100%), average 100%, median 2 turns | 210 XP
+  2/8 · OBSIDIAN · VOID CULTISTS             Lv16 3 x   580 HP ATK  107 | typical team: good 5, avg  9, idle  8, great turn KILLS | players win: good play 100% (K 100% / U 100%), average 100%, median 3 turns | 280 XP
+  3/8 · MINI-BOSS: EREBUS (ECLIPSE ASSASSIN) Lv16 1 x  3510 HP ATK  398 ARMOUR | typical team: good 7, avg 15, idle  7, great turn leaves 1755 | players win: good play 100% (K 100% / U 99%), average  50%, median 4 turns | 635 XP
+  4/8 · FLAME TURRETS                        Lv16 3 x   560 HP ATK  117 | typical team: good 5, avg  9, idle  7, great turn KILLS | players win: good play 100% (K 100% / U 100%), average 100%, median 3 turns | 385 XP
+  5/8 · AURORA · DAWN ACOLYTES               Lv16 2 x   930 HP ATK  181 | typical team: good 4, avg  8, idle  7, great turn KILLS | players win: good play 100% (K 100% / U 100%), average 100%, median 3 turns | 455 XP
+  6/8 · CIPHER · DARK HACKERS                Lv17 2 x   950 HP ATK  183 | typical team: good 4, avg  8, idle  7, great turn KILLS | players win: good play 100% (K 100% / U 100%), average 100%, median 3 turns | 530 XP
+  7/8 · MINI-BOSS: UMBRA (UMBRA HOUND)       Lv17 1 x  4630 HP ATK  411 ARMOUR | typical team: good 7, avg 17, idle  7, great turn leaves 2315 | players win: good play  98% (K 96% / U 99%), average  38%, median 5 turns | 915 XP
+  8/8 · BOSS: VOIDSCALE                      Lv17 1 x  5380 HP ATK  417 ARMOUR | typical team: good 9, avg 20, idle  7, great turn leaves 2690 | players win: good play  91% (K 89% / U 93%), average  26%, median 6 turns | 1340 XP
+  After the boss: team levels Lv18 / Lv17 / Lv16 / Lv15 (strongest first) · team rarity: Scrap 29%, Alloy 6%, Forged 51%, Prime 13%, Ascendant 2% · evolution: Stage 1 3%, Stage 2 97%, Stage 3 0% · lead evolved: 100% · owns 11 characters · 0 Credits left (medians)
 
-ACT 7 · DATA ABYSS · WATER · 7950 XP (Lv20 -> Lv22)
-  1/8 · KRAKEN SPAWNLINGS                Lv20  2 x   840 HP  ATK  144  | good 2, avg  6, idle 11, survives good yes / avg yes, great turn KILLS | 355 XP
-  2/8 · HYDRO HACKERS                    Lv20  3 x   840 HP  ATK  116  | good 3, avg  9, idle  9, survives good yes / avg yes, great turn KILLS | 470 XP
-  3/8 · MINI-BOSS: RAIN ASSASSIN         Lv20  1 x  5240 HP  ATK  432 ARMOUR  | good 6, avg 13, idle  7, survives good yes / avg NO, great turn leaves 2100 | 1060 XP
-  4/8 · PLASMA HOUNDS                    Lv20  3 x   750 HP  ATK  128  | good 3, avg  6, idle  8, survives good yes / avg yes, great turn KILLS | 650 XP
-  5/8 · PRISMA · PRISM WISPS             Lv20  2 x  1740 HP  ATK  193  | good 4, avg  6, idle  8, survives good yes / avg yes, great turn KILLS | 765 XP
-  6/8 · MORPHEUS · NIGHTMARE DRONES      Lv20  2 x  1180 HP  ATK  193  | good 3, avg  6, idle  8, survives good yes / avg yes, great turn KILLS | 885 XP
-  7/8 · MINI-BOSS: FLOOD MEDIC           Lv21  1 x  5370 HP  ATK  443 ARMOUR  | good 6, avg 13, idle  7, survives good yes / avg NO, great turn leaves 2176 | 1530 XP
-  8/8 · BOSS: KRAKEN MAINFRAME           Lv21  1 x  6510 HP  ATK  443 ARMOUR  | good 7, avg 16, idle  7, survives good yes / avg NO, great turn leaves 3106 | 2235 XP
+ACT 6 · SOLAR FARMS (Energy Colony) · ASHEN-01 · FIRE · arena bg_act06_solar_arena · 6250 XP
+  Typical team at the start: Lv18 Forged St2 Berserker (662/196/21), Lv17 Forged St2 Biotech (704/145/92), Lv16 Alloy St2 Titan (845/140/47), Lv15 Forged St2 Spectre (436/209/15)
+  1/8 · SOLAR FLARE SPRITES                  Lv18 2 x   640 HP ATK  148 | typical team: good 3, avg  6, idle  9, great turn KILLS | players win: good play 100% (K 100% / U 100%), average 100%, median 2 turns | 280 XP
+  2/8 · PYRO CULTISTS                        Lv18 3 x   650 HP ATK  118 | typical team: good 5, avg  9, idle  8, great turn KILLS | players win: good play 100% (K 100% / U 100%), average 100%, median 3 turns | 370 XP
+  3/8 · MINI-BOSS: INFERNO BIKER             Lv18 1 x  3890 HP ATK  447 ARMOUR | typical team: good 7, avg 15, idle  7, great turn leaves 1945 | players win: good play 100% (K 100% / U 100%), average  72%, median 4 turns | 835 XP
+  4/8 · ROOT CRAWLERS                        Lv18 3 x   650 HP ATK  133 | typical team: good 5, avg  9, idle  7, great turn KILLS | players win: good play 100% (K 100% / U 100%), average 100%, median 3 turns | 510 XP
+  5/8 · CASSIAN · LIGHT CULTISTS             Lv18 2 x  1090 HP ATK  201 | typical team: good 4, avg  8, idle  7, great turn KILLS | players win: good play 100% (K 100% / U 100%), average  99%, median 3 turns | 600 XP
+  6/8 · MORTIS · REAPER ACOLYTES             Lv19 2 x  1120 HP ATK  202 | typical team: good 4, avg 10, idle  7, great turn KILLS | players win: good play 100% (K 100% / U 100%), average 100%, median 3 turns | 695 XP
+  7/8 · MINI-BOSS: MOLTEN SCRAPBOT           Lv19 1 x  4820 HP ATK  459 ARMOUR | typical team: good 8, avg 18, idle  7, great turn leaves 2410 | players win: good play  98% (K 97% / U 99%), average  59%, median 4 turns | 1205 XP
+  8/8 · BOSS: ASHEN-01                       Lv19 1 x  5600 HP ATK  462 ARMOUR | typical team: good 9, avg 20, idle  7, great turn leaves 2800 | players win: good play  95% (K 91% / U 98%), average  52%, median 5 turns | 1755 XP
+  After the boss: team levels Lv20 / Lv20 / Lv19 / Lv19 (strongest first) · team rarity: Scrap 29%, Alloy 4%, Forged 46%, Prime 18%, Ascendant 3% · evolution: Stage 1 0%, Stage 2 100%, Stage 3 0% · lead evolved: 100% · owns 13 characters · 40 Credits left (medians)
 
-ACT 8 · GENE LABS · WOOD · 9850 XP (Lv22 -> Lv24)
-  1/8 · BIO HOUNDS                       Lv22  2 x  1050 HP  ATK  155  | good 2, avg  4, idle 11, survives good yes / avg yes, great turn KILLS | 440 XP
-  2/8 · MOSS ZOMBIES                     Lv22  3 x  1050 HP  ATK  123  | good 3, avg  6, idle  9, survives good yes / avg yes, great turn KILLS | 585 XP
-  3/8 · MINI-BOSS: CHLORO CULTIST        Lv22  1 x  8140 HP  ATK  462 ARMOUR  | good 6, avg 12, idle  7, survives good yes / avg yes, great turn leaves 3230 | 1315 XP
-  4/8 · COOLANT SLIMES                   Lv22  3 x   900 HP  ATK  137  | good 3, avg  9, idle  8, survives good yes / avg yes, great turn KILLS | 805 XP
-  5/8 · ECHO · MIRROR MIMICS             Lv22  2 x  1870 HP  ATK  206  | good 4, avg  6, idle  8, survives good yes / avg yes, great turn KILLS | 950 XP
-  6/8 · UMBRA · UMBRA HOUNDS             Lv22  2 x  1260 HP  ATK  206  | good 3, avg  6, idle  8, survives good yes / avg yes, great turn KILLS | 1095 XP
-  7/8 · MINI-BOSS: GREENHOUSE MUTANT     Lv23  1 x  8330 HP  ATK  473 ARMOUR  | good 6, avg 12, idle  7, survives good yes / avg yes, great turn leaves 3315 | 1895 XP
-  8/8 · BOSS: MOSSBACK CHIMERA           Lv23  1 x  9860 HP  ATK  473 ARMOUR  | good 7, avg 14, idle  7, survives good yes / avg NO, great turn leaves 3920 | 2765 XP
+ACT 7 · DATA ABYSS (Server Colony) · KRAKEN MAINFRAME · WATER · arena bg_act07_data_arena · 7950 XP
+  Typical team at the start: Lv20 Forged St2 Berserker (698/207/22), Lv20 Forged St2 Biotech (763/157/100), Lv19 Forged St2 Titan (998/166/55), Lv19 Forged St2 Spectre (489/234/17)
+  1/8 · KRAKEN SPAWNLINGS                    Lv20 2 x   710 HP ATK  166 | typical team: good 3, avg  6, idle  9, great turn KILLS | players win: good play 100% (K 100% / U 100%), average 100%, median 2 turns | 355 XP
+  2/8 · HYDRO HACKERS                        Lv20 3 x   710 HP ATK  134 | typical team: good 5, avg  9, idle  8, great turn KILLS | players win: good play 100% (K 100% / U 100%), average 100%, median 3 turns | 470 XP
+  3/8 · MINI-BOSS: RAIN ASSASSIN             Lv20 1 x  4260 HP ATK  502 ARMOUR | typical team: good 7, avg 15, idle  6, great turn leaves 2130 | players win: good play  97% (K 97% / U 98%), average  58%, median 4 turns | 1060 XP
+  4/8 · PLASMA HOUNDS                        Lv20 3 x   710 HP ATK  150 | typical team: good 5, avg  9, idle  7, great turn KILLS | players win: good play 100% (K 100% / U 100%), average 100%, median 3 turns | 650 XP
+  5/8 · PRISMA · PRISM WISPS                 Lv20 2 x  1190 HP ATK  224 | typical team: good 4, avg 10, idle  7, great turn KILLS | players win: good play 100% (K 100% / U 100%), average  99%, median 3 turns | 765 XP
+  6/8 · MORPHEUS · NIGHTMARE DRONES          Lv21 2 x  1220 HP ATK  225 | typical team: good 4, avg 10, idle  7, great turn KILLS | players win: good play 100% (K 100% / U 100%), average 100%, median 3 turns | 885 XP
+  7/8 · MINI-BOSS: FLOOD MEDIC               Lv21 1 x  5010 HP ATK  512 ARMOUR | typical team: good 8, avg 17, idle  6, great turn leaves 2505 | players win: good play  95% (K 91% / U 98%), average  51%, median 5 turns | 1530 XP
+  8/8 · BOSS: KRAKEN MAINFRAME               Lv21 1 x  5820 HP ATK  516 ARMOUR | typical team: good 9, avg 20, idle  6, great turn leaves 2910 | players win: good play  89% (K 83% / U 95%), average  38%, median 5 turns | 2235 XP
+  After the boss: team levels Lv22 / Lv22 / Lv22 / Lv22 (strongest first) · team rarity: Scrap 29%, Alloy 4%, Forged 33%, Prime 29%, Ascendant 6%, Singularity 0% · evolution: Stage 1 0%, Stage 2 100%, Stage 3 0% · lead evolved: 100% · owns 14 characters · 10 Credits left (medians)
 
-ACT 9 · CORE SANCTUM · LIGHT · 18775 XP (Lv24 -> Lv27)
-  1/8 · PRISMA · PRISM WISPS             Lv24  2 x  1120 HP  ATK  164  | good 2, avg  4, idle 11, survives good yes / avg yes, great turn KILLS | 835 XP
-  2/8 · CASSIAN · LIGHT CULTISTS         Lv24  3 x  1120 HP  ATK  132  | good 3, avg  6, idle  9, survives good yes / avg yes, great turn KILLS | 1115 XP
-  3/8 · MINI-BOSS: AURELIUS (HALO GUARD) Lv24  1 x  8120 HP  ATK  492 ARMOUR  | good 6, avg  9, idle  7, survives good yes / avg yes, great turn leaves 3175 | 2505 XP
-  4/8 · TIDE GUARDS                      Lv24  3 x   970 HP  ATK  146  | good 3, avg  9, idle  8, survives good yes / avg yes, great turn KILLS | 1530 XP
-  5/8 · SOL · SUN SQUIRES                Lv25  2 x  2040 HP  ATK  224  | good 4, avg  6, idle  8, survives good yes / avg yes, great turn KILLS | 1810 XP
-  6/8 · EREBUS · ECLIPSE ASSASSINS       Lv25  2 x  1390 HP  ATK  224  | good 4, avg  6, idle  8, survives good yes / avg yes, great turn KILLS | 2085 XP
-  7/8 · MINI-BOSS: LUX (BEACON SNIPER)   Lv25  1 x  8310 HP  ATK  503 ARMOUR  | good 6, avg  9, idle  7, survives good yes / avg yes, great turn leaves 3260 | 3615 XP
-  8/8 · BOSS: SERAPH ENFORCER            Lv26  1 x 10340 HP  ATK  514 ARMOUR  | good 7, avg 11, idle  7, survives good yes / avg yes, great turn leaves 4545 | 5280 XP
+ACT 8 · GENE LABS (Splice Labs) · MOSSBACK CHIMERA · WOOD · arena bg_act08_gene_arena · 9850 XP
+  Typical team at the start: Lv22 Forged St2 Berserker (734/218/23), Lv22 Forged St2 Biotech (803/165/106), Lv22 Forged St2 Titan (1079/179/60), Lv22 Forged St2 Spectre (528/252/18)
+  1/8 · BIO HOUNDS                           Lv22 2 x   770 HP ATK  179 | typical team: good 3, avg  6, idle  9, great turn KILLS | players win: good play 100% (K 100% / U 100%), average 100%, median 2 turns | 440 XP
+  2/8 · MOSS ZOMBIES                         Lv22 3 x   770 HP ATK  144 | typical team: good 5, avg  9, idle  8, great turn KILLS | players win: good play 100% (K 100% / U 100%), average 100%, median 3 turns | 585 XP
+  3/8 · MINI-BOSS: CHLORO CULTIST            Lv22 1 x  4650 HP ATK  538 ARMOUR | typical team: good 7, avg 15, idle  6, great turn leaves 2325 | players win: good play  96% (K 94% / U 98%), average  57%, median 4 turns | 1315 XP
+  4/8 · COOLANT SLIMES                       Lv23 3 x   780 HP ATK  162 | typical team: good 5, avg  9, idle  7, great turn KILLS | players win: good play 100% (K 100% / U 100%), average 100%, median 3 turns | 805 XP
+  5/8 · ECHO · MIRROR MIMICS                 Lv23 2 x  1300 HP ATK  241 | typical team: good 4, avg 10, idle  7, great turn KILLS | players win: good play 100% (K 100% / U 100%), average  99%, median 3 turns | 950 XP
+  6/8 · UMBRA · UMBRA HOUNDS                 Lv23 2 x  1300 HP ATK  242 | typical team: good 4, avg 10, idle  7, great turn KILLS | players win: good play 100% (K 100% / U 100%), average 100%, median 3 turns | 1095 XP
+  7/8 · MINI-BOSS: GREENHOUSE MUTANT         Lv23 1 x  5210 HP ATK  552 ARMOUR | typical team: good 8, avg 16, idle  6, great turn leaves 2605 | players win: good play  95% (K 91% / U 99%), average  53%, median 5 turns | 1895 XP
+  8/8 · BOSS: MOSSBACK CHIMERA               Lv24 1 x  6050 HP ATK  555 ARMOUR | typical team: good 9, avg 19, idle  6, great turn leaves 3025 | players win: good play  89% (K 81% / U 97%), average  41%, median 5 turns | 2765 XP
+  After the boss: team levels Lv25 / Lv24 / Lv24 / Lv24 (strongest first) · team rarity: Scrap 29%, Alloy 4%, Forged 24%, Prime 34%, Ascendant 9%, Singularity 0% · evolution: Stage 1 0%, Stage 2 100%, Stage 3 0% · lead evolved: 100% · owns 16 characters · 10 Credits left (medians)
 
-ACT 10 · THE CORE · DARK · 24175 XP (Lv27 -> Lv30)
-  1/8 · NIX · VOID IMPS                  Lv27  2 x   880 HP  ATK  178  | good 2, avg  4, idle 11, survives good yes / avg yes, great turn KILLS | 1075 XP
-  2/8 · SPECTRA · GLITCH GHOSTS          Lv27  3 x   880 HP  ATK  142  | good 3, avg  6, idle  9, survives good yes / avg yes, great turn KILLS | 1435 XP
-  3/8 · MINI-BOSS: NOCTURNE (NIGHT STALKER) Lv27  1 x  5500 HP  ATK  533 ARMOUR  | good 6, avg 11, idle  7, survives good yes / avg yes, great turn leaves 2115 | 3225 XP
-  4/8 · FORGE BRUTES                     Lv27  3 x   960 HP  ATK  158  | good 3, avg  6, idle  8, survives good yes / avg yes, great turn KILLS | 1970 XP
-  5/8 · LUMEN · RADIANT SPRITES          Lv28  2 x  2250 HP  ATK  243  | good 4, avg  6, idle  8, survives good yes / avg yes, great turn KILLS | 2330 XP
-  6/8 · MORTIS · REAPER ACOLYTES         Lv28  2 x  1520 HP  ATK  243  | good 4, avg  6, idle  8, survives good yes / avg yes, great turn KILLS | 2685 XP
-  7/8 · MINI-BOSS: OBSIDIAN (VOID CULTIST) Lv28  1 x  5630 HP  ATK  546 ARMOUR  | good 6, avg 11, idle  7, survives good yes / avg yes, great turn leaves 2165 | 4655 XP
-  8/8 · BOSS: REAPER-0                   Lv29  1 x  7020 HP  ATK  557 ARMOUR  | good 7, avg 14, idle  7, survives good yes / avg NO, great turn leaves 2710 | 6800 XP
+ACT 9 · CORE SANCTUM (Progenitor Headquarters) · SERAPH ENFORCER · LIGHT · arena bg_act09_sanctum_arena · 18775 XP
+  Typical team at the start: Lv25 Forged St2 Berserker (789/234/25), Lv24 Forged St2 Biotech (843/173/111), Lv24 Forged St2 Titan (1132/188/63), Lv24 Forged St2 Spectre (554/265/19)
+  1/8 · PRISMA · PRISM WISPS                 Lv25 2 x   830 HP ATK  193 | typical team: good 3, avg  6, idle  9, great turn KILLS | players win: good play 100% (K 100% / U 100%), average 100%, median 2 turns | 835 XP
+  2/8 · CASSIAN · LIGHT CULTISTS             Lv25 3 x   830 HP ATK  154 | typical team: good 5, avg  9, idle  8, great turn KILLS | players win: good play 100% (K 100% / U 100%), average 100%, median 3 turns | 1115 XP
+  3/8 · MINI-BOSS: AURELIUS (HALO GUARD)     Lv25 1 x  5030 HP ATK  581 ARMOUR | typical team: good 7, avg 15, idle  6, great turn leaves 2515 | players win: good play  98% (K 97% / U 100%), average  45%, median 4 turns | 2505 XP
+  4/8 · TIDE GUARDS                          Lv25 3 x   830 HP ATK  172 | typical team: good 5, avg  9, idle  7, great turn KILLS | players win: good play 100% (K 100% / U 100%), average 100%, median 3 turns | 1530 XP
+  5/8 · SOL · SUN SQUIRES                    Lv25 2 x  1400 HP ATK  261 | typical team: good 4, avg 10, idle  7, great turn KILLS | players win: good play 100% (K 100% / U 100%), average  99%, median 3 turns | 1810 XP
+  6/8 · EREBUS · ECLIPSE ASSASSINS           Lv26 2 x  1440 HP ATK  263 | typical team: good 4, avg 10, idle  7, great turn KILLS | players win: good play 100% (K 100% / U 100%), average 100%, median 3 turns | 2085 XP
+  7/8 · MINI-BOSS: LUX (BEACON SNIPER)       Lv26 1 x  5420 HP ATK  594 ARMOUR | typical team: good 8, avg 16, idle  6, great turn leaves 2710 | players win: good play  98% (K 95% / U 100%), average  45%, median 5 turns | 3615 XP
+  8/8 · BOSS: SERAPH ENFORCER                Lv27 1 x  6450 HP ATK  605 ARMOUR | typical team: good 9, avg 19, idle  6, great turn leaves 3225 | players win: good play  95% (K 92% / U 99%), average  33%, median 5 turns | 5280 XP
+  After the boss: team levels Lv28 / Lv28 / Lv27 / Lv27 (strongest first) · team rarity: Scrap 29%, Alloy 4%, Forged 20%, Prime 35%, Ascendant 12%, Singularity 1% · evolution: Stage 1 0%, Stage 2 100%, Stage 3 0% · lead evolved: 100% · owns 17 characters · 40 Credits left (medians)
+
+ACT 10 · THE CORE (Origin World) · REAPER-0 · DARK · arena bg_act10_core_arena · 24175 XP
+  Typical team at the start: Lv28 Prime St2 Berserker (903/268/28), Lv28 Forged St2 Biotech (923/190/121), Lv27 Forged St2 Titan (1212/201/67), Lv27 Forged St2 Spectre (593/284/21)
+  1/8 · NIX · VOID IMPS                      Lv28 2 x   960 HP ATK  214 | typical team: good 3, avg  6, idle  9, great turn KILLS | players win: good play 100% (K 100% / U 100%), average 100%, median 2 turns | 1075 XP
+  2/8 · SPECTRA · GLITCH GHOSTS              Lv28 3 x   960 HP ATK  172 | typical team: good 5, avg  9, idle  8, great turn KILLS | players win: good play 100% (K 100% / U 100%), average 100%, median 3 turns | 1435 XP
+  3/8 · MINI-BOSS: NOCTURNE (NIGHT STALKER)  Lv28 1 x  5690 HP ATK  640 ARMOUR | typical team: good 7, avg 16, idle  6, great turn leaves 2845 | players win: good play  97% (K 95% / U 99%), average  45%, median 5 turns | 3225 XP
+  4/8 · FORGE BRUTES                         Lv28 3 x   960 HP ATK  192 | typical team: good 5, avg  9, idle  7, great turn KILLS | players win: good play 100% (K 100% / U 100%), average 100%, median 3 turns | 1970 XP
+  5/8 · LUMEN · RADIANT SPRITES              Lv28 2 x  1610 HP ATK  288 | typical team: good 4, avg 10, idle  7, great turn KILLS | players win: good play 100% (K 100% / U 100%), average  98%, median 3 turns | 2330 XP
+  6/8 · MORTIS · REAPER ACOLYTES             Lv29 2 x  1630 HP ATK  292 | typical team: good 4, avg 10, idle  7, great turn KILLS | players win: good play 100% (K 100% / U 100%), average  99%, median 3 turns | 2685 XP
+  7/8 · MINI-BOSS: OBSIDIAN (VOID CULTIST)   Lv29 1 x  5810 HP ATK  666 ARMOUR | typical team: good 7, avg 16, idle  6, great turn leaves 2905 | players win: good play  97% (K 94% / U 99%), average  44%, median 5 turns | 4655 XP
+  8/8 · BOSS: REAPER-0                       Lv30 1 x  7270 HP ATK  681 ARMOUR | typical team: good 9, avg 20, idle  6, great turn leaves 3635 | players win: good play  88% (K 78% / U 98%), average  30%, median 6 turns | 6800 XP
+  After the boss: team levels Lv30 / Lv30 / Lv30 / Lv30 (strongest first) · team rarity: Scrap 29%, Alloy 4%, Forged 18%, Prime 34%, Ascendant 14%, Singularity 1% · evolution: Stage 1 0%, Stage 2 100%, Stage 3 0% · lead evolved: 100% · owns 19 characters · 4600 Credits left (medians)

@@ -9,4 +9,4 @@ script = ExtResource("3_cqe86")
 display_name = "3/8 · MINI-BOSS: NOCTURNE (NIGHT STALKER)"
 enemies = Array[ExtResource("1_dfvql")]([ExtResource("2_ok5gl")])
 xp = 3225
-expected_level = 27
+expected_level = 28

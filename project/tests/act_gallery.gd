@@ -27,6 +27,10 @@ func _ready() -> void:
 		await _settle(main)
 		await _shot("gallery_act%02d_fight1" % n)
 		main.battle._start_battle(7, main.battle.StartMode.NEW_ACT)
+		await _frames(4)
+		if main.battle.story_beat.is_open():
+			await get_tree().create_timer(0.6).timeout
+			await _shot("gallery_act%02d_boss_taunt" % n)   # Stage 6: every boss has a taunt
 		await _settle(main)
 		await _shot("gallery_act%02d_boss" % n)
 		main.show_star_map()
@@ -45,7 +49,9 @@ func _settle(main: Node) -> void:
 
 
 func _shot(n: String) -> void:
-	await RenderingServer.frame_post_draw
+	await _frames(1)
+	if not DisplayServer.window_can_draw():
+		RenderingServer.force_draw(false)
 	var img := get_viewport().get_texture().get_image()
 	img.save_png(ProjectSettings.globalize_path("res://tests/screenshots/%s.png" % n))
 

@@ -7,8 +7,8 @@
 script = ExtResource("2_djou4")
 display_name = "PLASMA HOUND"
 role = 4
-max_hp = 750
-atk = 128
+max_hp = 710
+atk = 150
 kind = &"art"
 art = ExtResource("1_gfypk")
 figure_height = 260.0

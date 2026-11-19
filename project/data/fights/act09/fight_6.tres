@@ -9,4 +9,4 @@ script = ExtResource("3_gchao")
 display_name = "6/8 · EREBUS · ECLIPSE ASSASSINS"
 enemies = Array[ExtResource("1_1ui0d")]([ExtResource("2_idgfn"), ExtResource("2_idgfn")])
 xp = 2085
-expected_level = 25
+expected_level = 26

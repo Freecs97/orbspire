@@ -9,4 +9,4 @@ script = ExtResource("3_0jurh")
 display_name = "6/8 · MORTIS · REAPER ACOLYTES"
 enemies = Array[ExtResource("1_a8uc6")]([ExtResource("2_h4rgs"), ExtResource("2_h4rgs")])
 xp = 695
-expected_level = 18
+expected_level = 19

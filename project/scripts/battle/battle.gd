@@ -171,10 +171,24 @@ func _ready() -> void:
 		backdrop.arena = act.arena
 	get_viewport().size_changed.connect(_apply_layout)
 	_start_battle(start_fight, StartMode.NEW_ACT)
+	# The Act's intro (first time only), then the one-time "slot 4 is open" notice.
+	var beats := []
 	if play_act_intro and act and not act.intro_lines.is_empty():
-		_play_beat(act.intro_lines, act.intro_seconds, ("%s  ·  %s" % [act.colony_name, act.colony_kind]).to_upper())
-	elif show_join_notice:
-		_play_beat(["Team slot 4 is open.", "From Act 2 on, you fight as a team of 4. Fill it on the TEAM screen."], 6.0, "NEW SLOT")
+		beats.append([act.intro_lines, act.intro_seconds, ("%s  ·  %s" % [act.colony_name, act.colony_kind]).to_upper()])
+	if show_join_notice:
+		beats.append([["Team slot 4 is open.", "From Act 2 on, you fight as a team of 4. Fill it on the TEAM screen."], 6.0, "NEW SLOT"])
+	if not beats.is_empty():
+		_play_beats(beats)
+
+
+## Several beats in a row ([lines, seconds, speaker] each), then the player's turn.
+func _play_beats(beats: Array) -> void:
+	_player_turn = false
+	board.lock()
+	for b in beats:
+		await story_beat.play(b[0], b[1], b[2])
+	if not result_panel.visible:
+		_begin_player_turn()
 
 
 ## Lock the board, show a story beat, then hand the turn back to the player.
@@ -593,7 +607,7 @@ func _start_battle(index: int, mode := StartMode.RETRY) -> void:
 	team_level = fight.expected_level if use_level_preview and CombatRules.PROGRESSION.preview_expected_level else 1
 	var leveled: Array[FighterData] = []
 	for d in team_data:
-		leveled.append(CombatRules.at_level(d, team_level))
+		leveled.append(CombatRules.preview_at_level(d, team_level))
 	team = Team.new(leveled)
 	if mode == StartMode.RETRY and not _fight_start_turns.is_empty():
 		team.skill_turns = _carried_charges(_fight_start_turns, _fight_start_uids)

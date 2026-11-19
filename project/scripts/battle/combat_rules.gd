@@ -83,6 +83,25 @@ static func at_level(d: FighterData, level: int) -> FighterData:
 	return c
 
 
+## Preview level for fights with no save behind them (tests, the balance tools):
+## like at_level, but above the Stage 1 cap (Lv15) a hunter must have evolved once
+## in the real game, so it gets Evolution 1's +10% stats and cooldown -1 too.
+static func preview_at_level(d: FighterData, level: int) -> FighterData:
+	var c := at_level(d, level)
+	if level <= PROGRESSION.level_cap(1):
+		return c
+	var m := 1.0 + ECONOMY.evo_stat_bonus
+	c.max_hp = roundi(c.max_hp * m)
+	c.atk = roundi(c.atk * m)
+	c.rcv = roundi(c.rcv * m)
+	c.stage = maxi(c.stage, 2)
+	c.cooldown_cut = maxi(c.cooldown_cut, 1)
+	return c
+
+
+const ECONOMY: EconomyTuning = preload("res://data/economy.tres")
+
+
 ## DEF: an orb attack loses the enemy's DEF in damage, but always does at least 1.
 static func after_def(damage: int, enemy: Enemy) -> int:
 	if enemy.data.def <= 0 or damage <= 0:

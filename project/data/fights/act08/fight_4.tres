@@ -9,4 +9,4 @@ script = ExtResource("3_76d8b")
 display_name = "4/8 · COOLANT SLIMES"
 enemies = Array[ExtResource("1_sgxft")]([ExtResource("2_u5lav"), ExtResource("2_u5lav"), ExtResource("2_u5lav")])
 xp = 805
-expected_level = 22
+expected_level = 23

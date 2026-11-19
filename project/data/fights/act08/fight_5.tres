@@ -9,4 +9,4 @@ script = ExtResource("3_aum5o")
 display_name = "5/8 · ECHO · MIRROR MIMICS"
 enemies = Array[ExtResource("1_16mb2")]([ExtResource("2_utas0"), ExtResource("2_utas0")])
 xp = 950
-expected_level = 22
+expected_level = 23

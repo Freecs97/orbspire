@@ -9,4 +9,4 @@ script = ExtResource("3_0d531")
 display_name = "4/8 · BUBBLE BOMBERS"
 enemies = Array[ExtResource("1_ehlfe")]([ExtResource("2_ppoff"), ExtResource("2_ppoff"), ExtResource("2_ppoff")])
 xp = 190
-expected_level = 12
+expected_level = 13

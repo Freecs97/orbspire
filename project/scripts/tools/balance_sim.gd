@@ -16,7 +16,7 @@ extends RefCounted
 static func leveled_team(members: Array, level: int) -> Array[FighterData]:
 	var out: Array[FighterData] = []
 	for d in members:
-		out.append(CombatRules.at_level(d, level))
+		out.append(CombatRules.preview_at_level(d, level))   # evolved above Lv15, like the real game
 	return out
 
 

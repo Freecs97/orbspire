@@ -9,4 +9,4 @@ script = ExtResource("3_riaqk")
 display_name = "5/8 · MIRAGE · HOLO DECOYS"
 enemies = Array[ExtResource("1_2ro2d")]([ExtResource("2_n7x3b"), ExtResource("2_n7x3b")])
 xp = 140
-expected_level = 10
+expected_level = 11

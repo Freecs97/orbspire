@@ -9,4 +9,4 @@ script = ExtResource("3_l6iva")
 display_name = "2/8 · SPECTRA · GLITCH GHOSTS"
 enemies = Array[ExtResource("1_1bkfw")]([ExtResource("2_j6or3"), ExtResource("2_j6or3"), ExtResource("2_j6or3")])
 xp = 1435
-expected_level = 27
+expected_level = 28

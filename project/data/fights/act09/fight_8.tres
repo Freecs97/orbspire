@@ -9,4 +9,4 @@ script = ExtResource("3_ispog")
 display_name = "8/8 · BOSS: SERAPH ENFORCER"
 enemies = Array[ExtResource("1_13q00")]([ExtResource("2_7jo2y")])
 xp = 5280
-expected_level = 26
+expected_level = 27

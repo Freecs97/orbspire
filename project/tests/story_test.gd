@@ -299,6 +299,11 @@ func _test_continue_and_new_game() -> void:
 	var owned: int = main.profile.data["units"].size()
 	_check(b2 != null and b2.act.act_number == 2 and b2.team.members.size() == mini(owned, 4) and b2.backdrop.arena.resource_path.ends_with("bg_act02_drowned_arena.png"),
 		"PLAY Act 2: your own team (%d hunters, nobody given for free) in the Drowned Metro arena" % b2.team.members.size())
+	_check(b2.story_beat.is_open() and b2.story_beat._speaker.text == "DROWNED METRO  ·  FLOODED COLONY" and b2.story_beat._text.text.contains("Drowned Metro carried water")
+		and 2 in main.save["act_intros"], "Stage 6: Act 2 opens with its 2-line intro (first time only): \"%s\"" % b2.story_beat._text.text.replace("\n", " / "))
+	await _shot("m5a_act2_intro")
+	b2.story_beat.close()
+	await _frames(3)
 	_check(b2.story_beat.is_open() and b2.story_beat._speaker.text == "NEW SLOT" and not main.profile.data["units"].any(func(u: Dictionary) -> bool: return u["id"] == "spectre_01_rogue_dark" and u["rarity"] == 2),
 		"a one-time \"NEW SLOT\" notice: team slot 4 is open (no free Dark Spectre any more)")
 	await _shot("m5_act2_slot4_notice")

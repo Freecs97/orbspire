@@ -9,4 +9,4 @@ script = ExtResource("3_drxv5")
 display_name = "1/8 · PRISMA · PRISM WISPS"
 enemies = Array[ExtResource("1_1x5r6")]([ExtResource("2_o51dm"), ExtResource("2_o51dm")])
 xp = 835
-expected_level = 24
+expected_level = 25

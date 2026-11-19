@@ -9,4 +9,4 @@ script = ExtResource("3_6wtpu")
 display_name = "6/8 · NIX · VOID IMPS"
 enemies = Array[ExtResource("1_4r2uf")]([ExtResource("2_b2m0a"), ExtResource("2_b2m0a")])
 xp = 260
-expected_level = 12
+expected_level = 13
