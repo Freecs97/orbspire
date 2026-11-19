@@ -18,6 +18,10 @@ extends HomePage
 ##   - show_markers = numbered calibration markers + each node's hue shift.
 
 signal play_world(key: String, stage: int)
+## Something saved changed (a story beat was seen): main writes the save.
+signal changed
+## CODEX pressed: main opens the codex (singularities, timeline, cleansing).
+signal codex_requested
 
 const SUB_H := 130.0
 const BOTTOM_H := 128.0
@@ -68,6 +72,10 @@ var warn_go: Button
 var warn_cancel: Button
 var stats_panel: Control
 var stats_label: Label
+var codex_button: Button
+## Part B story beats (on top of everything on the map).
+var story_beat: StoryBeat
+var _story_busy := false
 
 var _panel_node := {}
 var _pending := {}
@@ -123,6 +131,8 @@ func _init() -> void:
 	_build_warning()
 	_build_stats()
 	_build_bars()
+	story_beat = StoryBeat.new()
+	add_child(story_beat)
 	resized.connect(_layout)
 
 
@@ -276,6 +286,45 @@ func _build_level() -> void:
 	zoom = MIN_ZOOM
 	canvas.position = Vector2.ZERO
 	_layout()
+	check_story()
+
+
+# ---------------------------------------------------------------- Part B story (after Reaper-0)
+
+## Plays any story beat due now, each only once (Bailey's approved text,
+## StoryText): the Final Arc Intro (first universe map after Act 10), a ring's
+## intro and a galaxy's intro (first time you enter one), the cleansing pop-up
+## (first world cleansed outside the Acts) and the final outro (everything
+## cleansed). All skippable; nothing waits on them.
+func check_story() -> void:
+	if journey == null or _story_busy or not visible:
+		return
+	var beats := []
+	if journey.story_done() and level == "universe" and not journey.story_seen("final_arc"):
+		beats.append(["final_arc", StoryText.FINAL_ARC_INTRO, 0.0, "", true])
+	if level != "universe" and cur_g >= 2 and journey.galaxy_unlocked(cur_g):
+		var ring := int(Cosmos.galaxy(cur_g)["ring"])
+		var gal := Cosmos.galaxy(cur_g)
+		if not journey.story_seen("ring%d" % ring):
+			var first: int = Cosmos.galaxies_in_ring(ring)[0]["g"]
+			beats.append(["ring%d" % ring, StoryText.RING_INTROS[ring], 12.0, "RING %d  ·  GALAXIES %d-%d" % [ring, first, first + 2], false])
+		if not journey.story_seen("galaxy%d" % cur_g):
+			beats.append(["galaxy%d" % cur_g, StoryText.GALAXY_INTROS[cur_g], 12.0, "GALAXY %d  ·  %s" % [cur_g, String(gal["name"]).to_upper()], false])
+	if not journey.c["cleansed"].is_empty() and not journey.story_seen("cleanse_popup"):
+		beats.append(["cleanse_popup", StoryText.CLEANSE_POPUP, 0.0, StoryText.CLEANSE_POPUP_TITLE, false])
+	if journey.universe_cleansed() and not journey.story_seen("final_outro"):
+		beats.append(["final_outro", StoryText.FINAL_OUTRO, 0.0, "", true])
+	if not beats.is_empty():
+		_run_story(beats)
+
+
+func _run_story(beats: Array) -> void:
+	_story_busy = true
+	for b in beats:
+		journey.mark_story_seen(b[0])   # seen once it starts (skipping counts)
+		changed.emit()
+		await story_beat.play(b[1], b[2], b[3], b[4])
+	_story_busy = false
 
 
 func _side() -> float:
@@ -783,6 +832,8 @@ func _build_sub_bar() -> void:
 	counter_label = make_label(28, Color("8fefff"))
 	stats_button = make_button("STATS", Vector2.ZERO, Vector2(150, 56), 26)
 	stats_button.pressed.connect(open_stats)
+	codex_button = make_button("CODEX", Vector2.ZERO, Vector2(150, 56), 26)
+	codex_button.pressed.connect(func() -> void: codex_requested.emit())
 
 
 func _layout_sub_bar() -> void:
@@ -792,7 +843,9 @@ func _layout_sub_bar() -> void:
 	crumbs.position = Vector2(20, TOP_BAR_H + 6)
 	crumbs.size = Vector2(size.x - 40, 56)
 	counter_label.position = Vector2(24, TOP_BAR_H + 72)
-	counter_label.size = Vector2(size.x - 220, 44)
+	counter_label.size = Vector2(size.x - 380, 44)
+	counter_label.clip_text = true
+	codex_button.position = Vector2(size.x - 340, TOP_BAR_H + 66)
 	stats_button.position = Vector2(size.x - 170, TOP_BAR_H + 66)
 
 

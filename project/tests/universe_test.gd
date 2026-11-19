@@ -44,6 +44,7 @@ func _ready() -> void:
 	_test_dual()
 	await _test_flow()
 	await _test_popup()
+	await _test_story_b()
 	_finish()
 
 
@@ -378,6 +379,8 @@ func _test_colours() -> void:
 	Cosmos._worlds = {}
 	Cosmos._built = {}
 	_check(_colour_fingerprint() == before, "fixed seed %d: every position and colour is the SAME after a restart" % Cosmos.SEED)
+	var fp := Cosmos.layout_fingerprint()
+	_check(fp == Cosmos.APPROVED_LAYOUT, "LOCKED: positions and colours match the layout Bailey approved on 2026-11-19 (%s)" % fp)
 	# A blue planet can be a Fire world: colour never decides affinity.
 	var found := ""
 	for sys in Cosmos.systems(2):
@@ -571,6 +574,8 @@ func _test_flow() -> void:
 		main.save["cleared_acts"].append(n)
 	for id in ["biotech_01_medic_water", "titan_01_shield_wood", "spectre_01_rogue_dark"]:
 		main.profile.auto_slot(main.profile.add_unit(id, 2, 1))
+	# The post-game story beats are tested in U-STORY-B; here they'd sit on top.
+	main.journey.c["story_seen"] = ["final_arc", "ring1", "galaxy2", "cleanse_popup"]
 	main.show_map()
 	await _frames(3)
 	var m: CosmosMap = main.map
@@ -729,6 +734,149 @@ func _test_popup() -> void:
 	await _frames(2)
 	if FileAccess.file_exists(SAVE):
 		DirAccess.remove_absolute(ProjectSettings.globalize_path(SAVE))
+
+
+# ---------------------------------------------------------------- U-STORY-B (Part B story)
+
+func _test_story_b() -> void:
+	_log("\n== U-STORY-B: the post-game story (after Reaper-0) ==")
+	if FileAccess.file_exists(SAVE):
+		DirAccess.remove_absolute(ProjectSettings.globalize_path(SAVE))
+	var main := MainScene.instantiate()
+	main.save_path = SAVE
+	add_child(main)
+	await _frames(3)
+	main.save["intro_seen"] = true
+	main.profile.choose_starter(Profile.STARTERS[0])
+	main.save["cleared_acts"] = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+	main.show_map()
+	await _frames(3)
+	var m: CosmosMap = main.map
+	var beat: StoryBeat = m.story_beat
+	_check(not beat.is_open(), "before Reaper-0: no Final Arc Intro")
+	main.save["cleared_acts"].append(10)
+	for a in Cosmos.ACTS:
+		main.save["codex"].append(a.singularity_name)
+	main.show_map()
+	await _frames(3)
+	var arc := "\n".join(PackedStringArray(StoryText.FINAL_ARC_INTRO))
+	_check(beat.is_open() and beat.shown_text() == arc, "after Reaper-0: the Final Arc Intro (6 lines, full screen) the first time the universe map opens")
+	await _shot("story_b1_final_arc_intro")
+	beat.close()
+	await _frames(2)
+	main.show_map()
+	await _frames(3)
+	_check(not beat.is_open() and main.journey.story_seen("final_arc"), "... and only once")
+	# Ring 1 + Tide Galaxy intros, chained, the first time you enter Galaxy 2.
+	m.open_galaxy(2)
+	await _frames(3)
+	var ring1: bool = beat.is_open() and beat._speaker.text == "RING 1  ·  GALAXIES 2-4" and beat.shown_text() == "\n".join(PackedStringArray(StoryText.RING_INTROS[1]))
+	await _shot("story_b2_ring1_intro")
+	beat.close()
+	await _frames(3)
+	var tide: bool = beat.is_open() and beat._speaker.text.contains("TIDE GALAXY") and beat.shown_text() == "\n".join(PackedStringArray(StoryText.GALAXY_INTROS[2]))
+	await _shot("story_b3_tide_galaxy_intro")
+	beat.close()
+	await _frames(2)
+	_check(ring1 and tide, "entering Galaxy 2: the Ring 1 intro, then the Tide Galaxy intro")
+	m.open_universe()
+	m.open_galaxy(3)
+	await _frames(3)
+	var thorn_only: bool = beat.is_open() and beat._speaker.text.contains("THORN GALAXY")
+	beat.close()
+	await _frames(2)
+	m.open_universe()
+	m.open_galaxy(2)
+	await _frames(3)
+	var none_again: bool = not beat.is_open()
+	m.open_universe()
+	m.open_galaxy(6)
+	await _frames(3)
+	var locked_quiet: bool = not beat.is_open()
+	_check(thorn_only and none_again and locked_quiet, "Ring intros once per ring, galaxy intros once per galaxy; previewing a locked galaxy (Ember) plays nothing")
+	# The cleansing pop-up: the first world cleansed outside the Acts.
+	m.open_universe()
+	main.journey.c["cleansed"].append(Cosmos.worlds(2, 1)[0]["key"])
+	main.show_map()
+	await _frames(3)
+	var popup: bool = beat.is_open() and beat._speaker.text == "WORLD CLEANSED" and beat.shown_text().contains("Technomancy can no longer spread from this world")
+	await _shot("story_b4_cleanse_popup")
+	var vw := get_viewport().get_visible_rect().size.x
+	popup = popup and beat._panel.get_global_rect().end.x <= vw
+	beat.close()
+	await _frames(2)
+	main.show_map()
+	await _frames(3)
+	_check(popup and not beat.is_open(), "first world cleansed in free exploration: the WORLD CLEANSED pop-up, once")
+	# The codex, from the map: 4-line entries, Year 61, Cleansing (with Bailey's fix 1).
+	await _click(m.codex_button)
+	var cx: CodexScreen = main.codex
+	var entry := cx.page_text()
+	_check(cx.visible and entry.contains("REAPER-0") and entry.contains("THE COLONY") and entry.contains("WHY IT WAS ABANDONED") and entry.contains(Cosmos.ACTS[9].codex_abandoned),
+		"CODEX on the map: readable any time; opens on the last singularity defeated (Reaper-0), 4 lines")
+	await _shot("story_b5_codex_reaper0")
+	await _click(cx.prev_button)
+	var browsed: bool = cx.page_text().contains("SERAPH ENFORCER")
+	await _click(cx.tab_timeline)
+	var tl := cx.page_text()
+	await _shot("story_b6_codex_timeline_year61")
+	await _click(cx.tab_cleansing)
+	var cl := cx.page_text()
+	await _shot("story_b7_codex_cleansing")
+	_check(browsed and tl.contains("Year 61 · The real first splice") and tl.find("Year 61") > tl.find("Year 0-80") and tl.find("Year 61") < tl.find("Year 82"),
+		"< > browse the 10 entries; after Reaper-0 the timeline adds \"Year 61 · The real first splice\" (between Year 0-80 and Year 82)")
+	_check(cl.contains("Each exploration solar system's farthest world hides that system's singularity") and cl.contains("/ %d" % Cosmos.total_worlds()) and cl.contains("Your record:"),
+		"CLEANSING page: what Cleansed means (\"Each exploration solar system's farthest world...\"), the totals and your record")
+	await _click(cx.close_button)
+	# The final outro: every world cleansed, all 107 singularities down.
+	for g in range(1, 11):
+		for sys in Cosmos.systems(g):
+			for w in Cosmos.worlds(g, int(sys["s"])):
+				if int(w["act"]) == 0 and not w["key"] in main.journey.c["cleansed"]:
+					main.journey.c["cleansed"].append(w["key"])
+					if w["gate"]:
+						main.journey.c["singularities"].append(w["key"])
+	main.show_map()
+	await _frames(3)
+	var fin: bool = beat.is_open() and beat.shown_text() == "\n".join(PackedStringArray(StoryText.FINAL_OUTRO))
+	await _shot("story_b8_final_outro")
+	beat.close()
+	await _frames(2)
+	_check(main.journey.universe_cleansed() and fin and not beat.shown_text().contains("The end") and not beat.shown_text().contains("thanks for playing"),
+		"Worlds Cleansed %d/%d + Singularities %d/107: the final outro, no new boss, the universe stays open" % [main.journey.worlds_cleansed(), Cosmos.total_worlds(), main.journey.singularities_defeated()])
+	main._write()
+	main.queue_free()
+	await _frames(2)
+	var again := MainScene.instantiate()
+	again.save_path = SAVE
+	add_child(again)
+	await _frames(3)
+	again.show_map()
+	await _frames(3)
+	_check(not again.map.story_beat.is_open() and again.journey.story_seen("final_outro") and again.journey.story_seen("galaxy3"),
+		"after a restart nothing replays (seen beats are saved)")
+	# Part A layout: the longest Act outro fits its beat box.
+	var b2: StoryBeat = again.map.story_beat
+	b2.play([Cosmos.ACTS[5].outro_line], Cosmos.ACTS[5].outro_seconds, "")
+	await _frames(3)
+	var r := b2._panel.get_global_rect()
+	_check(r.end.y < b2._timer_bar.get_global_rect().position.y, "the longest Act outro (Act 6, 3 lines) fits above the timer bar")
+	await _shot("story_a_act06_outro")
+	b2.close()
+	again.queue_free()
+	await _frames(2)
+	if FileAccess.file_exists(SAVE):
+		DirAccess.remove_absolute(ProjectSettings.globalize_path(SAVE))
+
+
+func _shot(n: String) -> void:
+	await get_tree().create_timer(0.4).timeout   # story beats fade in over 0.25 s
+	await _frames(2)
+	if not DisplayServer.window_can_draw():
+		RenderingServer.force_draw(false)
+	var img := get_viewport().get_texture().get_image()
+	if img and not img.is_empty():
+		img.save_png(ProjectSettings.globalize_path("res://tests/screenshots/%s.png" % n))
 
 
 func _tap_plate(b: Node, i: int) -> void:

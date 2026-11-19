@@ -64,6 +64,8 @@ func _ready() -> void:
 	title.start_pressed.connect(_on_start)
 	title.new_game_confirmed.connect(_on_new_game)
 	map.play_world.connect(play_world)
+	map.changed.connect(_write)
+	map.codex_requested.connect(open_codex_browser)
 	if "--map-test-state" in OS.get_cmdline_user_args():
 		_set_map_test_state()
 	show_title()
@@ -217,7 +219,19 @@ func _start_battle_for(a: ActData, fight: int, with_intro: bool, show_notice: bo
 
 
 func open_codex() -> void:
-	codex.open(current_act, current_act.singularity_name in save["codex"], STORY)
+	codex.record_text = journey.counters_text()
+	codex.open(current_act, current_act.singularity_name in save["codex"], STORY, "entry", save["codex"])
+
+
+## CODEX from the map: browse the 10 Act singularities, the timeline and Cleansing,
+## any time. Opens on the last singularity you defeated.
+func open_codex_browser(page := "entry") -> void:
+	var act: ActData = Cosmos.ACTS[0]
+	for a in Cosmos.ACTS:
+		if a.singularity_name in save["codex"]:
+			act = a
+	codex.record_text = journey.counters_text()
+	codex.open(act, act.singularity_name in save["codex"], STORY, page, save["codex"])
 
 
 ## Where CONTINUE / PLAY resumes inside an Act (fight index; 0 after a clear).

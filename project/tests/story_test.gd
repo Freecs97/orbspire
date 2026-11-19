@@ -241,14 +241,16 @@ func _test_codex() -> void:
 	await _click(rp.codex_button)
 	var c: CodexScreen = main.codex
 	var text := c.page_text()
-	_check(c.visible and text.contains("EMBERFANG-9") and text.contains("SPLICED FROM") and text.contains("WHAT IT WANTED") and text.contains("WHAT IT COST"), "Emberfang-9 entry: spliced from / wanted / cost")
-	_check(text.contains(ACT1.codex_spliced_from) and text.contains(ACT1.codex_cost), "entry text comes from data/acts/act_01.tres")
+	_check(c.visible and text.contains("EMBERFANG-9") and text.contains("THE COLONY") and text.contains("WHAT WAS RATIONED") and text.contains("SPLICED FROM") and text.contains("WHY IT WAS ABANDONED"),
+		"Emberfang-9 entry: 4 lines (colony / rationed / spliced from / abandoned)")
+	_check(text.contains(ACT1.codex_colony) and text.contains(ACT1.codex_spliced_from) and text.contains(ACT1.codex_abandoned), "entry text comes from data/acts/act_01.tres")
 	await _shot("s9_codex_entry")
 	await _click(c.tab_timeline)
 	await _frames(2)
 	text = c.page_text()
 	var all_years := text.contains("Year 0-80") and text.contains("Year 82") and text.contains("Year 90-120") and text.contains("Year 121") and text.contains("Year 140+")
 	_check(all_years and text.contains("The Progenitors splice a wolf with plasma to guard a furnace."), "timeline page: the 5 entries (Year 0-80 ... Year 140+)")
+	_check(not text.contains("Year 61"), "no \"Year 61\" line yet (it appears only after Reaper-0 falls)")
 	await _shot("s10_codex_timeline")
 	await _click(c.close_button)
 	_check(not c.visible, "CLOSE returns to the Act clear screen")

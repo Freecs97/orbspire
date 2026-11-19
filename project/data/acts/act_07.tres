@@ -25,9 +25,13 @@ fights = Array[ExtResource("3_6sqq5")]([ExtResource("4_ga0cy"), ExtResource("5_x
 arena = ExtResource("1_ns2fj")
 boss_art = ExtResource("2_d48vu")
 intel_lines = Array[String](["The Data Abyss stored every record the colonies ever made, cooled by a deep sea.", "The Kraken Mainframe wrapped itself around the servers and decides what is remembered.", "The Progenitors left it there. Their own records are in those servers."])
-intro_lines = Array[String](["The Data Abyss held every record the colonies ever made, cooled by a deep sea.", "The Kraken Mainframe was spliced to keep those records safe. It decided what safe meant."])
-boss_taunt = "I remember Orbspire. I remember you. I remember what they deleted."
-outro_line = "Its archive holds the Solar Farms' orders, signed Year 121: burn the panels, blame the bird. Ashen-01 never chose a single fire."
-codex_spliced_from = "A deep-sea kraken and the colonies' archive servers. Year 99, to cool the servers and guard them."
-codex_wanted = "To remember everything. When the Progenitors ordered records deleted, it hid them inside itself instead."
-codex_cost = "Its own mind, overwritten one record at a time. And the truth it kept: the Progenitors' orders, every one."
+intro_lines = Array[String](["The Data Abyss kept every record the colonies ever made, cooled by a deep, dark sea.", "The Kraken Mainframe was spliced to guard those records. Now that sea reaches other colonies, and so do its arms."])
+boss_taunt = "Query: Orbspire. Deleted. Query: Drowned Metro. Deleted. I kept every one. I will keep you too."
+outro_line = "The Kraken kept every record it was ordered to erase. They show the quarantine failing for twenty years.
+Splices have been crossing from colony to colony through the shared sea, the supply runs and the pipes. Ashen-01's ash was only the latest.
+Every crossing in the archive starts from the same sealed address: the Gene Labs."
+outro_seconds = 15.0
+codex_colony = "Server vaults under a deep sea that cooled them, holding every record the colonies made."
+codex_rationed = "Memory. Records were deleted by order, one colony at a time."
+codex_spliced_from = "A deep-sea kraken and the archive servers, Year 99, to cool them and guard them."
+codex_abandoned = "Ordered to erase the colonies' records, it hid them inside itself instead, and was left in the dark with them."

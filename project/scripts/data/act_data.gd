@@ -5,11 +5,12 @@ extends Resource
 ## Plain English: all of an Act's story lives here, short and skippable:
 ##   - intel_lines:  3 lines for the star map (what the colony was for, what
 ##                   singularity took it, what the Progenitors did about it)
-##   - intro_lines:  2 lines before the first fight (10 s, skippable)
-##   - boss_taunt:   1 line when the boss fight starts (5 s, skippable)
-##   - outro_line:   1 line after the boss falls (10 s, skippable)
-##   - codex_*:      the singularity's codex entry, unlocked when you kill it
-## Edit the .tres files in res://data/acts/ to change any of it.
+##   - intro_lines:  2 lines before the first fight (once, skippable)
+##   - boss_taunt:   1-2 lines when the boss fight starts (skippable)
+##   - outro_line:   2-3 lines after the boss falls (skippable)
+##   - codex_*:      the singularity's 4-line codex entry, unlocked when you kill it
+## The approved text lives in scripts/data/story_text.gd; tools/apply_story.gd
+## copies it into the .tres files in res://data/acts/.
 
 @export var act_number: int = 1
 @export var colony_name: String = ""
@@ -33,10 +34,15 @@ extends Resource
 @export var taunt_seconds := 5.0
 @export var outro_seconds := 10.0
 
-@export_group("Singularity codex")
+@export_group("Singularity codex (4 lines, approved 2026-11-19)")
+## What the colony was.
+@export_multiline var codex_colony: String = ""
+## What the Progenitors rationed / quarantined there.
+@export_multiline var codex_rationed: String = ""
+## What the singularity was spliced from, when and why.
 @export_multiline var codex_spliced_from: String = ""
-@export_multiline var codex_wanted: String = ""
-@export_multiline var codex_cost: String = ""
+## Why it was abandoned.
+@export_multiline var codex_abandoned: String = ""
 
 
 @export_group("Exploration world (made by Cosmos, never saved)")

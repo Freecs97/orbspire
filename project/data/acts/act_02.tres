@@ -25,9 +25,12 @@ fights = Array[ExtResource("3_c4j3t")]([ExtResource("4_0h4gw"), ExtResource("5_c
 arena = ExtResource("1_mclsk")
 boss_art = ExtResource("2_h8kyo")
 intel_lines = Array[String](["Drowned Metro pumped clean water to every colony in the sector.", "Tidecoil-7, a spliced flood serpent, nests in the pump halls and floods any line it wants.", "The Progenitors sealed the tunnels and now ration water by the litre."])
-intro_lines = Array[String](["Drowned Metro carried water to every colony in the sector.", "The Progenitors spliced something to keep the pipes clear. Now the pipes are its body."])
+intro_lines = Array[String](["The Drowned Metro carried water to every colony on this edge.", "A serpent was spliced into its pumps to keep the water moving. When splicing was outlawed, its valves were shut from outside."])
 boss_taunt = "Every litre they rationed, I carried. Every single litre."
-outro_line = "The pump logs say Orbspire's furnace never heated the colonies. It kept these pipes from freezing. Emberfang-9 died guarding water it never drank."
-codex_spliced_from = "A blind pipe eel and the metro's flood-control drones. Made by the Progenitors in Year 97 to keep the water moving."
-codex_wanted = "To keep the water moving. When the rationing began, it read every closed valve as a blockage, and cleared it."
-codex_cost = "The pump crews who closed the valves. Half the metro, drowned. And its own shape: it can no longer tell the pipes from its body."
+outro_line = "The pump logs end where Orbspire's heat lines begin. The furnace kept these pipes from freezing: Emberfang-9 was never guarding the fire. It was guarding the water.
+One valve the serpent never let close runs out of the colonies, to the Greenhouse domes. Something there is still drinking."
+outro_seconds = 13.0
+codex_colony = "A transit metro turned waterworks, when the colonies needed water more than trains."
+codex_rationed = "Water, by the litre. The tunnels were sealed and quarantined in Year 121."
+codex_spliced_from = "A blind pipe eel and the metro's flood-control drones, Year 97, to keep the water moving."
+codex_abandoned = "When the valves were shut from outside, it read each one as a blockage and cleared it. Half the metro drowned."

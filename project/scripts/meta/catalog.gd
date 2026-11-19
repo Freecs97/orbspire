@@ -73,7 +73,7 @@ const TILT := {
 const HUE_ANCHOR := {Element.Type.FIRE: 20.0, Element.Type.WOOD: 115.0, Element.Type.WATER: 205.0,
 	Element.Type.LIGHT: 50.0, Element.Type.DARK: 280.0}
 
-## DUAL AFFINITY (proposed, needs Bailey's OK): 25% of the Stage 3 final
+## DUAL AFFINITY (list approved by Bailey 2026-11-19): 25% of the Stage 3 final
 ## evolutions get a second (sub) affinity: 5 of 20 humans + 3 of 10 enemies.
 ## Only at Stage 3. The sub affinity attacks when ITS orbs are matched, for 1/3 of
 ## ATK (10% if it is the same as the main one): versatility, not raw power.
@@ -87,7 +87,7 @@ const DUAL := {
 	"enemy_vine_strangler": Element.Type.DARK,
 	"enemy_nix": Element.Type.FIRE,
 }
-## Why each second affinity fits (shown in the report for approval).
+## Why each second affinity fits (as approved).
 const DUAL_WHY := {
 	"berserker_01_angel_fire": "an angel of fire: wings of light around the flame",
 	"berserker_05_solar_light": "a solar warrior: the sun's light is fire",

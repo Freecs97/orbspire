@@ -24,10 +24,15 @@ element = 5
 fights = Array[ExtResource("3_3nq5o")]([ExtResource("4_pf3ce"), ExtResource("5_u6seb"), ExtResource("6_huaic"), ExtResource("7_5hbop"), ExtResource("8_53alh"), ExtResource("9_rpbuh"), ExtResource("10_6od56"), ExtResource("11_su5s1")])
 arena = ExtResource("1_o5nqy")
 boss_art = ExtResource("2_jvu7h")
-intel_lines = Array[String](["The Core Sanctum is where the Progenitors rule from, with ledgers, not soldiers.", "The Seraph Enforcer, an angelic android knight, judges everyone who enters the Sanctum.", "The Progenitors built it to enforce the ban. It enforces it on them too."])
-intro_lines = Array[String](["The Core Sanctum is where the Progenitors rule, with ledgers, not soldiers.", "The Seraph Enforcer was made to enforce the ban. Nobody told it the ban had exceptions."])
-boss_taunt = "Technomancy is forbidden. You carry its parts. So did they. I judge all of you."
-outro_line = "The Seraph's ledger shows who sealed the Gene Labs: the Seraph did, under the ban. The staff locked inside with the Chimera were the Progenitors themselves."
-codex_spliced_from = "A cathedral's guardian android and the Sanctum's ledger engine. Year 121, the day the ban was signed."
-codex_wanted = "To enforce the ban on everyone. It did. The Progenitors were the first names in its ledger."
-codex_cost = "The Progenitors' rule. Since Year 121 the rationing has run on the ledgers alone, and the Seraph has kept it running."
+intel_lines = Array[String](["The Core Sanctum is where the Progenitors rule from, with ledgers, not soldiers.", "The Seraph Enforcer, an angelic android knight, judges everyone who enters the Sanctum.", "The Progenitors built it to enforce their law. It enforces it on them too."])
+intro_lines = Array[String](["The Core Sanctum is where the Progenitors rule, with ledgers, not soldiers.", "The Seraph Enforcer was built to carry out their law. Its quarantine is now closing in on the Sanctum itself."])
+boss_taunt = "Under the law of Year 121, all that technomancy has touched is erased. You have touched eight singularities. Sentence follows."
+outro_line = "The Seraph signed the order. Under its law, anyone who has touched technomancy is sealed away: the lab staff, the colonies, and now the Sanctum's own halls.
+The ledgers cannot hold any more. The quarantine is closing in on the people who wrote it.
+Only one world in the ledger is marked never to be judged: the Core."
+taunt_seconds = 7.0
+outro_seconds = 16.0
+codex_colony = "The seat of the Progenitors, who rule with ledgers, not soldiers."
+codex_rationed = "Every colony's heat, water, light and silence was signed off here."
+codex_spliced_from = "A cathedral guardian android and the Sanctum's ledger engine, made on the day the law was signed, Year 121."
+codex_abandoned = "Left to run the ledgers alone when the Progenitors stopped coming to the Sanctum. It kept judging, all the way to their own doors."

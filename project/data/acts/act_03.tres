@@ -25,9 +25,12 @@ fights = Array[ExtResource("3_3bhnf")]([ExtResource("4_jnu25"), ExtResource("5_p
 arena = ExtResource("1_vwmky")
 boss_art = ExtResource("2_dlv4s")
 intel_lines = Array[String](["The Greenhouse Ruins grew the food and medicine for the colonies on the edge.", "Thornwood Unit, a bark-armoured golem, has rooted itself through every dome.", "The Progenitors cut its supply runs and let the crops grow wild."])
-intro_lines = Array[String](["The Greenhouse Ruins grew the food and medicine for the edge colonies.", "Its gardener was a machine. The Progenitors gave it roots so it could never leave."])
+intro_lines = Array[String](["The Greenhouse Ruins grew the food and medicine for the edge colonies.", "Its gardener was a machine given roots, so it could never leave. When the supply runs stopped, it kept growing."])
 boss_taunt = "I was told to make things grow. Nobody told me when to stop."
-outro_line = "Its roots reach under the sea floor to the Drowned Metro. Tidecoil-7 was not flooding the tunnels. It was watering the domes, the only way it had left."
-codex_spliced_from = "A greenhouse maintenance golem and a strangler fig. Spliced in Year 103, so the domes would tend themselves."
-codex_wanted = "To keep everything alive. When the supply runs stopped, it fed the domes the only thing left: the colony."
-codex_cost = "The colonists it grew around while they slept. The domes still bloom. Nobody is left to eat what they grow."
+outro_line = "The domes drank the metro's water for one crop: seedlings, tagged and numbered for splicing. Tidecoil-7 was not flooding the tunnels. It was watering the next singularities.
+The collection runs stopped in Year 121. Someone up high had already written this place off."
+outro_seconds = 12.0
+codex_colony = "Glass domes of farmland and medicine gardens that fed the edge colonies."
+codex_rationed = "Food and medicine, by the week. The supply runs stopped in Year 121."
+codex_spliced_from = "A maintenance golem and a strangler fig, Year 103, so the domes would tend themselves and raise seedlings for splicing."
+codex_abandoned = "Written off as lost. With no runs left to collect the harvest, it fed the domes the only thing it had: the colony."

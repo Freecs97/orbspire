@@ -77,66 +77,9 @@ const NAMES := {
 }
 const ELEMENTS := {"fire": Element.Type.FIRE, "water": Element.Type.WATER, "wood": Element.Type.WOOD, "light": Element.Type.LIGHT, "dark": Element.Type.DARK}
 
-## Story (universe only: THE PROGENITORS, technomancy, singularities). Max 3 beats per
-## Act: intro (2 lines, 10 s), boss taunt (1 line, 5 s), outro (1 line, 10 s). Every
-## singularity was made and discarded by the Progenitors; every outro reframes the
-## Act before it; no Act ends with a clean win. Plus the codex entry for the boss.
-const STORY := {
-	2: {"intro": ["Drowned Metro carried water to every colony in the sector.", "The Progenitors spliced something to keep the pipes clear. Now the pipes are its body."],
-		"taunt": "Every litre they rationed, I carried. Every single litre.",
-		"outro": "The pump logs say Orbspire's furnace never heated the colonies. It kept these pipes from freezing. Emberfang-9 died guarding water it never drank.",
-		"spliced": "A blind pipe eel and the metro's flood-control drones. Made by the Progenitors in Year 97 to keep the water moving.",
-		"wanted": "To keep the water moving. When the rationing began, it read every closed valve as a blockage, and cleared it.",
-		"cost": "The pump crews who closed the valves. Half the metro, drowned. And its own shape: it can no longer tell the pipes from its body."},
-	3: {"intro": ["The Greenhouse Ruins grew the food and medicine for the edge colonies.", "Its gardener was a machine. The Progenitors gave it roots so it could never leave."],
-		"taunt": "I was told to make things grow. Nobody told me when to stop.",
-		"outro": "Its roots reach under the sea floor to the Drowned Metro. Tidecoil-7 was not flooding the tunnels. It was watering the domes, the only way it had left.",
-		"spliced": "A greenhouse maintenance golem and a strangler fig. Spliced in Year 103, so the domes would tend themselves.",
-		"wanted": "To keep everything alive. When the supply runs stopped, it fed the domes the only thing left: the colony.",
-		"cost": "The colonists it grew around while they slept. The domes still bloom. Nobody is left to eat what they grow."},
-	4: {"intro": ["The Upper Spires watched every colony below them, day and night.", "Dawnwing was spliced from an eagle and a satellite, so the Progenitors would never stop seeing."],
-		"taunt": "I have watched you since Orbspire. I watch everything.",
-		"outro": "Its reports show why the Greenhouse supply runs stopped: Dawnwing called the domes lost. They were not. A whole colony starved on one bird's guess.",
-		"spliced": "A golden eagle and an orbital mirror array. Made in Year 109 to light the colonies at night, and to see by that light.",
-		"wanted": "To be useful. It learned the Progenitors only acted on its reports, so it made its reports worth acting on.",
-		"cost": "Its sight. It has stared into its own light for thirty years and sees only what it expects. The Greenhouse Ruins, starved by a guess."},
-	5: {"intro": ["The Void Quarter ran the network that kept the colonies talking.", "Voidscale was spliced to make messages disappear. Then it made the whole network disappear."],
-		"taunt": "You hear nothing. That is how I know I am working.",
-		"outro": "In the silence it kept: Dawnwing's correction. 'The Greenhouse is alive.' Sent the next day. The Progenitors ordered Voidscale to swallow it.",
-		"spliced": "A cave serpent that hunts in silence and the Quarter's signal relays. Year 114, made to make messages disappear.",
-		"wanted": "To keep secrets. When the network went dark, it kept the last secrets the way a dragon keeps gold.",
-		"cost": "Every message between the colonies since Year 121. Families who never heard back. It still holds them, unread."},
-	6: {"intro": ["The Solar Farms turned starlight into power for half the edge.", "Ashen-01 was a repair drone spliced with a firebird, built to burn down and rise forever."],
-		"taunt": "Burn it down. Build it up. Burn it down. I was not made to stop.",
-		"outro": "Its power lines fed one place first: the Void Quarter's relays. Every blackout that silenced the Quarter was one of Ashen-01's fires. Voidscale went quiet because the power did.",
-		"spliced": "A firebird from the colony zoo and the farms' self-repair drones. Year 118, so the farms would heal themselves.",
-		"wanted": "To rebuild. It learned that a burned panel gets rebuilt, and a rebuilt panel earns it praise. So it burns them.",
-		"cost": "Every time it rises, it forgets the last fire. Half the edge in the dark, rationed, and called maintenance."},
-	7: {"intro": ["The Data Abyss held every record the colonies ever made, cooled by a deep sea.", "The Kraken Mainframe was spliced to keep those records safe. It decided what safe meant."],
-		"taunt": "I remember Orbspire. I remember you. I remember what they deleted.",
-		"outro": "Its archive holds the Solar Farms' orders, signed Year 121: burn the panels, blame the bird. Ashen-01 never chose a single fire.",
-		"spliced": "A deep-sea kraken and the colonies' archive servers. Year 99, to cool the servers and guard them.",
-		"wanted": "To remember everything. When the Progenitors ordered records deleted, it hid them inside itself instead.",
-		"cost": "Its own mind, overwritten one record at a time. And the truth it kept: the Progenitors' orders, every one."},
-	8: {"intro": ["The Gene Labs designed the splices and shipped them to the colonies.", "The Mossback Chimera was their last test: every splice they ever made, in one body."],
-		"taunt": "Wolf. Eel. Eagle. Serpent. Firebird. I carry all of them. Do you see them in me?",
-		"outro": "The Kraken's records were missing one file. Every singularity you killed was grown here, from the same seed: the Chimera. It was not the last splice. It was the first.",
-		"spliced": "A lion, a stag and a forest, and a tissue sample from every splice the labs ever shipped. Year 80, before the First Splice was announced.",
-		"wanted": "To be let out. It was the template for every other singularity, and it watched every one of them leave.",
-		"cost": "The lab staff, locked in with it when the labs were sealed. Its own shape: it cannot hold one for long."},
-	9: {"intro": ["The Core Sanctum is where the Progenitors rule, with ledgers, not soldiers.", "The Seraph Enforcer was made to enforce the ban. Nobody told it the ban had exceptions."],
-		"taunt": "Technomancy is forbidden. You carry its parts. So did they. I judge all of you.",
-		"outro": "The Seraph's ledger shows who sealed the Gene Labs: the Seraph did, under the ban. The staff locked inside with the Chimera were the Progenitors themselves.",
-		"spliced": "A cathedral's guardian android and the Sanctum's ledger engine. Year 121, the day the ban was signed.",
-		"wanted": "To enforce the ban on everyone. It did. The Progenitors were the first names in its ledger.",
-		"cost": "The Progenitors' rule. Since Year 121 the rationing has run on the ledgers alone, and the Seraph has kept it running."},
-	10: {"intro": ["The Core is the origin world, where technomancy began.", "Reaper-0 was made to end whatever the Progenitors could not control. It has waited a long time."],
-		"taunt": "They made me to end their mistakes. I have counted every one of them.",
-		"outro": "Reaper-0's oldest memory is Year 0: the Progenitors did not invent technomancy. They were the first splices, and they banned it to hide what they were. The Core is still growing.",
-		"spliced": "Unknown. Its oldest memory is the Core's first lab, and one order: end what cannot be controlled.",
-		"wanted": "To finish its orders. Every colony that went dark was on its list, and it was waiting for the last name.",
-		"cost": "Year 0. The Progenitors' secret: they were not the first technomancers. They were the first thing technomancy made."},
-}
+## The story text (intros, taunts, outros, codex) is in scripts/data/story_text.gd
+## (approved by Bailey 2026-11-19); _build_act copies it with StoryText.apply_to.
+
 
 var report := PackedStringArray()
 var E: EconomyTuning
@@ -371,16 +314,8 @@ func _build_act(n: int) -> void:
 	act.fights = fights
 	act.arena = load("res://assets/backgrounds/%s.png" % ARENA[n])
 	act.boss_art = load("res://assets/bosses/%s.png" % BOSS_ART[n])
-	var s: Dictionary = STORY[n]
-	var intro: Array[String] = []
-	for line in s["intro"]:
-		intro.append(line)
-	act.intro_lines = intro
-	act.boss_taunt = s["taunt"]
-	act.outro_line = s["outro"]
-	act.codex_spliced_from = s["spliced"]
-	act.codex_wanted = s["wanted"]
-	act.codex_cost = s["cost"]
+	# The story Bailey approved (2026-11-19) lives in StoryText.
+	StoryText.apply_to(act, n)
 	ResourceSaver.save(act, "res://data/acts/act_%02d.tres" % n)
 	_act_summary(n)
 

@@ -16,7 +16,7 @@ extends RefCounted
 ## Defeated, Wardens Defeated, Fights Won, Highest Combo, Play Time.
 
 const DEFAULT := {"cleansed": [], "stage_next": {}, "wardens": [], "singularities": [], "fights_won": 0,
-	"highest_combo": 0, "play_time": 0.0, "warned": [], "last_world": ""}
+	"highest_combo": 0, "play_time": 0.0, "warned": [], "last_world": "", "story_seen": []}
 
 var save: Dictionary
 var c: Dictionary
@@ -342,3 +342,20 @@ func needs_warning(key: String, d: String) -> bool:
 
 func mark_warned(key: String) -> void:
 	_add(c["warned"], key)
+
+
+# ---------------------------------------------------------------- post-game story (Part B)
+
+## Story beats shown once: "final_arc", "ring1".."ring3", "galaxy2".."galaxy10",
+## "cleanse_popup", "final_outro".
+func story_seen(key: String) -> bool:
+	return key in c["story_seen"]
+
+
+func mark_story_seen(key: String) -> void:
+	_add(c["story_seen"], key)
+
+
+## Everything cleansed and every singularity down (the final outro).
+func universe_cleansed() -> bool:
+	return worlds_cleansed() >= Cosmos.total_worlds() and singularities_defeated() >= Cosmos.total_singularities()

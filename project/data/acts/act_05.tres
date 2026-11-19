@@ -25,9 +25,13 @@ fights = Array[ExtResource("3_l8urc")]([ExtResource("4_uwx82"), ExtResource("5_v
 arena = ExtResource("1_c6vq5")
 boss_art = ExtResource("2_yfn43")
 intel_lines = Array[String](["The Void Quarter ran the network that kept the colonies talking.", "Voidscale, a stealth dragon, swallowed the signal and went silent with it.", "The Progenitors cut the Quarter's power and erased it from the maps."])
-intro_lines = Array[String](["The Void Quarter ran the network that kept the colonies talking.", "Voidscale was spliced to make messages disappear. Then it made the whole network disappear."])
+intro_lines = Array[String](["The Void Quarter carried every message between the colonies.", "Voidscale was spliced to make messages disappear. After Year 121, it made the whole network disappear."])
 boss_taunt = "You hear nothing. That is how I know I am working."
-outro_line = "In the silence it kept: Dawnwing's correction. 'The Greenhouse is alive.' Sent the next day. The Progenitors ordered Voidscale to swallow it."
-codex_spliced_from = "A cave serpent that hunts in silence and the Quarter's signal relays. Year 114, made to make messages disappear."
-codex_wanted = "To keep secrets. When the network went dark, it kept the last secrets the way a dragon keeps gold."
-codex_cost = "Every message between the colonies since Year 121. Families who never heard back. It still holds them, unread."
+outro_line = "In Voidscale's silence: every reply the colonies ever sent up to the Spires. Not one arrived.
+Outlawing technomancy did not stop a single splice. It made speaking of one a crime, so no colony could ever compare what had been done to it.
+Every colony's last message is stamped with the same hour: the hour the lights went out."
+outro_seconds = 16.0
+codex_colony = "Relay halls that carried every message between the colonies."
+codex_rationed = "Contact. After Year 121, any message that mentioned a splice was a crime."
+codex_spliced_from = "A cave serpent that hunts in silence and the Quarter's signal relays, Year 114, to make messages disappear."
+codex_abandoned = "Its power was cut and the Quarter was erased from the maps. It still holds every message it swallowed, unread."

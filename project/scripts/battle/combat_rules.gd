@@ -108,9 +108,9 @@ const ECONOMY: EconomyTuning = preload("res://data/economy.tres")
 
 
 ## DEF: an orb attack loses the enemy's DEF in damage, but always does at least 1.
-## Element Shield (exploration Wardens and bosses only): an orb attack of the
-## element it RESISTS does nothing at all (a Water boss shrugs off Fire), so a
-## team of one affinity can't clear a galaxy on its own.
+## Element Shield (exploration Wardens and bosses only; approved by Bailey
+## 2026-11-19): an orb attack of the element it RESISTS does nothing at all (a
+## Water boss shrugs off Fire), so a team of one affinity can't clear a galaxy.
 static func after_def(damage: int, enemy: Enemy, attacker_element := -1) -> int:
 	if attacker_element >= 0 and shields_against(enemy.data, attacker_element):
 		return 0

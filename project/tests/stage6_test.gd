@@ -55,26 +55,40 @@ func _test_acts() -> void:
 
 
 func _test_story() -> void:
-	_log("\n== S6-S: story beats + codex (universe only) ==")
+	_log("\n== S6-S: the approved story (2026-11-19), Part A ==")
 	var ok := true
-	var banned := ["The Ban", "the Ban", "Mara", "June"]
+	var same := true
+	var banned := ["The Ban", "the Ban", "the ban", "Mara", "June"]
 	var clean := true
 	for n in range(1, 11):
 		var act: ActData = Cosmos.ACTS[n - 1]
+		var s: Dictionary = StoryText.ACTS[n]
 		var all := " ".join(PackedStringArray(act.intel_lines)) + " " + " ".join(PackedStringArray(act.intro_lines)) + " " + act.boss_taunt + " " + act.outro_line \
-			+ " " + act.codex_spliced_from + " " + act.codex_wanted + " " + act.codex_cost
-		var has := act.intro_lines.size() == 2 and act.boss_taunt != "" and act.outro_line != "" and act.codex_spliced_from != "" and act.codex_wanted != "" and act.codex_cost != "" and act.intel_lines.size() == 3
+			+ " " + act.codex_colony + " " + act.codex_rationed + " " + act.codex_spliced_from + " " + act.codex_abandoned
+		var has := act.intro_lines.size() == 2 and act.boss_taunt != "" and act.outro_line != "" and act.codex_colony != "" and act.codex_rationed != "" \
+			and act.codex_spliced_from != "" and act.codex_abandoned != "" and act.intel_lines.size() == 3
 		ok = ok and has
+		same = same and Array(act.intro_lines) == s["intro"] and act.boss_taunt == s["taunt"] and act.outro_line == s["outro"] \
+			and act.codex_colony == s["colony"] and act.codex_rationed == s["rationed"] and act.codex_spliced_from == s["spliced"] and act.codex_abandoned == s["abandoned"]
+		var outro_lines := act.outro_line.split("\n").size()
+		ok = ok and (n == 1 or (outro_lines >= 2 and outro_lines <= 3))
 		for w in banned:
 			clean = clean and not all.contains(w)
-		clean = clean and (n == 1 or all.contains("Progenitors"))
-		if n >= 2:
-			_log("INFO  Act %2d intro: %s" % [n, " / ".join(PackedStringArray(act.intro_lines))])
-			_log("INFO         taunt: %s" % act.boss_taunt)
-			_log("INFO         outro: %s" % act.outro_line)
-	_check(ok, "every Act has 3 intel lines, a 2-line intro, a boss taunt, an outro and a codex entry (spliced from / wanted / cost)")
-	_check(clean, "THE PROGENITORS everywhere; never \"The Ban\"; no Mara, no June")
-
+		clean = clean and (n == 1 or all.contains("Progenitors") or all.contains("Year 121") or all.contains("outlaw"))
+		_log("INFO  Act %2d taunt (%.0f s): %s" % [n, act.taunt_seconds, act.boss_taunt])
+	_check(ok, "every Act: 2-line intro, boss taunt, 2-3 line outro, 4-line codex (colony / rationed / spliced / abandoned), 3 intel lines")
+	_check(same, "the Act files hold exactly the approved text (scripts/data/story_text.gd)")
+	_check(clean, "THE PROGENITORS, never \"The Ban\" (the Act 9 preview now says \"enforce their law\"); no Mara, no June")
+	var a1: ActData = Cosmos.ACTS[0]
+	_check(a1.boss_taunt == "You did not make me. But you made what made me." and Cosmos.ACTS[9].boss_taunt == "I was the first splice. I remember being made. I remember who made me.",
+		"the two locked lines: Emberfang-9 and Reaper-0")
+	var early := ""
+	for n in range(1, 10):
+		early += Cosmos.ACTS[n - 1].outro_line + " " + Cosmos.ACTS[n - 1].boss_taunt + " " + " ".join(PackedStringArray(Cosmos.ACTS[n - 1].intro_lines))
+	_check(not early.contains("first splice") and not early.contains("Year 61") and Cosmos.ACTS[9].outro_line.contains("Year 61"),
+		"the Act 10 twist (the Progenitors were the first splices, Year 61) is only in Act 10")
+	_check(a1.outro_seconds == 10.0 and a1.taunt_seconds == 5.0 and Cosmos.ACTS[5].outro_seconds > 10.0,
+		"Act 1's beats keep their timing; longer outros stay on screen longer (Act 6: %.0f s)" % Cosmos.ACTS[5].outro_seconds)
 
 func _test_unlock_and_intro() -> void:
 	_log("\n== S6-U / S6-I: unlocking and intros ==")
@@ -110,6 +124,38 @@ func _test_unlock_and_intro() -> void:
 	_check(first and not again and 3 in main.save["act_intros"], "Act 3's intro plays the first time you start it, not the second time")
 	main.show_map()
 	main.queue_free()
+	await _frames(2)
+	# An OLD save (before intros were tracked): Acts it already started or cleared
+	# never replay their intro, even with the new story text.
+	var old := {"intro_seen": true, "cleared_acts": [1, 2, 3, 4], "act_fight": {"5": 3}, "codex": [], "slot4_notice": true,
+		"units": [], "team": []}
+	var f := FileAccess.open(SAVE, FileAccess.WRITE)
+	f.store_string(JSON.stringify(old))
+	f.close()
+	var main2 := MainScene.instantiate()
+	main2.save_path = SAVE
+	add_child(main2)
+	await _frames(3)
+	main2.profile.choose_starter(Profile.STARTERS[0])
+	var seen: Array = main2.save["act_intros"]
+	main2.play_world(Cosmos.act_world_key(4), 0)
+	await _frames(4)
+	var replay4: bool = main2.battle.story_beat.is_open()
+	main2.show_map()
+	await _frames(2)
+	main2.play_world(Cosmos.act_world_key(5), 0)
+	await _frames(4)
+	var replay5: bool = main2.battle.story_beat.is_open()
+	main2.show_map()
+	await _frames(2)
+	main2.play_world(Cosmos.act_world_key(6), 0)
+	await _frames(4)
+	var new6: bool = main2.battle.story_beat.is_open() and main2.battle.story_beat.shown_text() == "\n".join(PackedStringArray(StoryText.ACTS[6]["intro"]))
+	main2.battle.story_beat.close()
+	_check(seen.has(4) and seen.has(5) and not replay4 and not replay5 and new6,
+		"an old save: Acts 4 and 5 (already played) don't replay their intro; Act 6 (never started) shows its new intro once")
+	main2.show_map()
+	main2.queue_free()
 	await _frames(2)
 	if FileAccess.file_exists(SAVE):
 		DirAccess.remove_absolute(ProjectSettings.globalize_path(SAVE))

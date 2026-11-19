@@ -40,7 +40,8 @@ const GALAXY_NAMES := ["Orbspire", "Tide", "Thorn", "Dawn", "Void", "Ember", "Fr
 const BANDS := [[1, 30], [31, 50], [41, 60], [51, 70], [61, 80], [71, 90], [81, 100], [91, 105], [101, 115], [111, 120]]
 const GALAXY_RING := [0, 1, 1, 1, 2, 2, 2, 3, 3, 3]
 ## Where each galaxy sits on the universe picture (0-1): the 10 galaxies painted in
-## it, measured by tools/analyze_world_art.gd. CALIBRATE HERE.
+## it, measured by tools/analyze_world_art.gd. Positions and colours APPROVED by
+## Bailey on 2026-11-19 (calibration screenshots) and LOCKED: see APPROVED_LAYOUT.
 const GALAXY_POS := [Vector2(0.501, 0.486),
 	Vector2(0.319, 0.849), Vector2(0.859, 0.637), Vector2(0.624, 0.153),
 	Vector2(0.251, 0.169), Vector2(0.136, 0.669), Vector2(0.107, 0.407),
@@ -497,6 +498,26 @@ static func _turns_at(probe: Array[FighterData], team: Array[FighterData], hp: i
 	for d in probe:
 		d.max_hp = hp
 	return BalanceSim.turns_to_win(probe, team, "GOOD")
+
+
+# ---------------------------------------------------------------- the approved layout
+
+## Fingerprint of every galaxy / system / world position, colour, picture and
+## affinity, as Bailey approved them on 2026-11-19. universe_test fails if a code
+## change would move or recolour anything; only change this after a new approval.
+const APPROVED_LAYOUT := "e86c7e8ca18f292f0ad73a9b6b081237"
+
+
+static func layout_fingerprint() -> String:
+	var parts := PackedStringArray()
+	for gal in galaxies():
+		var g: int = gal["g"]
+		parts.append("%d/%s/%.4f/%d" % [g, str(gal["pos"]), float(gal["hue"]), int(gal["art"])])
+		for sys in systems(g):
+			parts.append("%.4f/%s/%d/%d/%d" % [float(sys["hue"]), str(sys["pos"]), int(sys["art"]), int(sys["element"]), int(sys["n_worlds"])])
+			for w in worlds(g, int(sys["s"])):
+				parts.append("%.4f/%d/%s/%d/%d" % [float(w["hue"]), int(w["template"]), str(w["pos"]), int(w["element"]), int(w["rec"])])
+	return "|".join(parts).md5_text()
 
 
 # ---------------------------------------------------------------- totals

@@ -60,6 +60,7 @@ the label. A blue planet can be a Fire world. Do NOT infer affinity from colour.
   galaxy uses all hues and every system shows 3+ hues.
 
 ## Map
+- Positions and colours approved by Bailey on 2026-11-19 and locked.
 - Universe: the 10 painted galaxies ARE the galaxy positions (a random scatter round
   the centre, not a line or grid). Rings by distance from the centre: Ring 1 0.368-0.393,
   Ring 2 0.401-0.414, Ring 3 0.418-0.503 (picture widths). The painted galaxies are
@@ -85,8 +86,8 @@ the label. A blue planet can be a Fire world. Do NOT infer affinity from colour.
 - Story systems open in order (System 2 after Act 3, System 3 after Act 7). Reaper-0
   (Act 10) opens free exploration.
 - About 1 world in 8 is PURE (every stage one affinity): 67 of 734 generated worlds.
-  Note: the Art / Colouring prompt says "NO world is a single affinity"; this follows
-  your answer to my question instead. `Cosmos.PURE_SHARE = 0.125`: set it to 0 to
+  Note: the Art / Colouring prompt says "NO world is a single affinity"; Bailey confirmed
+  pure worlds stay (2026-11-19). `Cosmos.PURE_SHARE = 0.125`: set it to 0 to
   turn pure worlds off.
 
 ## Travel and unlocking
@@ -131,7 +132,7 @@ the label. A blue planet can be a Fire world. Do NOT infer affinity from colour.
   rings of the narrow late bands). Outer rings at least +4% HP / ATK.
 - Wardens and bosses are armoured and have Resolve (max -50% HP per turn): no
   maxed team at the Recommended Level can one-shot them (tested).
-- NEW RULE (needs your OK): **Element Shield** on generated Wardens and bosses: an orb
+- NEW RULE (approved 2026-11-19): **Element Shield** on generated Wardens and bosses: an orb
   attack of the affinity they resist does nothing (a Water boss shrugs off Fire).
   Without it a mono-Fire team cleared every Tide Galaxy world (all 4 hunters attack on
   every Fire match, which beats the x0.5 resist). With it, mono-Fire loses 29 of 72
@@ -139,7 +140,7 @@ the label. A blue planet can be a Fire world. Do NOT infer affinity from colour.
   untouched.
 - XP per stage = XP for the next level at the Recommended Level x 0.10 (side worlds
   x0.25) x 1 / 1 / 1.2 / 1.5 / 2.5. Credits as if Act = level / 3. A system's
-  singularity also gives 1 Key the first time (NEW, please confirm).
+  singularity also gives 1 Key the first time (approved 2026-11-19).
 
 ## Levelling
 - Lv1-30 unchanged (XP 50 x level, +25% steps from Lv10; stats x1 -> x2.5).
@@ -189,7 +190,7 @@ Energy yet, so nothing is spent (not built in this update).
   fight drops only: never in fights, never in the Lab, no Essence.
 - Side effect to know: a human Recruit pull is now one of 100 human versions, so the
   original 20 are 1 in 5 of human pulls. The odds per rarity are unchanged.
-- Dual affinity, PROPOSED LIST (needs your approval), Stage 3 only, 8 of 30 (27%):
+- Dual affinity, APPROVED LIST (2026-11-19), Stage 3 only, 8 of 30 (27%):
 
 | Character | Main | Sub | Why it fits |
 |---|---|---|---|
@@ -207,6 +208,20 @@ Energy yet, so nothing is spent (not built in this update).
   an inner border in the sub colour, cards a sub-colour glow and "Fire + Light", the
   detail screen "AFFINITY Fire + Light (dual)". Act 1 can't have Stage 3 hunters, so
   it is unchanged.
+
+## Tests, build, publish
+- All 9 suites pass: skill 126, stage4 21, meta 79, story 81, friends 45, stage5 32,
+  stage6 8, universe 78 (new), loop 953 (every fight of all 10 Acts in real battles).
+- Published to https://freecs97.github.io/orbspire/ (commit c95532a).
+- Build: index.pck 61.99 MB (was 59.57 MB; +2.4 MB of map art), index.wasm 37.68 MB.
+  GitHub's hard limit is 100 MB per file.
+- Calibration screenshots: tests/screenshots/map_*.png (numbered markers, each
+  node's colour swatch and hue shift).
+
+## Approvals (2026-11-19)
+All approved by Bailey: map positions and colours (locked, Cosmos.APPROVED_LAYOUT), the
+dual-affinity list, the Element Shield, pure worlds, Keys from exploration singularities,
+and colour versions in the Recruit pool.
 
 ## XP table, Lv30 -> Lv120
 (XP for the next level; total XP since reaching Lv30; stat multiplier at the new level vs Lv1.)

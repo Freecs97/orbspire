@@ -283,7 +283,8 @@ func add_xp(u: Dictionary, amount: int, galaxy_cap := 0) -> void:
 ## LOSE: a share of the Credits only.
 ## fight_no (1-8) turns on Scrap character drops; 0 = no drop (tests, sims).
 ## Exploration worlds pass galaxy_cap (no levelling past it), world_key and is_gate
-## (a system's singularity gives 1 Key + bonus Credits the first time) and
+## (a system's singularity gives 1 Key + bonus Credits the first time; approved
+## 2026-11-19) and
 ## fight_no 0 (no Scrap drops); act_number is the world's reward level.
 func fight_rewards(fight: FightData, act_number: int, won: bool, team: Array, is_act_clear: bool, fight_no := 0, galaxy_cap := 30, world_key := "", is_gate := false) -> Dictionary:
 	var e := ECONOMY

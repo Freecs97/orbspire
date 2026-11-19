@@ -109,11 +109,19 @@ func play(lines: Array, seconds: float, speaker := "", full := false) -> void:
 	_dim.color = Color(0.01, 0.01, 0.04, 0.96 if full else 0.6)
 	# The Introduction keeps every sentence on its own line, so it uses smaller,
 	# wider text than the in-battle beats.
-	_text.label_settings.font_size = 31 if full else 44
+	# Longer beats (the 2-3 line outros) use smaller text and start a bit higher,
+	# so they always fit above the timer bar.
+	var n := _text.text.length()
+	var beat_size := 44 if n <= 170 else (38 if n <= 280 else 34)
+	_text.label_settings.font_size = 31 if full else beat_size
 	_text.custom_minimum_size = Vector2(1030 if full else 890, 0)
 	_text.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER if full else HORIZONTAL_ALIGNMENT_LEFT
 	_panel.custom_minimum_size = Vector2(1060 if full else 980, 0)
-	_panel.position = Vector2(10 if full else 50, 330 if full else 640)
+	# Shrink back to fit: after a full-screen page the box would stay 1060 wide.
+	_text.reset_size()
+	_speaker.reset_size()
+	_panel.reset_size()
+	_panel.position = Vector2(10 if full else 50, 330 if full else (640 if n <= 170 else 520))
 	# The full-screen Introduction has no box around the text; beats do.
 	_panel.add_theme_stylebox_override("panel", StyleBoxEmpty.new() if full else _box)
 	_hint.text = "Tap to continue" if seconds <= 0.0 else "Tap to skip"

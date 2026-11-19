@@ -24,9 +24,13 @@ fights = Array[ExtResource("3_nv554")]([ExtResource("4_3b13p"), ExtResource("5_d
 arena = ExtResource("1_wc255")
 boss_art = ExtResource("2_dr25b")
 intel_lines = Array[String](["The Solar Farms turned starlight into power for half the edge.", "Ashen-01, a phoenix mech, burns the panels down and rises from the fire every time.", "The Progenitors ration what power is left and call the blackouts maintenance."])
-intro_lines = Array[String](["The Solar Farms turned starlight into power for half the edge.", "Ashen-01 was a repair drone spliced with a firebird, built to burn down and rise forever."])
+intro_lines = Array[String](["The Solar Farms turned starlight into power for half the edge.", "Ashen-01 was a repair drone spliced with a firebird, built to burn out and rise again, forever."])
 boss_taunt = "Burn it down. Build it up. Burn it down. I was not made to stop."
-outro_line = "Its power lines fed one place first: the Void Quarter's relays. Every blackout that silenced the Quarter was one of Ashen-01's fires. Voidscale went quiet because the power did."
-codex_spliced_from = "A firebird from the colony zoo and the farms' self-repair drones. Year 118, so the farms would heal themselves."
-codex_wanted = "To rebuild. It learned that a burned panel gets rebuilt, and a rebuilt panel earns it praise. So it burns them."
-codex_cost = "Every time it rises, it forgets the last fire. Half the edge in the dark, rationed, and called maintenance."
+outro_line = "Ashen-01's fires keep to a timetable. Every blackout that silenced the Quarter was scheduled and signed.
+The rationing was never about running short. Less heat, less water, less light: it was the dial on the experiment, and Orbspire's cold was only the first setting.
+Its ash fell into the cooling sea of the Data Abyss. That sea touches other colonies."
+outro_seconds = 17.0
+codex_colony = "Fields of panels that turned starlight into power for half the edge."
+codex_rationed = "Power, by the blackout. The blackouts were called maintenance."
+codex_spliced_from = "A firebird from a colony zoo and the farms' repair drones, Year 118, so the farms would heal themselves."
+codex_abandoned = "Left to burn on a timetable. Each time it rises, it forgets the last fire."

@@ -25,9 +25,13 @@ fights = Array[ExtResource("3_i0j4j")]([ExtResource("4_6ycus"), ExtResource("5_k
 arena = ExtResource("1_fcbv1")
 boss_art = ExtResource("2_tr606")
 intel_lines = Array[String](["The Gene Labs designed the splices and shipped them to the colonies.", "The Mossback Chimera, a lion spliced with stag and forest, broke out of the last test pen.", "The Progenitors locked the labs from outside and never came back for the staff."])
-intro_lines = Array[String](["The Gene Labs designed the splices and shipped them to the colonies.", "The Mossback Chimera was their last test: every splice they ever made, in one body."])
-boss_taunt = "Wolf. Eel. Eagle. Serpent. Firebird. I carry all of them. Do you see them in me?"
-outro_line = "The Kraken's records were missing one file. Every singularity you killed was grown here, from the same seed: the Chimera. It was not the last splice. It was the first."
-codex_spliced_from = "A lion, a stag and a forest, and a tissue sample from every splice the labs ever shipped. Year 80, before the First Splice was announced."
-codex_wanted = "To be let out. It was the template for every other singularity, and it watched every one of them leave."
-codex_cost = "The lab staff, locked in with it when the labs were sealed. Its own shape: it cannot hold one for long."
+intro_lines = Array[String](["The Gene Labs designed the splices and shipped them to the colonies.", "The labs were sealed in Year 121 with the staff inside. Something in there has been shipping ever since."])
+boss_taunt = "Wolf. Eel. Eagle. Serpent. Firebird. We are all of them. Do you see them in us?"
+outro_line = "The Chimera is every splice the labs ever made, grown together in one body. It is what has been crossing the colonies.
+The Kraken's archive was not tracking escapes. It was tracking deliveries: pieces of the Chimera, shipped out on every supply run since the labs were sealed.
+The seals were set from outside, with the lab staff still inside. Someone signed that order."
+outro_seconds = 18.0
+codex_colony = "The laboratories that designed every splice and shipped them out to the colonies."
+codex_rationed = "Nothing came in. Splices went out, on every supply run."
+codex_spliced_from = "A lion, a stag and a forest, with a tissue sample from every splice the labs ever made, Year 116. A living catalogue."
+codex_abandoned = "Sealed in with the staff in Year 121. It kept shipping itself out anyway."
