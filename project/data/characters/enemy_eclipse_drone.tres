@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="FighterData" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/enemies/enemy_light_solar_drone.png" id="1_njuft"]
+[ext_resource type="Script" path="res://scripts/data/fighter_data.gd" id="2_gs3up"]
+
+[resource]
+script = ExtResource("2_gs3up")
+display_name = "ECLIPSE DRONE"
+title = "Dark Berserker"
+element = 6
+max_hp = 291
+atk = 88
+rcv = 9
+design_id = "enemy_eclipse_drone"
+leader_skill = &"leader_solar_array"
+active_skill = &"sunburst_charge"
+passives = Array[StringName]([&"cleave", &"orb_enhance", &"skill_boost"])
+fixed_rarity = 0
+recolor_hue = 230.0
+recolor_value = 0.6
+recolor_tint = Color(0.65, 0.35, 1, 0.35)
+art = ExtResource("1_njuft")
+figure_height = 250.0
+figure_width = 210.0

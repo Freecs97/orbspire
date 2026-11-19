@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="FighterData" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/enemies/enemy_fire_ember_drone.png" id="1_6po4q"]
+[ext_resource type="Script" path="res://scripts/data/fighter_data.gd" id="2_d4u04"]
+
+[resource]
+script = ExtResource("2_d4u04")
+display_name = "EMBER DRONE"
+title = "Fire Berserker"
+max_hp = 280
+atk = 88
+rcv = 8
+design_id = "enemy_ember_drone"
+leader_skill = &"leader_kindling_swarm"
+active_skill = &"cinder_burst"
+passives = Array[StringName]([&"cleave", &"ambush", &"fire_atk_up"])
+fixed_rarity = 0
+art = ExtResource("1_6po4q")
+figure_height = 230.0
+figure_width = 200.0

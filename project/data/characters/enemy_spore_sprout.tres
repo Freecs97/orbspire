@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="FighterData" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/enemies/enemy_wood_spore_sprout.png" id="1_4s85w"]
+[ext_resource type="Script" path="res://scripts/data/fighter_data.gd" id="2_30ohp"]
+
+[resource]
+script = ExtResource("2_30ohp")
+display_name = "SPORE SPROUT"
+title = "Wood Biotech"
+element = 2
+role = 3
+max_hp = 320
+atk = 60
+rcv = 40
+design_id = "enemy_spore_sprout"
+leader_skill = &"leader_germinate"
+active_skill = &"spore_puff"
+passives = Array[StringName]([&"time_extend", &"rcv_up", &"last_stand"])
+fixed_rarity = 0
+art = ExtResource("1_4s85w")
+figure_width = 180.0

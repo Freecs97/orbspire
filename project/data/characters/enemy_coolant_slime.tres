@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="FighterData" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/enemies/enemy_water_coolant_slime.png" id="1_70vfo"]
+[ext_resource type="Script" path="res://scripts/data/fighter_data.gd" id="2_5ak75"]
+
+[resource]
+script = ExtResource("2_5ak75")
+display_name = "COOLANT SLIME"
+title = "Water Biotech"
+element = 1
+role = 3
+atk = 62
+rcv = 42
+design_id = "enemy_coolant_slime"
+leader_skill = &"leader_coolant_loop"
+active_skill = &"coolant_flush"
+passives = Array[StringName]([&"rcv_up", &"overflow_heal", &"damage_resist"])
+fixed_rarity = 0
+art = ExtResource("1_70vfo")
+figure_width = 220.0

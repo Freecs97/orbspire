@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="FighterData" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/enemies/enemy_wood_spore_sprout.png" id="1_jcsmy"]
+[ext_resource type="Script" path="res://scripts/data/fighter_data.gd" id="2_e4vfo"]
+
+[resource]
+script = ExtResource("2_e4vfo")
+display_name = "ASH SPROUT"
+title = "Fire Biotech"
+role = 3
+max_hp = 310
+atk = 63
+rcv = 40
+design_id = "enemy_ash_sprout"
+leader_skill = &"leader_germinate"
+active_skill = &"spore_puff"
+passives = Array[StringName]([&"time_extend", &"rcv_up", &"last_stand"])
+fixed_rarity = 0
+recolor_hue = -65.0
+art = ExtResource("1_jcsmy")
+figure_width = 180.0

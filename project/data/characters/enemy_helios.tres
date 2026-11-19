@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="FighterData" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/enemies/enemy_light_solar_drone.png" id="1_k4ivn"]
+[ext_resource type="Script" path="res://scripts/data/fighter_data.gd" id="2_y3dpu"]
+
+[resource]
+script = ExtResource("2_y3dpu")
+display_name = "HELIOS"
+title = "Light Berserker"
+element = 5
+atk = 84
+rcv = 9
+design_id = "enemy_helios"
+leader_skill = &"leader_solar_array"
+active_skill = &"sunburst_charge"
+passives = Array[StringName]([&"cleave", &"orb_enhance", &"skill_boost"])
+fixed_rarity = 0
+art = ExtResource("1_k4ivn")
+figure_height = 250.0
+figure_width = 210.0

@@ -47,8 +47,13 @@ extends Resource
 @export var keys_per_act_clear := 1
 
 @export_group("Digital Essence")
-## Each regular enemy has this chance to drop 1 Essence.
-@export var essence_regular_chance := 0.15
+## Each regular enemy has this chance to drop Essence...
+@export var essence_regular_chance := 0.3
+## ...and a drop gives this many (Stage 3 Part B: 30% x 2, was 15% x 1).
+@export var essence_regular_amount := 2
+## The 10 playable enemies: share of their drops that is their OWN Essence
+## (the rest goes to a human character, as before).
+@export var essence_own_share := 0.5
 @export var essence_mini_min := 1
 @export var essence_mini_max := 2
 @export var essence_boss := 3

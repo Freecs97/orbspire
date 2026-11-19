@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="FighterData" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/enemies/enemy_fire_ember_drone.png" id="1_sx663"]
+[ext_resource type="Script" path="res://scripts/data/fighter_data.gd" id="2_mhpvd"]
+
+[resource]
+script = ExtResource("2_mhpvd")
+display_name = "MOSS DRONE"
+title = "Wood Berserker"
+element = 2
+max_hp = 294
+atk = 88
+rcv = 8
+design_id = "enemy_moss_drone"
+leader_skill = &"leader_kindling_swarm"
+active_skill = &"cinder_burst"
+passives = Array[StringName]([&"cleave", &"ambush", &"fire_atk_up"])
+fixed_rarity = 0
+recolor_hue = 95.0
+art = ExtResource("1_sx663")
+figure_height = 230.0
+figure_width = 200.0

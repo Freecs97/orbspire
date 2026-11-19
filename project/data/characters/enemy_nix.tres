@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="FighterData" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/enemies/enemy_dark_void_imp.png" id="1_p1r54"]
+[ext_resource type="Script" path="res://scripts/data/fighter_data.gd" id="2_nujhy"]
+
+[resource]
+script = ExtResource("2_nujhy")
+display_name = "NIX"
+title = "Dark Spectre"
+element = 6
+role = 2
+max_hp = 215
+atk = 92
+rcv = 7
+design_id = "enemy_nix"
+leader_skill = &"leader_void_hunger"
+active_skill = &"void_bite"
+passives = Array[StringName]([&"ambush", &"bloodlust", &"combo_boost"])
+fixed_rarity = 1
+art = ExtResource("1_p1r54")
+figure_height = 240.0
+figure_width = 210.0

@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="FighterData" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/enemies/enemy_water_coolant_slime.png" id="1_k04go"]
+[ext_resource type="Script" path="res://scripts/data/fighter_data.gd" id="2_banjr"]
+
+[resource]
+script = ExtResource("2_banjr")
+display_name = "MAGMA SLIME"
+title = "Fire Biotech"
+role = 3
+max_hp = 291
+atk = 65
+rcv = 42
+design_id = "enemy_magma_slime"
+leader_skill = &"leader_coolant_loop"
+active_skill = &"coolant_flush"
+passives = Array[StringName]([&"rcv_up", &"overflow_heal", &"damage_resist"])
+fixed_rarity = 0
+recolor_hue = 170.0
+art = ExtResource("1_k04go")
+figure_width = 220.0

@@ -686,8 +686,7 @@ func use_skill(i: int) -> bool:
 				if enemies[k].is_defeated():
 					continue
 				SkillFx.ring(world, _enemy_center(k), col, 220.0, 20.0, 0.6, 16.0)
-				enemies[k].weakened_attacks = t.gravity_well_turns
-				enemies[k].weakened_mult = t.gravity_well_atk_mult
+				_weaken(enemies[k], t.gravity_well_turns, t.gravity_well_atk_mult)
 				FloatingText.spawn(world, _enemy_center(k) + Vector2(0, -150), "ATK -%d%%" % roundi((1.0 - t.gravity_well_atk_mult) * 100), col.lightened(0.4), 46, 40.0, 0.6)
 		&"sanctuary":
 			team.add_shield("SANCTUARY", t.sanctuary_blocks, 0.0)
@@ -712,6 +711,77 @@ func use_skill(i: int) -> bool:
 			board.move_time += t.dawn_chorus_seconds
 			_on_timer_changed(1.0)
 			FloatingText.spawn(world, board.position + Vector2(495, 400), "+%s s THIS TURN" % Skills._num(t.dawn_chorus_seconds), col.lightened(0.4), 52, 40.0, 0.6)
+		# ---- playable enemies (Stage 3 Part B)
+		&"cinder_burst":
+			# Hits EVERY enemy for ATK x1.5 (its element).
+			for k in enemies.size():
+				if not enemies[k].is_defeated():
+					SkillFx.streak(world, from_pos, _enemy_center(k), col, 16.0, 0.28)
+			await _wait(0.14)
+			_shake_screen(7.0, 0.2)
+			for k in enemies.size():
+				if enemies[k].is_defeated():
+					continue
+				SkillFx.ring(world, _enemy_center(k), col, 20.0, 150.0, 0.4)
+				var dealt := enemies[k].take_hit(CombatRules.skill_hit(member, enemies[k], t.cinder_burst_atk_mult), true)
+				_show_hit(k, dealt, member, 1)
+			_update_enemy_labels()
+		&"coolant_flush":
+			var from: int = Element.BEATS.get(member.element, -1)
+			_board_burst(Element.color(Element.Type.HEART))
+			var changed := board.convert_type(from, Element.Type.HEART)
+			FloatingText.spawn(world, board.position + Vector2(495, 400), "%d %s -> HEART" % [changed, Element.display_name(from)], Element.color(Element.Type.HEART).lightened(0.3), 52, 40.0, 0.6)
+			_heal_fx(team.heal(roundi(team.max_hp * t.coolant_flush_heal_ratio)), Color("6dff8a"))
+		&"spore_puff":
+			_heal_fx(team.heal(roundi(team.max_hp * t.spore_puff_heal_ratio)), Color("6dff8a"))
+			for k in enemies.size():
+				if enemies[k].is_defeated():
+					continue
+				SkillFx.sparkles(world, _enemy_center(k), Vector2(120, 80), col.lightened(0.2), 16, 0.7)
+				_weaken(enemies[k], 1, t.spore_puff_atk_mult)
+				FloatingText.spawn(world, _enemy_center(k) + Vector2(0, -150), "NEXT HIT -%d%%" % roundi((1.0 - t.spore_puff_atk_mult) * 100), col.lightened(0.4), 42, 40.0, 0.6)
+		&"sunburst_charge":
+			SkillFx.flash(world, board.position, Vector2(Board.COLS * Board.CELL, Board.CELL), Color(col, 0.75), 0.5)
+			SkillFx.sparkles(world, board.position + Vector2(Board.COLS * Board.CELL * 0.5, Board.CELL * 0.5), Vector2(480, 40), col, 24)
+			for x in Board.COLS:
+				(board.grid[x][0] as Orb).change_to(member.element)
+			board.convert_random(t.sunburst_hearts, Element.Type.HEART, 0)   # not on the new top row
+		&"twin_shiv", &"strangle", &"void_bite":
+			var target := CombatRules.pick_target(enemies, target_index)
+			if target >= 0:
+				var enemy := enemies[target]
+				var hits := 2 if member.active_skill == &"twin_shiv" else 1
+				var mult: float = {&"twin_shiv": t.twin_shiv_atk_mult, &"strangle": t.strangle_atk_mult, &"void_bite": t.void_bite_atk_mult}[member.active_skill]
+				var total := 0
+				for h in hits:
+					if enemy.is_defeated():
+						break
+					await _strike_fx(from_pos + Vector2((h * 2 - 1) * 40 if hits > 1 else 0, 0), target, col, 16.0)
+					var dealt := enemy.take_hit(CombatRules.skill_hit(member, enemy, mult), true)
+					total += dealt
+					_show_hit(target, dealt, member, h)
+				if member.active_skill == &"strangle" and not enemy.is_defeated():
+					_weaken(enemy, 1, t.strangle_weaken_mult)
+					FloatingText.spawn(world, _enemy_center(target) + Vector2(0, -150), "NEXT HIT -%d%%" % roundi((1.0 - t.strangle_weaken_mult) * 100), col.lightened(0.4), 42, 40.0, 0.6)
+				if member.active_skill == &"void_bite":
+					_heal_fx(team.heal(roundi(total * t.void_bite_lifesteal)), Color("6dff8a"))
+				_update_enemy_labels()
+		&"heat_vent":
+			team.add_shield("HEAT VENT", t.heat_vent_attacks, t.heat_vent_damage_taken)
+			_team_dome(col)
+			team.boost_element = member.element
+			team.boost_mult = t.heat_vent_atk_mult
+			FloatingText.spawn(world, board.position + Vector2(495, 400), "%s x%s THIS TURN" % [Element.display_name(member.element), Skills._num(t.heat_vent_atk_mult)], col.lightened(0.4), 50, 40.0, 0.6)
+		&"trident_wall":
+			team.add_shield("TRIDENT WALL", t.trident_wall_attacks, t.trident_wall_damage_taken)
+			_team_dome(col)
+			_heal_fx(team.heal(roundi(team.max_hp * t.trident_wall_heal_ratio)), Color("6dff8a"))
+		&"refract":
+			var from: int = Element.BEATS.get(member.element, -1)
+			_board_burst(col)
+			var changed := board.convert_type(from, member.element)
+			FloatingText.spawn(world, board.position + Vector2(495, 400), "%d %s -> %s" % [changed, Element.display_name(from), Element.display_name(member.element)], col.lightened(0.4), 52, 40.0, 0.6)
+			_heal_fx(team.heal(roundi(team.max_hp * t.refract_heal_ratio)), Color("6dff8a"))
 	if member.has_passive(&"field_medic"):
 		# Field Medic: using the skill charges every OTHER ally's skill by 1 turn.
 		for j in team.skill_turns.size():
@@ -727,6 +797,16 @@ func use_skill(i: int) -> bool:
 	_busy = false
 	board.begin_player_turn()
 	return true
+
+
+## Weaken an enemy's next `attacks` attacks to x`mult` (keeps the stronger effect).
+func _weaken(enemy: Enemy, attacks: int, mult: float) -> void:
+	if enemy.weakened_attacks > 0:
+		enemy.weakened_attacks = maxi(enemy.weakened_attacks, attacks)
+		enemy.weakened_mult = minf(enemy.weakened_mult, mult)
+	else:
+		enemy.weakened_attacks = attacks
+		enemy.weakened_mult = mult
 
 
 ## Skill FX helpers (code-only effects, see scripts/anim/skill_fx.gd).
@@ -973,7 +1053,7 @@ func _enemy_attack_damage(enemy: Enemy) -> int:
 	if team.guard_next_hit:
 		mult *= team.guard_mult
 		team.guard_next_hit = false
-	mult *= CombatRules.leader_damage_taken(team)
+	mult *= CombatRules.leader_damage_taken(team, enemy)
 	if CombatRules.team_has(team, &"damage_resist"):
 		mult *= t.damage_resist_taken
 	return roundi(power * mult)

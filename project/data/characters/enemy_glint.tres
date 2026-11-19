@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="FighterData" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/enemies/enemy_dark_shadow_thief.png" id="1_3yb1u"]
+[ext_resource type="Script" path="res://scripts/data/fighter_data.gd" id="2_jvp4v"]
+
+[resource]
+script = ExtResource("2_jvp4v")
+display_name = "GLINT"
+title = "Light Spectre"
+element = 5
+role = 2
+max_hp = 206
+atk = 97
+rcv = 6
+design_id = "enemy_glint"
+leader_skill = &"leader_backstab"
+active_skill = &"twin_shiv"
+passives = Array[StringName]([&"ambush", &"finisher", &"bloodlust"])
+fixed_rarity = 1
+recolor_hue = 130.0
+recolor_value = 1.4
+recolor_tint = Color(1, 0.85, 0.45, 0.3)
+art = ExtResource("1_3yb1u")
+figure_height = 320.0
+figure_width = 160.0

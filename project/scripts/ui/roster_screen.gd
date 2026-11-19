@@ -6,8 +6,8 @@ extends HomePage
 ##   - Tap a character for its details: level + XP, stats, skills, and buttons to
 ##     use a Training Core (+XP), lock it, or retire it (asks twice).
 ##   - EXPAND buys +5 roster slots with Credits. BUY CORE buys a Training Core.
-##   - LAB shows your Essence for all 20 characters (e.g. 7/10). At 10 you can
-##     CRAFT that character (Lv1).
+##   - LAB shows your Essence for the 20 humans and the 10 playable enemies
+##     (e.g. 7/10). At 10 you can CRAFT that character (Lv1, Stage 1).
 
 signal changed
 
@@ -103,20 +103,22 @@ func cards() -> Array:
 func _fill_lab() -> void:
 	var e := Profile.ECONOMY
 	# Closest to crafting first.
-	var ids: Array = Catalog.IDS.duplicate()
+	var ids: Array = Catalog.lab_ids()
 	ids.sort_custom(func(a: String, b: String) -> bool: return int(profile.data["essence"].get(a, 0)) > int(profile.data["essence"].get(b, 0)))
 	for id in ids:
 		var have := int(profile.data["essence"].get(id, 0))
 		var row := HBoxContainer.new()
 		row.add_theme_constant_override("separation", 18)
 		var pic := TextureRect.new()
-		pic.texture = Catalog.template(id).art
+		pic.texture = Catalog.art(id)
 		pic.custom_minimum_size = Vector2(110, 110)
 		pic.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		pic.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 		row.add_child(pic)
 		var l := make_label(30, Color.WHITE, row)
-		l.text = "%s  ·  %s\nEssence %d / %d" % [Catalog.display_name(id), Catalog.template(id).title, have, e.essence_to_craft]
+		var fixed := Catalog.template(id).fixed_rarity
+		l.text = "%s  ·  %s%s\nEssence %d / %d" % [Catalog.display_name(id), Catalog.template(id).title,
+			"  ·  %s" % Catalog.rarity_name(fixed) if fixed >= 0 else "", have, e.essence_to_craft]
 		l.custom_minimum_size = Vector2(560, 110)
 		l.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 		var b := Button.new()

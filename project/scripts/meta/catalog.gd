@@ -1,7 +1,9 @@
 class_name Catalog
 extends RefCounted
-## All 20 collectable characters (5 per type, one per element) and which
-## character's Essence each enemy drops.
+## All collectable characters and which character's Essence each enemy drops.
+##   IDS          - the 20 humans (5 per type, one per element)
+##   ENEMY_IDS    - 10 enemies made in the Lab from their own Essence (Stage 3 Part B)
+##   RECOLOR_IDS  - 10 colour versions of those enemies (recoloured in code)
 ##
 ## Plain English: a character "id" is its art file name, e.g. berserker_02_hulk_wood.
 ## The 4 story characters keep their data in data/team/, the other 16 in data/characters/.
@@ -20,6 +22,25 @@ const IDS := [
 	"spectre_01_rogue_dark", "spectre_02_mage_fire", "spectre_03_sniper_wood", "spectre_04_assassin_water", "spectre_05_infiltrator_light",
 	"titan_01_shield_wood", "titan_02_guardian_fire", "titan_03_anchor_water", "titan_04_void_dark", "titan_05_sanctum_light",
 ]
+## Stage 3 Part B: 10 enemies you can make in the Lab from their own Essence.
+const ENEMY_IDS := [
+	"enemy_ember_drone", "enemy_coolant_slime", "enemy_spore_sprout", "enemy_helios", "enemy_shade",
+	"enemy_furnace_worker", "enemy_tide_guard", "enemy_vine_strangler", "enemy_prisma", "enemy_nix",
+]
+## Their colour versions (recoloured in code). They never appear in fights, so
+## they come from Recruit and fight drops, at their original's rarity.
+const RECOLOR_IDS := [
+	"enemy_frost_drone", "enemy_moss_drone", "enemy_magma_slime", "enemy_bog_slime", "enemy_ash_sprout",
+	"enemy_dew_sprout", "enemy_eclipse_drone", "enemy_glint", "enemy_umbral_wisp", "enemy_lux_imp",
+]
+## Which enemy PNG drops which playable enemy's OWN Essence.
+const OWN_ESSENCE := {
+	"enemy_fire_ember_drone": "enemy_ember_drone", "enemy_water_coolant_slime": "enemy_coolant_slime",
+	"enemy_wood_spore_sprout": "enemy_spore_sprout", "enemy_light_solar_drone": "enemy_helios",
+	"enemy_dark_shadow_thief": "enemy_shade", "enemy_fire_furnace_worker": "enemy_furnace_worker",
+	"enemy_water_tide_guard": "enemy_tide_guard", "enemy_wood_vine_strangler": "enemy_vine_strangler",
+	"enemy_light_prism_wisp": "enemy_prisma", "enemy_dark_void_imp": "enemy_nix",
+}
 const TYPE_PREFIX := {
 	FighterData.Role.BERSERKER: "berserker", FighterData.Role.TITAN: "titan",
 	FighterData.Role.SPECTRE: "spectre", FighterData.Role.BIOTECH: "biotech",
@@ -30,6 +51,35 @@ const ELEMENT_SUFFIX := {
 }
 
 static var _cache := {}
+static var _recolor_cache := {}
+
+
+## Everyone you can make in the Lab: the 20 humans + the 10 enemy characters.
+static func lab_ids() -> Array:
+	return IDS + ENEMY_IDS
+
+
+## Every playable character (humans, enemies, enemy colour versions).
+static func all_ids() -> Array:
+	return IDS + ENEMY_IDS + RECOLOR_IDS
+
+
+## Who Recruit / fight drops can give at this rarity: every human (any rarity)
+## plus the enemy colour versions whose fixed rarity is exactly this one.
+## (So the odds shown on the Recruit screen stay exact.)
+static func pool_for_rarity(rarity: int) -> Array:
+	var out: Array = IDS.duplicate()
+	for id in RECOLOR_IDS:
+		if template(id).fixed_rarity == rarity:
+			out.append(id)
+	return out
+
+
+## The playable enemy whose OWN Essence this enemy drops ("" if none).
+static func own_essence_id(enemy: FighterData) -> String:
+	if enemy.art == null:
+		return ""
+	return OWN_ESSENCE.get(enemy.art.resource_path.get_file().get_basename(), "")
 
 
 static func template(id: String) -> FighterData:
@@ -82,7 +132,13 @@ static func art(id: String, stage := 1) -> Texture2D:
 		var path := "res://assets/characters/%s/%s_stage%d.png" % [id.get_slice("_", 0), id, stage]
 		if ResourceLoader.exists(path):
 			return load(path)
-	return template(id).art
+	var t := template(id)
+	# Enemy colour versions: recolour the original PNG in code (cached).
+	if not is_zero_approx(t.recolor_hue) or not is_equal_approx(t.recolor_value, 1.0) or t.recolor_tint.a > 0.0:
+		if not _recolor_cache.has(id):
+			_recolor_cache[id] = Recolor.apply(t.art, t.recolor_hue, t.recolor_value, t.recolor_tint)
+		return _recolor_cache[id]
+	return t.art
 
 
 static func display_name(id: String) -> String:

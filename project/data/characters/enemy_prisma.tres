@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="FighterData" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/enemies/enemy_light_prism_wisp.png" id="1_42xug"]
+[ext_resource type="Script" path="res://scripts/data/fighter_data.gd" id="2_0atct"]
+
+[resource]
+script = ExtResource("2_0atct")
+display_name = "PRISMA"
+title = "Light Biotech"
+element = 5
+role = 3
+max_hp = 310
+atk = 64
+rcv = 42
+design_id = "enemy_prisma"
+leader_skill = &"leader_refraction"
+active_skill = &"refract"
+passives = Array[StringName]([&"rcv_up", &"field_medic", &"heart_charge"])
+fixed_rarity = 1
+art = ExtResource("1_42xug")
+figure_height = 240.0
+figure_width = 200.0

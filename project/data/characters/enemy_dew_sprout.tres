@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="FighterData" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/enemies/enemy_wood_spore_sprout.png" id="1_0orb3"]
+[ext_resource type="Script" path="res://scripts/data/fighter_data.gd" id="2_cnq7m"]
+
+[resource]
+script = ExtResource("2_cnq7m")
+display_name = "DEW SPROUT"
+title = "Water Biotech"
+element = 1
+role = 3
+max_hp = 320
+atk = 58
+rcv = 45
+design_id = "enemy_dew_sprout"
+leader_skill = &"leader_germinate"
+active_skill = &"spore_puff"
+passives = Array[StringName]([&"time_extend", &"rcv_up", &"last_stand"])
+fixed_rarity = 0
+recolor_hue = 130.0
+art = ExtResource("1_0orb3")
+figure_width = 180.0

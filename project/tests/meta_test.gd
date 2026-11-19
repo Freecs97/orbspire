@@ -201,8 +201,8 @@ func _test_essence_rules() -> void:
 		var r := p.fight_rewards(regular, 1, true, [], false)
 		for id in r["essence"]:
 			drops += r["essence"][id]
-	var rate := float(drops) / (trials * regular.enemies.size())
-	_check(rate > 0.13 and rate < 0.17, "regular enemies drop 1 Essence %.1f%% of the time (target 15%%)" % (rate * 100))
+	var per_enemy := float(drops) / (trials * regular.enemies.size())
+	_check(per_enemy > 0.54 and per_enemy < 0.66, "regular enemies: 30%% chance of 2 Essence = %.2f Essence per enemy per win (target 0.60; Stage 3 Part B, was 15%% x 1)" % per_enemy)
 	var mini_ok := true
 	for k in 200:
 		var r := p.fight_rewards(StarMap.ACTS[0].fights[2], 1, true, [], false)
@@ -266,7 +266,7 @@ func _test_lab() -> void:
 	await _click(rs.lab_button)
 	await _frames(2)
 	var btn: Button = rs.craft_buttons.get("spectre_03_sniper_wood")
-	_check(rs.showing_lab and btn != null and not btn.disabled and rs.craft_buttons["titan_05_sanctum_light"].disabled, "LAB lists all 20 with Essence (x / 10); CRAFT only lights up at 10")
+	_check(rs.showing_lab and btn != null and not btn.disabled and rs.craft_buttons["titan_05_sanctum_light"].disabled and rs.craft_buttons.size() == 30 and rs.craft_buttons.has("enemy_nix"), "LAB lists all %d (20 humans + 10 enemies) with Essence (x / 10); CRAFT only lights up at 10" % rs.craft_buttons.size())
 	await _shot("c6_lab")
 	var n_before: int = p.data["units"].size()
 	rs.scroll.ensure_control_visible(btn)

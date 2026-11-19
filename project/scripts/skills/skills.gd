@@ -34,7 +34,27 @@ const NAMES := {
 	&"cauterize": "Cauterize",
 	&"night_bloom": "Night Bloom",
 	&"dawn_chorus": "Dawn Chorus",
+	&"cinder_burst": "Cinder Burst",
+	&"coolant_flush": "Coolant Flush",
+	&"spore_puff": "Spore Puff",
+	&"sunburst_charge": "Sunburst Charge",
+	&"twin_shiv": "Twin Shiv",
+	&"heat_vent": "Heat Vent",
+	&"trident_wall": "Trident Wall",
+	&"strangle": "Strangle",
+	&"refract": "Refract",
+	&"void_bite": "Void Bite",
 	# Leader skills
+	&"leader_kindling_swarm": "Kindling Swarm",
+	&"leader_coolant_loop": "Coolant Loop",
+	&"leader_germinate": "Germinate",
+	&"leader_solar_array": "Solar Array",
+	&"leader_backstab": "Backstab",
+	&"leader_heat_shielding": "Heat Shielding",
+	&"leader_wave_wall": "Wave Wall",
+	&"leader_constrict": "Constrict",
+	&"leader_refraction": "Refraction",
+	&"leader_void_hunger": "Void Hunger",
 	&"leader_berserker": "Furnace Heart",
 	&"leader_riptide": "Riptide",
 	&"leader_overgrowth": "Overgrowth",
@@ -116,6 +136,16 @@ static func cooldown(id: StringName) -> int:
 		&"cauterize": return t.cauterize_cooldown
 		&"night_bloom": return t.night_bloom_cooldown
 		&"dawn_chorus": return t.dawn_chorus_cooldown
+		&"cinder_burst": return t.cinder_burst_cooldown
+		&"coolant_flush": return t.coolant_flush_cooldown
+		&"spore_puff": return t.spore_puff_cooldown
+		&"sunburst_charge": return t.sunburst_cooldown
+		&"twin_shiv": return t.twin_shiv_cooldown
+		&"heat_vent": return t.heat_vent_cooldown
+		&"trident_wall": return t.trident_wall_cooldown
+		&"strangle": return t.strangle_cooldown
+		&"refract": return t.refract_cooldown
+		&"void_bite": return t.void_bite_cooldown
 	return 0
 
 
@@ -169,7 +199,47 @@ static func describe(id: StringName, element := -1) -> String:
 			return "Heals %d%% of max HP at the start of each of your next %d turns." % [_pct(t.night_bloom_heal_ratio), t.night_bloom_turns]
 		&"dawn_chorus":
 			return "Turns %d random orbs into Hearts and gives +%s s to move orbs this turn." % [t.dawn_chorus_hearts, _num(t.dawn_chorus_seconds)]
+		&"cinder_burst":
+			return "Hits EVERY enemy for ATK x%s (%s damage)." % [_num(t.cinder_burst_atk_mult), own]
+		&"coolant_flush":
+			return "Every %s orb turns into a Heart, and heals %d%% of max HP." % [beats, _pct(t.coolant_flush_heal_ratio)]
+		&"spore_puff":
+			return "Heals %d%% of max HP; every enemy's next attack is %d%% weaker." % [_pct(t.spore_puff_heal_ratio), _pct(1.0 - t.spore_puff_atk_mult)]
+		&"sunburst_charge":
+			return "The TOP row turns into %s orbs, and %d random orbs into Hearts." % [own, t.sunburst_hearts]
+		&"twin_shiv":
+			return "Hits the target TWICE for ATK x%s each (%s damage)." % [_num(t.twin_shiv_atk_mult), own]
+		&"heat_vent":
+			return "The next %d enemy attacks do %d%% less, and %s hunters hit x%s this turn." % [t.heat_vent_attacks, _pct(1.0 - t.heat_vent_damage_taken), el, _num(t.heat_vent_atk_mult)]
+		&"trident_wall":
+			return "The next %d enemy attacks do %d%% less, and heals %d%% of max HP." % [t.trident_wall_attacks, _pct(1.0 - t.trident_wall_damage_taken), _pct(t.trident_wall_heal_ratio)]
+		&"strangle":
+			return "Hits the target for ATK x%s (%s damage); its next attack is %d%% weaker." % [_num(t.strangle_atk_mult), own, _pct(1.0 - t.strangle_weaken_mult)]
+		&"refract":
+			return "Every %s orb turns into %s, and heals %d%% of max HP." % [beats, own, _pct(t.refract_heal_ratio)]
+		&"void_bite":
+			return "Hits the target for ATK x%s (%s damage) and heals the team for %d%% of the damage dealt." % [_num(t.void_bite_atk_mult), own, _pct(t.void_bite_lifesteal)]
 		# ---- leader skills (slot 1 only, never stack)
+		&"leader_kindling_swarm":
+			return "Match %d+ separate %s groups: %s hunters ATK x%s." % [t.leader_kindling_groups, own, el, _num(t.leader_kindling_mult)]
+		&"leader_coolant_loop":
+			return "Team RCV x%s. Match Hearts: %s hunters ATK x%s." % [_num(t.leader_coolant_rcv_mult), el, _num(t.leader_coolant_mult)]
+		&"leader_germinate":
+			return "+%s s to move orbs, and %s hunters ATK x%s." % [_num(t.leader_germinate_seconds), el, _num(t.leader_germinate_mult)]
+		&"leader_solar_array":
+			return "%s hunters ATK x%s; x%s at %d+ combos." % [el, _num(t.leader_solar_mult), _num(t.leader_solar_high_mult), t.leader_solar_combos]
+		&"leader_backstab":
+			return "Attacks on enemies above %d%% HP hit x%s." % [_pct(t.leader_backstab_hp_ratio), _num(t.leader_backstab_mult)]
+		&"leader_heat_shielding":
+			return "Team HP x%s, %s hunters ATK x%s, and the team takes %d%% less from %s enemies." % [_num(t.leader_heat_hp_mult), el, _num(t.leader_heat_mult), _pct(1.0 - t.leader_heat_damage_taken), own]
+		&"leader_wave_wall":
+			return "Team HP x%s, team RCV x%s, and %s hunters ATK x%s." % [_num(t.leader_wave_hp_mult), _num(t.leader_wave_rcv_mult), el, _num(t.leader_wave_mult)]
+		&"leader_constrict":
+			return "%d+ combos: every hunter ATK x%s." % [t.leader_constrict_combos, _num(t.leader_constrict_mult)]
+		&"leader_refraction":
+			return "%s hunters ATK x%s; x%s and heal %d%% of max HP when %d+ elements are matched." % [el, _num(t.leader_refraction_mult), _num(t.leader_refraction_high_mult), _pct(t.leader_refraction_heal_ratio), t.leader_refraction_elements]
+		&"leader_void_hunger":
+			return "%s hunters hit x%s against enemies below %d%% HP." % [el, _num(t.leader_void_mult), _pct(t.leader_void_hp_ratio)]
 		&"leader_berserker":
 			return "%d+ %s orbs in one group: %s hunters ATK x%s this turn." % [t.leader_berserker_group, own, el, _num(t.leader_berserker_mult)]
 		&"leader_riptide":
@@ -187,7 +257,7 @@ static func describe(id: StringName, element := -1) -> String:
 		&"leader_hunters_mark":
 			return "Attacks on the enemy you TAPPED hit x%s (no target tapped = no bonus)." % _num(t.leader_mark_mult)
 		&"leader_cold_precision":
-			return "Attacks on enemies below %d%% HP hit x%s." % [_pct(t.leader_cold_hp_ratio), _num(t.leader_cold_mult)]
+			return "Attacks on regular enemies below %d%% HP hit x%s (not bosses or mini-bosses)." % [_pct(t.leader_cold_hp_ratio), _num(t.leader_cold_mult)]
 		&"leader_halo_sight":
 			return "%d+ combos: every hunter ATK x%s, %s hunters x%s instead." % [t.leader_halo_combos, _num(t.leader_halo_mult), el, _num(t.leader_halo_element_mult)]
 		&"leader_titan":

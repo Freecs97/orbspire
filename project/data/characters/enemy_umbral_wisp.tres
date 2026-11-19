@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="FighterData" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/enemies/enemy_light_prism_wisp.png" id="1_kdp04"]
+[ext_resource type="Script" path="res://scripts/data/fighter_data.gd" id="2_plech"]
+
+[resource]
+script = ExtResource("2_plech")
+display_name = "UMBRAL WISP"
+title = "Dark Biotech"
+element = 6
+role = 3
+max_hp = 301
+atk = 67
+rcv = 42
+design_id = "enemy_umbral_wisp"
+leader_skill = &"leader_refraction"
+active_skill = &"refract"
+passives = Array[StringName]([&"rcv_up", &"field_medic", &"heart_charge"])
+fixed_rarity = 1
+recolor_hue = 230.0
+recolor_value = 0.6
+recolor_tint = Color(0.65, 0.35, 1, 0.35)
+art = ExtResource("1_kdp04")
+figure_height = 240.0
+figure_width = 200.0

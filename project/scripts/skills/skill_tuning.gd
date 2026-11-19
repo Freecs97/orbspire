@@ -97,6 +97,35 @@ extends Resource
 @export var dawn_chorus_hearts := 4
 @export var dawn_chorus_seconds := 2.0
 
+@export_group("Enemy actives (Stage 3 Part B)")
+@export var cinder_burst_cooldown := 6
+@export var cinder_burst_atk_mult := 1.5        ## Hits EVERY enemy.
+@export var coolant_flush_cooldown := 6
+@export var coolant_flush_heal_ratio := 0.1     ## + every orb of the element it beats -> Heart.
+@export var spore_puff_cooldown := 5
+@export var spore_puff_heal_ratio := 0.15
+@export var spore_puff_atk_mult := 0.8          ## Every enemy's NEXT attack.
+@export var sunburst_cooldown := 7
+@export var sunburst_hearts := 2                ## + the top row -> its element.
+@export var twin_shiv_cooldown := 6
+@export var twin_shiv_atk_mult := 2.0           ## Per hit; 2 hits.
+@export var heat_vent_cooldown := 7
+@export var heat_vent_damage_taken := 0.6
+@export var heat_vent_attacks := 2
+@export var heat_vent_atk_mult := 1.3           ## Its element's hunters, this turn.
+@export var trident_wall_cooldown := 8
+@export var trident_wall_damage_taken := 0.7
+@export var trident_wall_attacks := 3
+@export var trident_wall_heal_ratio := 0.1
+@export var strangle_cooldown := 7
+@export var strangle_atk_mult := 3.0
+@export var strangle_weaken_mult := 0.5         ## The target's next attack.
+@export var refract_cooldown := 7
+@export var refract_heal_ratio := 0.1           ## + every orb of the element it beats -> its element.
+@export var void_bite_cooldown := 6
+@export var void_bite_atk_mult := 2.5
+@export var void_bite_lifesteal := 0.5          ## Heals the team for this share of damage dealt.
+
 @export_group("Leader skills")
 @export var leader_berserker_group := 4
 @export var leader_berserker_mult := 2.0
@@ -144,6 +173,33 @@ extends Resource
 @export var leader_umbral_mult := 2.0
 @export var leader_radiance_seconds := 1.0
 @export var leader_radiance_mult := 1.3
+# Enemy leaders (Stage 3 Part B), tuned in the balance sim so they are never
+# faster than a human leader with the same team.
+@export var leader_kindling_groups := 2
+@export var leader_kindling_mult := 1.15
+@export var leader_coolant_rcv_mult := 1.25
+@export var leader_coolant_mult := 1.15
+@export var leader_germinate_seconds := 1.0
+@export var leader_germinate_mult := 1.2
+@export var leader_solar_mult := 1.15
+@export var leader_solar_combos := 4
+@export var leader_solar_high_mult := 1.6
+@export var leader_backstab_hp_ratio := 0.8
+@export var leader_backstab_mult := 1.25
+@export var leader_heat_hp_mult := 1.2
+@export var leader_heat_mult := 1.15
+@export var leader_heat_damage_taken := 0.8      ## From enemies of the leader's element.
+@export var leader_wave_hp_mult := 1.15
+@export var leader_wave_rcv_mult := 1.15
+@export var leader_wave_mult := 1.15
+@export var leader_constrict_combos := 5
+@export var leader_constrict_mult := 1.75
+@export var leader_refraction_mult := 1.2
+@export var leader_refraction_elements := 2
+@export var leader_refraction_high_mult := 1.4
+@export var leader_refraction_heal_ratio := 0.08
+@export var leader_void_hp_ratio := 0.5
+@export var leader_void_mult := 1.4
 
 @export_group("Passives")
 @export var cleave_group := 4

@@ -261,7 +261,8 @@ func fight_rewards(fight: FightData, act_number: int, won: bool, team: Array, is
 	r["xp"] = fight.xp
 	r["xp"] = roundi(fight.xp * xp_falloff_for(team, fight.expected_level))
 	r["level_ups"] = grant_xp(team, fight.xp, fight.expected_level)
-	# Essence: each enemy drops for its own character.
+	# Essence: each enemy drops for a human character, or (the 10 playable
+	# enemies, 50/50) for ITSELF. Regular enemies: 30% chance of 2.
 	for d in fight.enemies:
 		var n := 0
 		if d.is_boss and d.art and d.art.resource_path.contains("/bosses/"):
@@ -269,9 +270,12 @@ func fight_rewards(fight: FightData, act_number: int, won: bool, team: Array, is
 		elif d.is_boss:
 			n = rng.randi_range(e.essence_mini_min, e.essence_mini_max)
 		elif rng.randf() < e.essence_regular_chance:
-			n = 1
+			n = e.essence_regular_amount
 		if n > 0:
 			var id := Catalog.essence_for(d, act_number)
+			var own := Catalog.own_essence_id(d)
+			if own != "" and rng.randf() < e.essence_own_share:
+				id = own
 			r["essence"][id] = int(r["essence"].get(id, 0)) + n
 			data["essence"][id] = int(data["essence"].get(id, 0)) + n
 	if is_act_clear and not act_number in data["first_clears"]:
@@ -304,7 +308,7 @@ func _scrap_drop(fight: FightData, act_number: int, fight_no: int) -> Dictionary
 		return {}
 	if roster_full():
 		return {"id": "", "roster_full": true}
-	var pool: Array = Catalog.IDS.duplicate()
+	var pool: Array = Catalog.pool_for_rarity(0)   # humans + Scrap enemy colour versions
 	if guaranteed and fight_no == 1:
 		var acts := StarMap.ACTS
 		var boss: FighterData = acts[act_number - 1].fights[-1].enemies[0]
@@ -357,7 +361,9 @@ func craft(id: String) -> int:
 	if can_craft(id) != "":
 		return -1
 	data["essence"][id] = int(data["essence"][id]) - ECONOMY.essence_to_craft
-	var uid := add_unit(id, ECONOMY.crafted_rarity(progress_act()))
+	# Enemy characters always come at their own rarity (Scrap / Alloy / Forged).
+	var fixed := Catalog.template(id).fixed_rarity
+	var uid := add_unit(id, fixed if fixed >= 0 else ECONOMY.crafted_rarity(progress_act()))
 	auto_slot(uid)
 	return uid
 
@@ -383,7 +389,10 @@ func recruit(tier: int) -> Dictionary:
 	else:
 		data["credits"] -= ECONOMY.recruit_costs[tier]
 	var rarity := roll_rarity(ECONOMY.odds_for(tier, progress_act()))
-	var id: String = Catalog.IDS[rng.randi_range(0, Catalog.IDS.size() - 1)]
+	# Rarity first, then a character allowed at that rarity (humans + enemy colour
+	# versions with exactly that fixed rarity), so the shown odds stay exact.
+	var pool := Catalog.pool_for_rarity(rarity)
+	var id: String = pool[rng.randi_range(0, pool.size() - 1)]
 	var uid := add_unit(id, rarity)
 	return {"uid": uid, "id": id, "rarity": rarity, "in_team": auto_slot(uid)}
 

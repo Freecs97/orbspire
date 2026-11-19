@@ -177,7 +177,8 @@ static func leader_multiplier(leader: FighterData, member: FighterData, groups: 
 			if marked:
 				return t.leader_mark_mult
 		&"leader_cold_precision":
-			if enemy != null and enemy.hp_ratio() < t.leader_cold_hp_ratio:
+			# Regular enemies only: on bosses / mini-bosses it would just beat Resolve a turn early.
+			if enemy != null and not enemy.data.is_boss and enemy.hp_ratio() < t.leader_cold_hp_ratio:
 				return t.leader_cold_mult
 		&"leader_halo_sight":
 			if combos >= t.leader_halo_combos:
@@ -200,6 +201,37 @@ static func leader_multiplier(leader: FighterData, member: FighterData, groups: 
 		&"leader_radiance":
 			if hearts_matched(groups):
 				return t.leader_radiance_mult
+		# ---- enemy leaders (Stage 3 Part B)
+		&"leader_kindling_swarm":
+			if same and groups.filter(func(g: Dictionary) -> bool: return g["type"] == el).size() >= t.leader_kindling_groups:
+				return t.leader_kindling_mult
+		&"leader_coolant_loop":
+			if same and hearts_matched(groups):
+				return t.leader_coolant_mult
+		&"leader_germinate":
+			if same:
+				return t.leader_germinate_mult
+		&"leader_solar_array":
+			if same:
+				return t.leader_solar_high_mult if combos >= t.leader_solar_combos else t.leader_solar_mult
+		&"leader_backstab":
+			if enemy != null and enemy.hp_ratio() > t.leader_backstab_hp_ratio:
+				return t.leader_backstab_mult
+		&"leader_heat_shielding":
+			if same:
+				return t.leader_heat_mult
+		&"leader_wave_wall":
+			if same:
+				return t.leader_wave_mult
+		&"leader_constrict":
+			if combos >= t.leader_constrict_combos:
+				return t.leader_constrict_mult
+		&"leader_refraction":
+			if same:
+				return t.leader_refraction_high_mult if distinct_attack_types(groups) >= t.leader_refraction_elements else t.leader_refraction_mult
+		&"leader_void_hunger":
+			if same and enemy != null and enemy.hp_ratio() < t.leader_void_hp_ratio:
+				return t.leader_void_mult
 	return 1.0
 
 
@@ -214,6 +246,8 @@ static func team_hp_multiplier(leader: FighterData) -> float:
 		&"leader_deep_current": return t.leader_deep_hp_mult
 		&"leader_iron_pact": return t.leader_iron_hp_mult
 		&"leader_dawn_aegis": return t.leader_aegis_hp_mult
+		&"leader_heat_shielding": return t.leader_heat_hp_mult
+		&"leader_wave_wall": return t.leader_wave_hp_mult
 	return 1.0
 
 
@@ -226,11 +260,14 @@ static func team_rcv_multiplier(leader: FighterData) -> float:
 		&"leader_deep_current": return t.leader_deep_rcv_mult
 		&"leader_second_wind": return t.leader_second_wind_rcv_mult
 		&"leader_umbral_pact": return t.leader_umbral_rcv_mult
+		&"leader_coolant_loop": return t.leader_coolant_rcv_mult
+		&"leader_wave_wall": return t.leader_wave_rcv_mult
 	return 1.0
 
 
 ## How much of an enemy hit the team takes because of the leader (1.0 = all).
-static func leader_damage_taken(team: Team) -> float:
+## `attacker` = the enemy hitting (Heat Shielding cares about its element).
+static func leader_damage_taken(team: Team, attacker: Enemy = null) -> float:
 	var leader := team.leader()
 	if leader == null:
 		return 1.0
@@ -241,6 +278,9 @@ static func leader_damage_taken(team: Team) -> float:
 		&"leader_iron_pact":
 			if team.hp_ratio() < t.leader_iron_hp_ratio:
 				return t.leader_iron_damage_taken
+		&"leader_heat_shielding":
+			if attacker != null and attacker.data.element == leader.element:
+				return t.leader_heat_damage_taken
 	return 1.0
 
 
@@ -293,6 +333,8 @@ static func move_time(team: Team) -> float:
 	var leader := team.leader()
 	if leader and leader.leader_skill == &"leader_radiance":
 		s += Skills.TUNING.leader_radiance_seconds
+	if leader and leader.leader_skill == &"leader_germinate":
+		s += Skills.TUNING.leader_germinate_seconds
 	return s
 
 
@@ -317,6 +359,9 @@ static func turn_heal(team: Team, hearts: int, groups: Array) -> int:
 			&"leader_overgrowth":
 				if has_group(groups, leader.element, t.leader_berserker_group):
 					amount += team.max_hp * t.leader_overgrowth_heal_ratio
+			&"leader_refraction":
+				if distinct_attack_types(groups) >= t.leader_refraction_elements:
+					amount += team.max_hp * t.leader_refraction_heal_ratio
 	for m in team.members:
 		if m.has_passive(&"regrowth") and orbs_matched(groups, m.element) > 0:
 			amount += team.max_hp * t.regrowth_heal_ratio

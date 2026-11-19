@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="FighterData" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/enemies/enemy_water_tide_guard.png" id="1_yb8kp"]
+[ext_resource type="Script" path="res://scripts/data/fighter_data.gd" id="2_ihs6t"]
+
+[resource]
+script = ExtResource("2_ihs6t")
+display_name = "TIDE GUARD"
+title = "Water Titan"
+element = 1
+role = 1
+max_hp = 420
+atk = 68
+rcv = 24
+design_id = "enemy_tide_guard"
+leader_skill = &"leader_wave_wall"
+active_skill = &"trident_wall"
+passives = Array[StringName]([&"counter", &"rcv_up", &"last_stand"])
+fixed_rarity = 1
+art = ExtResource("1_yb8kp")
+figure_height = 330.0
+figure_width = 220.0

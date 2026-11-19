@@ -50,6 +50,16 @@ enum Role { BERSERKER, TITAN, SPECTRE, BIOTECH, ENEMY }
 ## Which placeholder body to draw: blob, drone, slime, human, sprout, golem, wolf.
 @export var kind: StringName = &"blob"
 
+@export_group("Playable enemies (Stage 3 Part B)")
+## >= 0: this character always comes at this rarity (enemy characters: Scrap 0,
+## Alloy 1, Forged 2). -1 = the rarity is rolled (humans).
+@export var fixed_rarity := -1
+## Recolour, done in CODE on the existing PNG (no new art): turn the hue by this
+## many degrees, scale brightness, then mix in a tint (tint alpha = how much).
+@export var recolor_hue := 0.0
+@export var recolor_value := 1.0
+@export var recolor_tint := Color(1, 1, 1, 0)
+
 @export_group("Later phases (data only, not used yet)")
 ## Reserved for branching evolution / Reincarnation / variants. Not coded yet.
 @export var evolution_branch: StringName = &""

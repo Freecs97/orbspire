@@ -105,10 +105,12 @@ func convert_type(from_type: int, to_type: int) -> int:
 
 ## Turn `count` random orbs that are NOT `to_type` into `to_type`.
 ## Returns how many orbs changed (fewer if the board runs out).
-func convert_random(count: int, to_type: int) -> int:
+func convert_random(count: int, to_type: int, skip_row := -1) -> int:
 	var cells: Array[Vector2i] = []
 	for x in COLS:
 		for y in ROWS:
+			if y == skip_row:
+				continue
 			var orb: Orb = grid[x][y]
 			if orb and orb.orb_type != to_type:
 				cells.append(Vector2i(x, y))

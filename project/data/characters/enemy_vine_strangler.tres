@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="FighterData" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/enemies/enemy_wood_vine_strangler.png" id="1_amjde"]
+[ext_resource type="Script" path="res://scripts/data/fighter_data.gd" id="2_l4n8h"]
+
+[resource]
+script = ExtResource("2_l4n8h")
+display_name = "VINE STRANGLER"
+title = "Wood Spectre"
+element = 2
+role = 2
+max_hp = 210
+atk = 98
+rcv = 7
+design_id = "enemy_vine_strangler"
+leader_skill = &"leader_constrict"
+active_skill = &"strangle"
+passives = Array[StringName]([&"finisher", &"combo_boost", &"skill_boost"])
+fixed_rarity = 2
+art = ExtResource("1_amjde")
+figure_height = 340.0
+figure_width = 180.0
