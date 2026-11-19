@@ -2,14 +2,17 @@ class_name SkillPopup
 extends Control
 ## The pop-up you get when you tap a hunter's card.
 ##
-## Plain English (Stage 4): a small tooltip with the hunter's name, HP / ATK /
-## RCV and active skill name + charge, with a USE button that only works when
-## the skill is charged. Tapping USE never ends your turn: you still move orbs
-## afterwards. The full skill / leader / passive text is on the Roster detail
-## screen (and the Stage 5 detail screen).
+## Plain English: a small tooltip with the hunter's name, HP / ATK / RCV and
+## active skill name + charge, and 4 buttons:
+##   USE      - the skill (only when charged). Never ends your turn.
+##   REPLACE  - Stage 5A: swap this hunter for one from your Roster
+##   DETAILS  - Stage 5B: the full detail screen (every skill in full words)
+##   CLOSE
 
 signal use_pressed(member_index: int)
-## Emitted whenever the pop-up goes away (USE or CLOSE).
+signal replace_pressed(member_index: int)
+signal details_pressed(member_index: int)
+## Emitted whenever the pop-up goes away (any button).
 signal closed
 
 var member_index := -1
@@ -17,6 +20,8 @@ var _panel: PanelContainer
 var _title: Label
 var _body: VBoxContainer
 var use_button: Button
+var replace_button: Button
+var details_button: Button
 var close_button: Button
 
 
@@ -67,24 +72,36 @@ func _init() -> void:
 	_body.add_theme_constant_override("separation", 10)
 	col.add_child(_body)
 
-	var buttons := HBoxContainer.new()
-	buttons.add_theme_constant_override("separation", 30)
-	buttons.alignment = BoxContainer.ALIGNMENT_CENTER
+	var buttons := GridContainer.new()
+	buttons.columns = 2
+	buttons.add_theme_constant_override("h_separation", 30)
+	buttons.add_theme_constant_override("v_separation", 22)
+	buttons.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	col.add_child(buttons)
 	use_button = _button("USE", Color("2fae6a"))
 	use_button.pressed.connect(func() -> void:
 		visible = false
 		use_pressed.emit(member_index))
 	buttons.add_child(use_button)
+	replace_button = _button("REPLACE", Color("b98a1e"))
+	# The next screen opens first, THEN this hides (so the board stays locked under it).
+	replace_button.pressed.connect(func() -> void:
+		replace_pressed.emit(member_index)
+		visible = false)
+	buttons.add_child(replace_button)
+	details_button = _button("DETAILS", Color("3d6fb8"))
+	details_button.pressed.connect(func() -> void:
+		details_pressed.emit(member_index)
+		visible = false)
+	buttons.add_child(details_button)
 	close_button = _button("CLOSE", Color("4a4f72"))
 	close_button.pressed.connect(func() -> void: visible = false)
 	buttons.add_child(close_button)
 
 
 ## Show hunter `index`. turns_left = turns until the skill is ready (0 = ready).
-## Stage 4: a small tooltip: name, HP / ATK / RCV, skill name + charge, and
-## USE / CLOSE. (Full skill, leader and passive text: the Stage 5 detail screen.)
-func open(index: int, data: FighterData, is_leader: bool, turns_left: int, can_use_now: bool) -> void:
+## can_replace = false greys out REPLACE (a test fight with no save behind it).
+func open(index: int, data: FighterData, is_leader: bool, turns_left: int, can_use_now: bool, can_replace := true) -> void:
 	member_index = index
 	var c := Element.color(data.element)
 	_title.text = data.display_name + ("  ·  LEADER" if is_leader else "")
@@ -98,6 +115,8 @@ func open(index: int, data: FighterData, is_leader: bool, turns_left: int, can_u
 		Color("6dff8a") if turns_left <= 0 else Color("ffd23f"))
 	use_button.disabled = not (turns_left <= 0 and can_use_now)
 	use_button.modulate = Color.WHITE if not use_button.disabled else Color(1, 1, 1, 0.4)
+	replace_button.disabled = not can_replace
+	replace_button.modulate = Color.WHITE if can_replace else Color(1, 1, 1, 0.4)
 	visible = true
 
 
@@ -130,8 +149,8 @@ func _label(font_size: int, color: Color) -> Label:
 func _button(text: String, color: Color) -> Button:
 	var b := Button.new()
 	b.text = text
-	b.custom_minimum_size = Vector2(380, 120)
-	b.add_theme_font_size_override("font_size", 50)
+	b.custom_minimum_size = Vector2(420, 112)
+	b.add_theme_font_size_override("font_size", 44)
 	for state in ["font_color", "font_hover_color", "font_pressed_color", "font_disabled_color"]:
 		b.add_theme_color_override(state, Color.WHITE)
 	var sb := StyleBoxFlat.new()

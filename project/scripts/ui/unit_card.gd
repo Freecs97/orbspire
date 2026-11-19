@@ -68,10 +68,18 @@ func show_unit(unit: Dictionary, leader := false, card_size := Vector2(220, 300)
 	_info.position = Vector2(0, card_size.y - 38)
 	_info.size = Vector2(card_size.x, 30)
 	_tag.position = Vector2(8, 8)
+	_tag.size = Vector2(_tag.text.length() * 13.0, 30)
 	var tag_box := StyleBoxFlat.new()
 	tag_box.bg_color = Color("ffd23f")
 	tag_box.set_corner_radius_all(8)
 	_tag.add_theme_stylebox_override("normal", tag_box)
+
+
+## A gold tag in the corner (e.g. " IN SLOT 2 ").
+func set_tag(text: String) -> void:
+	_tag.text = text
+	_tag.size = Vector2(text.length() * 13.0, 30)
+	_tag.visible = true
 
 
 func _lbl(font: int, color: Color) -> Label:

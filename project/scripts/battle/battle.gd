@@ -84,6 +84,14 @@ var team_status_label: Label
 var combo_counter: ComboCounter   ## Stage 4: live "COMBO 3  x1.50" next to the board
 var cut_in: SkillCutIn            ## Skill cut-in: the hunter's portrait over the BOARD (never the arena)
 var cut_in_toggle: Button         ## In the MENU dialog: Skill Cut-ins ON / OFF
+var roster_picker: RosterPicker   ## Stage 5A: REPLACE from the plate pop-up
+var unit_detail: UnitDetail       ## Stage 5B: DETAILS from the plate pop-up
+var notice_label: Label           ## short notes ("DREK VANE joins from the next fight")
+var _notice_tween: Tween
+var _replace_slot := -1
+var _skill_used_this_fight := false
+var _act_skill_uids: Array = []   ## whose charge _act_skill_turns holds (games with a save)
+var _fight_start_uids: Array = []
 var level_label: Label
 var result_panel: ResultPanel
 var skill_popup: SkillPopup
@@ -254,10 +262,48 @@ func _build_scene() -> void:
 	ui.add_child(skill_popup)
 	story_beat = StoryBeat.new()
 	ui.add_child(story_beat)
+	# Stage 5: REPLACE (Roster picker) and DETAILS (full detail screen) from the pop-up.
+	roster_picker = RosterPicker.new()
+	ui.add_child(roster_picker)
+	unit_detail = UnitDetail.new()
+	ui.add_child(unit_detail)
+	notice_label = Label.new()
+	var ns := LabelSettings.new()
+	ns.font_size = 32
+	ns.font_color = Color("ffe9a0")
+	ns.outline_size = 8
+	ns.outline_color = Color(0.02, 0.01, 0.06)
+	notice_label.label_settings = ns
+	var nb := StyleBoxFlat.new()
+	nb.bg_color = Color(0.02, 0.01, 0.06, 0.82)
+	nb.set_corner_radius_all(18)
+	nb.border_width_bottom = 3
+	nb.border_color = Color("ffd23f")
+	nb.content_margin_left = 24
+	nb.content_margin_right = 24
+	notice_label.add_theme_stylebox_override("normal", nb)
+	# In the arena, under the fight titles (clear of the HP bar and the board).
+	notice_label.set_anchors_preset(Control.PRESET_TOP_WIDE)
+	notice_label.offset_left = 50
+	notice_label.offset_right = -50
+	notice_label.offset_top = 165
+	notice_label.offset_bottom = 275
+	notice_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	notice_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	notice_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	notice_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	notice_label.modulate.a = 0.0
+	ui.add_child(notice_label)
 	_build_menu_ui(ui)
 	result_panel.codex_pressed.connect(func() -> void: codex_requested.emit())
 	skill_popup.use_pressed.connect(func(i: int) -> void: use_skill(i))
+	skill_popup.replace_pressed.connect(open_replace)
+	skill_popup.details_pressed.connect(open_details)
 	skill_popup.closed.connect(_on_popup_closed)
+	roster_picker.picked.connect(_on_replace_picked)
+	roster_picker.closed.connect(_resume_after_overlay)
+	unit_detail.closed.connect(_resume_after_overlay)
+	unit_detail.changed.connect(func() -> void: progress_changed.emit())
 
 	board.move_started.connect(func() -> void:
 		_player_turn = false
@@ -363,7 +409,7 @@ func _build_menu_ui(ui: CanvasLayer) -> void:
 ## Can the player leave right now? (Their turn, nothing animating, no pop-up.)
 func can_leave() -> bool:
 	return has_home and _player_turn and not _busy and not result_panel.visible \
-		and not skill_popup.visible and not leave_dialog.visible \
+		and not skill_popup.visible and not leave_dialog.visible and not _overlay_open() \
 		and (board.state == Board.State.READY or board.state == Board.State.LOCKED)
 
 
@@ -394,6 +440,8 @@ func _process(_delta: float) -> void:
 	if team:
 		for v in team_views:
 			v.hp_ratio = team.hp_ratio()   # head plates: the team's shared HP
+	if menu_button and has_home:
+		menu_button.visible = not _overlay_open()   # hidden under Replace / Details
 	if menu_button and menu_button.visible:
 		# Dimmed while enemies attack / combos resolve; lights up on your turn.
 		menu_button.disabled = not can_leave() and not leave_dialog.visible
@@ -406,6 +454,8 @@ func set_team(members: Array) -> void:
 		team_data.append(m)
 	_act_skill_turns.clear()   # a new team starts a new Act's charge
 	_fight_start_turns.clear()
+	_act_skill_uids.clear()
+	_fight_start_uids.clear()
 	_build_team_views()
 
 
@@ -530,7 +580,12 @@ func _start_battle(index: int, mode := StartMode.RETRY) -> void:
 	turn_count = 0
 	target_index = -1
 	_busy = false
-	if team_views.size() != team_data.size():
+	_skill_used_this_fight = false
+	# New plates if the team changed (a Replace, or an evolution's new art).
+	var stale := team_views.size() != team_data.size()
+	for k in mini(team_views.size(), team_data.size()):
+		stale = stale or team_views[k].data.display_name != team_data[k].display_name or team_views[k].data.art != team_data[k].art
+	if stale:
 		_build_team_views()
 	var fight: FightData = test_fight_override if test_fight_override else act_fights[index]
 	# Until Phase 6 levelling exists, the team is shown at the level a player
@@ -540,14 +595,15 @@ func _start_battle(index: int, mode := StartMode.RETRY) -> void:
 	for d in team_data:
 		leveled.append(CombatRules.at_level(d, team_level))
 	team = Team.new(leveled)
-	if mode == StartMode.RETRY and _fight_start_turns.size() == team_data.size():
-		team.skill_turns = _fight_start_turns.duplicate()
-	elif mode == StartMode.NEXT_FIGHT and _act_skill_turns.size() == team_data.size():
-		team.skill_turns = _act_skill_turns.duplicate()
+	if mode == StartMode.RETRY and not _fight_start_turns.is_empty():
+		team.skill_turns = _carried_charges(_fight_start_turns, _fight_start_uids)
+	elif mode == StartMode.NEXT_FIGHT and not _act_skill_turns.is_empty():
+		team.skill_turns = _carried_charges(_act_skill_turns, _act_skill_uids)
 	else:
 		for i in team_data.size():
 			team.skill_turns[i] = CombatRules.act_start_turns(team_data[i])
 	_fight_start_turns = team.skill_turns.duplicate()
+	_fight_start_uids = _team_uids.duplicate()
 	enemies.clear()
 	for d in fight.enemies:
 		enemies.append(Enemy.new(d))
@@ -574,6 +630,22 @@ func _start_battle(index: int, mode := StartMode.RETRY) -> void:
 	# Boss fight: the singularity speaks first (5 s, skippable).
 	if _is_boss_fight(index) and act.boss_taunt != "":
 		_play_beat([act.boss_taunt], act.taunt_seconds, act.singularity_name.to_upper())
+
+
+## Skill charge carried over from `turns` (saved for the hunters in `uids`).
+## With a save, charge follows the HUNTER, so a replaced hunter's charge never
+## moves to its replacement (a newcomer starts half charged, like a new Act).
+## Without a save (tests), it follows the slot when the team size is the same.
+func _carried_charges(turns: Array[int], uids: Array) -> Array[int]:
+	var out: Array[int] = []
+	for i in team_data.size():
+		var j := -1
+		if not _team_uids.is_empty() and uids.size() == turns.size():
+			j = uids.find(_team_uids[i]) if i < _team_uids.size() else -1
+		elif _team_uids.is_empty() and turns.size() == team_data.size():
+			j = i
+		out.append(turns[j] if j >= 0 else CombatRules.act_start_turns(team_data[i]))
+	return out
 
 
 ## Unlock the board for a new player turn (skills can be used until an orb is picked up).
@@ -655,7 +727,7 @@ func _unhandled_input(event: InputEvent) -> void:
 	var press := event as InputEventMouseButton
 	if press == null or not press.pressed or press.button_index != MOUSE_BUTTON_LEFT:
 		return
-	if board.state != Board.State.READY or result_panel.visible or skill_popup.visible or _busy:
+	if board.state != Board.State.READY or result_panel.visible or skill_popup.visible or _busy or _overlay_open():
 		return
 	var p := world.get_global_transform_with_canvas().affine_inverse() * press.position
 	for i in team_views.size():
@@ -676,12 +748,80 @@ func _unhandled_input(event: InputEvent) -> void:
 ## buttons can never pick up an orb underneath it.
 func open_skill_popup(i: int) -> void:
 	board.lock()
-	skill_popup.open(i, team.members[i], i == 0, team.skill_turns[i], _player_turn)
+	skill_popup.open(i, team.members[i], i == 0, team.skill_turns[i], _player_turn, profile != null and i < _team_uids.size())
 
 
 func _on_popup_closed() -> void:
-	if _player_turn and not _busy and not result_panel.visible:
+	if _player_turn and not _busy and not result_panel.visible and not _overlay_open():
 		board.begin_player_turn()
+
+
+## The Replace picker or the detail screen is up (the board stays locked under them).
+func _overlay_open() -> bool:
+	return (roster_picker != null and roster_picker.visible) or (unit_detail != null and unit_detail.visible)
+
+
+func _resume_after_overlay() -> void:
+	if _player_turn and not _busy and not result_panel.visible and not _overlay_open() and not skill_popup.visible:
+		board.begin_player_turn()
+
+
+# ---------------------------------------------------------------- Stage 5: Replace / Details
+
+## Has anything happened in this fight yet? (A move or a skill.)
+func fight_started() -> bool:
+	return turn_count > 0 or _skill_used_this_fight
+
+
+## REPLACE (plate i): pick a hunter from the Roster for that team slot.
+func open_replace(i: int) -> void:
+	if profile == null or i >= _team_uids.size():
+		return
+	board.lock()
+	_replace_slot = profile.data["team"].find(_team_uids[i])
+	roster_picker.open(profile, _replace_slot)
+
+
+## DETAILS (plate i): the full detail screen (training / evolving stay on the Roster).
+func open_details(i: int) -> void:
+	board.lock()
+	if profile and i < _team_uids.size():
+		unit_detail.open_unit(profile, _team_uids[i], true)
+	else:
+		unit_detail.open_fighter(team.members[i], team_level)
+
+
+## The replacement goes into the team (saved). Before the first move of a fight
+## it joins right away (the fight starts fresh); otherwise it joins from the next
+## fight and the current team finishes this one. The old hunter goes back to the
+## Roster (or swaps slots if the new one was already in the team).
+func _on_replace_picked(uid: int) -> void:
+	var slot := _replace_slot
+	var team_list: Array = profile.data["team"]
+	var old: int = int(team_list[slot]) if slot >= 0 and slot < team_list.size() else -1
+	profile.set_team_slot(slot, uid)
+	progress_changed.emit()
+	var new_name := Catalog.display_name(profile.unit(uid)["id"])
+	var where := ""
+	if old >= 0 and old != uid:
+		var moved: int = profile.data["team"].find(old)
+		where = "  ·  %s %s" % [Catalog.display_name(profile.unit(old)["id"]), "moves to slot %d" % (moved + 1) if moved >= 0 else "goes back to your Roster"]
+	if not fight_started():
+		_load_profile_team()
+		_start_battle(fight_index, StartMode.RETRY)
+		show_notice("%s joins the team now%s" % [new_name, where])
+	else:
+		show_notice("%s joins from the next fight%s" % [new_name, where])
+
+
+func show_notice(text: String) -> void:
+	notice_label.text = text
+	if _notice_tween and _notice_tween.is_valid():
+		_notice_tween.kill()
+	notice_label.modulate.a = 1.0
+	_notice_tween = create_tween()
+	_notice_tween.tween_interval(2.6)
+	_notice_tween.tween_property(notice_label, "modulate:a", 0.0, 0.5)
 
 
 func _can_use_skills() -> bool:
@@ -699,6 +839,7 @@ func use_skill(i: int) -> bool:
 	if not _can_use_skills():
 		return false
 	_busy = true
+	_skill_used_this_fight = true
 	board.lock()
 	var member := team.members[i]
 	var t := Skills.TUNING
@@ -1345,6 +1486,7 @@ func _show_result(won: bool) -> void:
 	skill_popup.hide()
 	if won:
 		_act_skill_turns = team.skill_turns.duplicate()   # carry into the next fight
+		_act_skill_uids = _team_uids.duplicate()
 		fight_won.emit(fight_index)
 	var is_last := fight_index >= act_fights.size() - 1
 	var fight: FightData = test_fight_override if test_fight_override else act_fights[fight_index]

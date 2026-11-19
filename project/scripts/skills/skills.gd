@@ -316,7 +316,7 @@ static func describe(id: StringName, element := -1) -> String:
 		&"cleave":
 			return "%d+ orbs of its element in one group: its ATK x%s." % [t.cleave_group, _num(t.cleave_mult)]
 		&"skill_boost":
-			return "Its skill starts each Act %d extra turn charged." % t.skill_boost_turns
+			return "Its skill starts each Act with %d extra turn of charge." % t.skill_boost_turns
 		&"breaker":
 			return "A 3x3 square of its element: ATK x%s and it ignores enemy armour." % _num(t.breaker_mult)
 		&"counter":

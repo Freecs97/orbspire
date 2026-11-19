@@ -379,11 +379,11 @@ func _test_evolution() -> void:
 	var rs: RosterScreen = main.roster_screen
 	rs.open_detail(uid2)
 	await _frames(2)
-	_check(not rs.evolve_button.disabled and rs.evolve_button.text.contains("Stage 2") and rs.detail_text.text.contains("EVOLUTION: Stage 1/3"), "detail screen: EVOLVE button + \"EVOLUTION: Stage 1/3\" line")
+	_check(not rs.detail.evolve_button.disabled and rs.detail.evolve_button.text.contains("Stage 2") and rs.detail.evo_label.text.contains("EVOLUTION: Stage 1/3"), "detail screen: EVOLVE button + \"EVOLUTION: Stage 1/3\" line")
 	await _shot("c10_evolve_before")
-	await _click(rs.evolve_button)
+	await _click(rs.detail.evolve_button)
 	await _frames(20)
-	_check(p.unit(uid2)["stage"] == 2 and rs.detail_card._art.texture.resource_path.ends_with("titan_03_anchor_water_stage2.png") and rs.detail_text.text.contains("Stage 2/3"),
+	_check(p.unit(uid2)["stage"] == 2 and rs.detail.art_rect.texture.resource_path.ends_with("titan_03_anchor_water_stage2.png") and rs.detail.evo_label.text.contains("Stage 2/3"),
 		"tap EVOLVE: Rowan Tide is Stage 2 and the card shows the new art")
 	await _shot("c10_evolve_after")
 	rs.detail.visible = false
@@ -416,9 +416,9 @@ func _test_retire_and_cores() -> void:
 	rs.open_detail(dup)
 	await _frames(2)
 	await _shot("c9_detail")
-	await _click(rs.retire_button)
-	_check(p.unit(dup).size() > 0 and rs.retire_button.text.begins_with("SURE"), "RETIRE asks twice (first tap: \"%s\")" % rs.retire_button.text)
-	await _click(rs.retire_button)
+	await _click(rs.detail.retire_button)
+	_check(p.unit(dup).size() > 0 and rs.detail.retire_button.text.begins_with("SURE"), "RETIRE asks twice (first tap: \"%s\")" % rs.detail.retire_button.text)
+	await _click(rs.detail.retire_button)
 	await _frames(2)
 	_check(p.unit(dup).is_empty() and p.data["cores"] == 31, "second tap retires it: +31 Training Cores (%d)" % p.data["cores"])
 	_check(p.retire_check(only_light).begins_with("Your only LIGHT"), "with the duplicate gone, the remaining Light character is protected again")
@@ -432,6 +432,8 @@ func _test_team_select() -> void:
 	await _frames(2)
 	var ts: TeamScreen = main.team_screen
 	await _click(ts.slot_cards[1])
+	if ts.menu.visible:   # Stage 5: a filled slot opens REPLACE / DETAILS / CLOSE first
+		await _click(ts.menu.replace_button)
 	_check(ts.picker.visible, "tapping slot 2 opens the picker")
 	await _shot("c10_team_picker")
 	var card: UnitCard = null
@@ -442,6 +444,8 @@ func _test_team_select() -> void:
 	_check(p.data["team"][1] == extra and not ts.picker.visible, "picked the Water Berserker into slot 2")
 	var old_leader: int = p.data["team"][0]
 	await _click(ts.slot_cards[0])
+	_check(ts.menu.visible, "tapping a filled slot opens REPLACE / DETAILS / CLOSE")
+	await _click(ts.menu.replace_button)
 	for c in ts.picker_cards():
 		if c.uid == extra:
 			card = c
