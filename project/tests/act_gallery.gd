@@ -14,7 +14,9 @@ func _ready() -> void:
 	add_child(main)
 	await _frames(5)
 	main.save["intro_seen"] = true
-	main.save["spectre_joined"] = true
+	main.save["slot4_notice"] = true
+	if main.profile.needs_starter():
+		main.profile.choose_starter(Profile.STARTERS[0])
 	for n in range(1, 11):
 		main.save["cleared_acts"].append(n)
 	for n in range(1, 11):

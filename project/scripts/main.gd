@@ -2,18 +2,19 @@ extends Node
 ## The game's front door: title screen -> introduction -> Act 1 -> home screens.
 ##
 ## Plain English:
-##   - First time: TAP TO START shows the Introduction once, then Act 1 starts
-##     with its 2-line intro, then fight 1. You start with the story trio.
+##   - First time: TAP TO START shows the Introduction once, then the STARTER
+##     screen (pick ONE of 3 Berserkers: Fire, Water or Wood), then Act 1 starts
+##     with its 2-line intro, then fight 1 (the tutorial). Everyone else is earned.
 ##   - After that: CONTINUE goes to the home screens. The bottom nav switches
 ##     between PLAY (star map), TEAM, ROSTER (+ Lab) and RECRUIT.
-##   - An Act unlocks when the one before it is cleared. From Act 2 the Dark
-##     Spectre joins your roster (story).
+##   - An Act unlocks when the one before it is cleared. From Act 2 team slot 4
+##     opens (a one-time notice).
 ##   - NEW GAME asks "Are you sure? This wipes your save" first.
 ## Everything you own lives in a Profile, saved to user://save.json after every change.
 
 const BATTLE := preload("res://scenes/battle.tscn")
 const STORY: StoryData = preload("res://data/story/story.tres")
-const NEW_SAVE := {"intro_seen": false, "cleared_acts": [], "act_fight": {}, "codex": [], "spectre_joined": false}
+const NEW_SAVE := {"intro_seen": false, "cleared_acts": [], "act_fight": {}, "codex": [], "slot4_notice": false}
 
 ## Tests point this somewhere else so they never touch your real save.
 var save_path := "user://save.json"
@@ -26,6 +27,7 @@ var roster_screen: RosterScreen
 var recruit_screen: RecruitScreen
 var intro: StoryBeat
 var codex: CodexScreen
+var starter_screen: StarterScreen
 var battle: Node2D
 var current_act: ActData
 
@@ -48,6 +50,9 @@ func _ready() -> void:
 		page.changed.connect(_write)
 	title = TitleScreen.new()
 	ui.add_child(title)
+	starter_screen = StarterScreen.new()
+	starter_screen.visible = false
+	ui.add_child(starter_screen)
 	intro = StoryBeat.new()
 	ui.add_child(intro)
 	codex = CodexScreen.new()
@@ -109,13 +114,21 @@ func _close_battle() -> void:
 
 
 func _on_start() -> void:
-	if intro.is_open() or battle:
+	if intro.is_open() or battle or starter_screen.visible:
 		return
-	if not save["intro_seen"]:
+	var first_time: bool = not save["intro_seen"]
+	if first_time:
 		title.visible = false
 		await intro.play([STORY.introduction], 0.0, "", true)
 		save["intro_seen"] = true
 		_write()
+	if profile.needs_starter():
+		title.visible = false
+		var id: String = await starter_screen.choose()
+		profile.choose_starter(id)
+		_write()
+		start_act(1, 0, true)
+	elif first_time:
 		start_act(1, 0, true)
 	else:
 		show_star_map()
@@ -143,9 +156,9 @@ func start_act(n: int, fight: int, with_intro: bool) -> void:
 	battle.profile = profile
 	battle.start_fight = clampi(fight, 0, a.fights.size() - 1)
 	battle.play_act_intro = with_intro
-	if n >= 2 and profile.join_spectre():
+	if n >= 2 and not save.get("slot4_notice", save.get("spectre_joined", false)):
 		battle.show_join_notice = true
-		save["spectre_joined"] = true
+		save["slot4_notice"] = true
 	_write()
 	add_child(battle)
 	battle.fight_won.connect(_on_fight_won)
@@ -180,6 +193,8 @@ func _on_act_won(a: ActData) -> void:
 ## The star map test state: Act 1 completed, Act 2 unlocked.
 func _set_map_test_state() -> void:
 	save["intro_seen"] = true
+	if profile.needs_starter():
+		profile.choose_starter(Profile.STARTERS[0])
 	if not 1 in save["cleared_acts"]:
 		save["cleared_acts"].append(1)
 	if not "Emberfang-9" in save["codex"]:
@@ -188,7 +203,6 @@ func _set_map_test_state() -> void:
 
 func _make_profile() -> void:
 	profile = Profile.new(save)
-	profile.ensure_start()
 	for page in [team_screen, roster_screen, recruit_screen]:
 		if page:
 			page.profile = profile

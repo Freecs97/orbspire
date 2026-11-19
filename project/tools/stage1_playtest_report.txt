@@ -44,9 +44,9 @@ PASS  Act 7: 80,000 simulated pulls, best rarity seen = Singularity (allowed: up
 PASS  Singularity is never in a Credit Recruit table (Key pulls only, from Act 7)
 
 == 3. 2000 full Act 1 campaigns (real Profile code; every Credit spent on Basic Recruits) ==
-  Credits earned in Act 1: 690 on average -> 2.0 Basic Recruits, 0.00 Essence crafts, 1.0 Keys per run
-  Characters gained (Recruits + crafts + the Act 1 Key): Scrap 43.3%, Alloy 33.7%, Forged 23.0%, Prime 0.0%, Ascendant 0.0%, Singularity 0.0%
-  Forged characters gained per run: 0 Forged: 36.8%, 1 Forged: 57.6%, 2 Forged: 5.4%, 3 Forged: 0.2%
+  Credits earned in Act 1: 690 on average -> 4.0 Basic Recruits, 0.00 Essence crafts, 1.0 Keys per run
+  Characters gained (Recruits + crafts + the Act 1 Key): Scrap 67.3%, Alloy 21.8%, Forged 10.9%, Prime 0.0%, Ascendant 0.0%, Singularity 0.0%
+  Forged characters gained per run: 0 Forged: 32.6%, 1 Forged: 56.2%, 2 Forged: 10.2%, 3 Forged: 1.0%
 PASS  no run finishes Act 1 with a Singularity (0 of 2000)
 PASS  no run finishes Act 1 with a Prime or better (0 of 2000)
 PASS  most new characters are Scrap / Alloy
@@ -65,9 +65,9 @@ PASS  Training Cores can't push past the Lv15 cap
 PASS  3 Singularity, Lv15 (Stage 1 cap = max level today) can't one-shot Emberfang-9
   3 Singularity, Lv30, both evolutions (+21%): strongest team (KAELA RYNN x3) deals 11679 raw -> ONE-SHOT without Resolve; with Resolve the boss keeps at least 1450 HP
 PASS  3 Singularity, Lv30, both evolutions (+21%) can't one-shot Emberfang-9
-  ONE Lv30 evolved Singularity (Kaela Rynn, leading) + Lv8 Forged Biotech / Titan: 3033 true damage vs 2900 HP (one-shot without Resolve)
+  ONE Lv30 evolved Singularity (Kaela Rynn, leading) + Lv8 Forged Biotech / Titan: 3155 true damage vs 2900 HP (one-shot without Resolve)
 PASS  a single max Singularity can't one-shot Emberfang-9 (boss keeps 1450 HP thanks to Resolve)
-  ONE Lv15 Singularity Kaela Rynn (max today) + the same team: 1916 true damage vs 2900 HP
+  ONE Lv15 Singularity Kaela Rynn (max today) + the same team: 2038 true damage vs 2900 HP
 PASS  today's best single Singularity (Lv15) can't one-shot Emberfang-9 even without Resolve
 
 ALL PASSED - 0 failure(s)

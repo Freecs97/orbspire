@@ -6,11 +6,13 @@ extends SceneTree
 
 ## enemy file -> [HP, ATK]   (old numbers in the comment)
 const STATS := {
-	"ember_drone": [330, 58],       # 260 / 45
+	# Stage 2: Helios (Light, neutral to all 3 starters) is now the fight 1 tutorial
+	# and the Ember Drone moved to fight 5, so they swapped numbers.
+	"solar_drone": [330, 58],       # fight 1 (tutorial)
 	"coolant_slime": [300, 52],     # 230 / 40
 	"furnace_worker": [1950, 192],  # 1500 / 160  (mini-boss)
 	"spore_sprout": [460, 64],      # 360 / 50
-	"solar_drone": [600, 96],       # 450 / 75   (Helios)
+	"ember_drone": [600, 96],       # fight 5
 	"shadow_thief": [620, 109],     # 480 / 85   (Shade)
 	"forge_brute": [2600, 210],     # 2000 / 175 (mini-boss)
 	"emberfang_9": [2900, 216],     # 1200 / 180 (boss)

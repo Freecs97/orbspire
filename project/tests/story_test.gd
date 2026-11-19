@@ -80,8 +80,11 @@ func _test_intro_and_act_intro() -> void:
 	_check(intro.is_open(), "it does not close by itself")
 	await _tap_center()
 	await _frames(5)
+	await _test_starter_screen()
 	var battle = main.battle
-	_check(not intro.is_open() and battle != null and main.save["intro_seen"], "tap -> Act 1 starts, save remembers the Introduction was seen")
+	_check(not intro.is_open() and battle != null and main.save["intro_seen"], "YES -> Act 1 starts, save remembers the Introduction was seen")
+	_check(battle.team.members.size() == 1 and battle.team.members[0].display_name == "KAELA RYNN" and main.profile.data["units"].size() == 1,
+		"you start with ONE character only (your starter), nobody else is given")
 	var beat: StoryBeat = battle.story_beat
 	_check(beat.is_open() and beat.shown_text() == ACT_INTRO_EXACT, "Act 1 intro beat: 2 lines, exact text")
 	_check(beat._speaker.text == "ORBSPIRE  ·  FURNACE COLONY", "beat header: \"%s\"" % beat._speaker.text)
@@ -94,13 +97,79 @@ func _test_intro_and_act_intro() -> void:
 	_check(not beat.is_open() and t > 9.0 and t < 11.0, "the beat closes by itself after ~10 s (%.1f s)" % t)
 	await _frames(2)
 	_check(battle.board.state == Board.State.READY and battle.fight_index == 0, "then fight 1 starts (board ready)")
+	_check(battle.enemies.size() == 1 and battle.enemies[0].data.element == Element.Type.LIGHT,
+		"tutorial (fight 1) is ONE Light enemy (%s): neutral to Fire, Water and Wood, so every starter has the same fight" % battle.enemies[0].data.display_name)
+	await _shot("s3b_tutorial_solo_starter")
+	await _test_scrap_flow(battle)
+
+
+## New Game: the starter screen comes after the Introduction, before the tutorial.
+func _test_starter_screen() -> void:
+	_log("\n== T2a: starter choice (New Game) ==")
+	var s: StarterScreen = main.starter_screen
+	_check(s.visible and main.battle == null and main.profile.needs_starter(), "after the Introduction: the STARTER screen, before any fight")
+	var names := PackedStringArray()
+	var same := true
+	var t0 := Catalog.template(Profile.STARTERS[0])
+	for id in Profile.STARTERS:
+		var t := Catalog.template(id)
+		names.append("%s (%s)" % [t.display_name, t.title])
+		same = same and t.role == FighterData.Role.BERSERKER and t.max_hp == t0.max_hp and t.atk == t0.atk and t.rcv == t0.rcv \
+			and t.active_skill == t0.active_skill and t.leader_skill == t0.leader_skill and t.passives == t0.passives
+	var els := [Catalog.template(Profile.STARTERS[0]).element, Catalog.template(Profile.STARTERS[1]).element, Catalog.template(Profile.STARTERS[2]).element]
+	_check(s.cards.size() == 3 and els == [Element.Type.FIRE, Element.Type.WATER, Element.Type.WOOD], "3 starters, one per element: %s" % ", ".join(names))
+	_check(same, "all 3 are Berserkers with IDENTICAL HP / ATK / RCV, active, leader and passives (%d / %d / %d)" % [t0.max_hp, t0.atk, t0.rcv])
+	_check(s.start_button.disabled and s.start_button.text == "TAP A STARTER", "nothing is picked for you: START is off until you tap one")
+	await _shot("s2b_starter_screen")
+	await _click(s.cards[1])
+	_check(s.selected == 1 and s.start_button.text == "START AS IRIS VALE", "tap Iris -> \"%s\"" % s.start_button.text)
+	await _click(s.cards[0])
+	await _click(s.start_button)
+	_check(s.confirm.visible and s.confirm_text.text.contains("KAELA RYNN") and s.confirm_text.text.contains("NEW GAME"), "START -> \"Start as KAELA RYNN? ... can't be changed (only with NEW GAME)\"")
+	await _shot("s2c_starter_confirm")
+	await _click(s.confirm_no)
+	_check(not s.confirm.visible and s.visible and main.battle == null, "BACK -> still choosing")
+	await _click(s.start_button)
+	await _click(s.confirm_yes)
+	await _frames(5)
+	_check(not s.visible and main.save.get("starter", "") == "berserker_01_angel_fire", "YES -> the choice is saved (starter = %s)" % main.save.get("starter", ""))
+
+
+## Act 1 Scrap flow: winning fights 1 and 2 the first time each gives a Scrap hunter
+## who fills the next team slot.
+func _test_scrap_flow(battle) -> void:
+	_log("\n== T2b: Act 1 Scrap characters (how the team fills up) ==")
+	var team_sizes := [battle.team.members.size()]
+	var got := PackedStringArray()
+	for k in 2:
+		battle.enemies[0].hp = 1
+		_set_board(battle, FIRE4)
+		await _tap_cell(battle, Vector2i(5, 0))
+		var t := 0.0
+		while not battle.result_panel.visible and t < 15.0:
+			await get_tree().process_frame
+			t += get_process_delta_time()
+		var nu: Dictionary = battle.last_rewards.get("new_unit", {})
+		var info: String = battle.result_panel._info.text
+		_check(nu.has("id") and info.contains("NEW HUNTER") and info.contains("(Scrap) joined your team!"),
+			"win fight %d (first time): \"%s\"" % [k + 1, info.get_slice("\n", info.get_slice_count("\n") - 1)])
+		if nu.has("id"):
+			got.append("%s (%s)" % [Catalog.display_name(nu["id"]), Catalog.template(nu["id"]).title])
+			_check(main.profile.unit(nu["uid"])["rarity"] == 0, "  ... it is Scrap rarity")
+		await _shot("s3c_scrap_drop_fight%d" % (k + 1))
+		await _click(battle.result_panel._next_button)
+		await _frames(4)
+		team_sizes.append(battle.team.members.size())
+	_check(team_sizes == [1, 2, 3], "team size: %s (fight 1 solo -> fight 2 with 2 -> fight 3 with 3)" % [team_sizes])
+	_check(got.size() == 2 and got[0].contains("Water"), "fight 1's Scrap hunter is Water (strong vs the Fire boss): %s" % ", ".join(got))
+	await _shot("s3d_fight3_team_of_3")
 
 
 func _test_art_in_battle() -> void:
 	_log("\n== T3: your art in battle ==")
 	var battle = main.battle
-	_check(battle.team_views[0].figure is ArtFigure and battle.team_views[1].figure is ArtFigure and battle.team_views[2].figure is ArtFigure, "the 3 hunters use your art")
-	_check(battle.enemy_views[0].figure is ArtFigure, "Ember Drones use your art")
+	_check(battle.team_views.size() == 3 and battle.team_views.all(func(v: FighterView) -> bool: return v.figure is ArtFigure), "the 3 hunters (starter + 2 Scrap) use your art")
+	_check(battle.enemy_views[0].figure is ArtFigure, "the %s uses your art" % battle.enemies[0].data.display_name)
 	_check(battle.backdrop.arena != null, "the Act 1 furnace arena is the background")
 	_check(Orb.ART.size() == 6, "all 6 orb types (Heart included) use your orb art")
 	await _shot("s4_battle_art")
@@ -125,7 +194,7 @@ func _test_art_in_battle() -> void:
 	_check(all_art, "all 8 Act 1 fights: every enemy uses its PNG, named after it (Light/Dark ones by their proper name + PNG title): %s" % ", ".join(names))
 	battle._start_battle(4, battle.StartMode.NEW_ACT)
 	await _frames(3)
-	await _shot("s5_solar_drones")
+	await _shot("s5_ember_drone")
 
 
 func _test_boss_taunt_and_outro() -> void:
@@ -224,10 +293,12 @@ func _test_continue_and_new_game() -> void:
 	await _click(m.play_button)
 	await _frames(4)
 	var b2 = main.battle
-	_check(b2 != null and b2.act.act_number == 2 and b2.team.members.size() == 4 and b2.backdrop.arena.resource_path.ends_with("bg_act02_drowned_arena.png"),
-		"PLAY Act 2: team of 4 (the Dark Spectre joins) in the Drowned Metro arena")
-	_check(b2.story_beat.is_open() and b2.story_beat._speaker.text == "NEW HUNTER", "a one-time \"NEW HUNTER\" notice says the Dark Spectre joins")
-	await _shot("m5_act2_spectre_joins")
+	var owned: int = main.profile.data["units"].size()
+	_check(b2 != null and b2.act.act_number == 2 and b2.team.members.size() == mini(owned, 4) and b2.backdrop.arena.resource_path.ends_with("bg_act02_drowned_arena.png"),
+		"PLAY Act 2: your own team (%d hunters, nobody given for free) in the Drowned Metro arena" % b2.team.members.size())
+	_check(b2.story_beat.is_open() and b2.story_beat._speaker.text == "NEW SLOT" and not main.profile.data["units"].any(func(u: Dictionary) -> bool: return u["id"] == "spectre_01_rogue_dark" and u["rarity"] == 2),
+		"a one-time \"NEW SLOT\" notice: team slot 4 is open (no free Dark Spectre any more)")
+	await _shot("m5_act2_slot4_notice")
 	b2.story_beat.close()
 	await _frames(2)
 	_check(b2.enemies[0].data.display_name == "DROWNED DRIFTER" and b2.enemy_views[0].figure is ArtFigure, "Act 2 fight 1: Drowned Drifters, your art")
@@ -288,8 +359,12 @@ func _test_continue_and_new_game() -> void:
 	await _click(title.new_game_button)
 	await _click(title.confirm_yes)
 	await _frames(3)
-	_check(not main.save["intro_seen"] and main.save["codex"].is_empty() and main.intro.is_open(), "YES wipes the save and the Introduction plays again")
+	_check(not main.save["intro_seen"] and main.save["codex"].is_empty() and main.intro.is_open() and main.profile.needs_starter(),
+		"YES wipes the save (no characters, no starter) and the Introduction plays again")
 	main.intro.close()
+	await _frames(4)
+	_check(main.starter_screen.visible and main.battle == null, "...then the starter choice again (a New Game is the only way to change it)")
+	main.starter_screen.visible = false
 
 
 func _test_no_ban() -> void:

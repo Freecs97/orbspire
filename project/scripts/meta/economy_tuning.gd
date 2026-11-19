@@ -56,9 +56,17 @@ extends Resource
 ## Rarity of a character made from Essence, by rarity band (Acts 1-2, 3-4, 5-6, 7-10).
 @export var crafted_rarity_by_band: Array[int] = [1, 2, 2, 3]
 
+@export_group("Scrap character drops")
+## Act 1: the first clear of fights 1..N always gives a Scrap character.
+@export var scrap_guaranteed_fights := 2
+## Later wins of regular (non-boss) fights: chance of a Scrap character...
+@export var scrap_drop_chance := 0.1
+## ...in Acts 1..this one only.
+@export var scrap_drop_max_act := 2
+
 @export_group("Recruit")
 @export var recruit_names: Array[String] = ["Basic", "Advanced", "Elite"]
-@export var recruit_costs: Array[int] = [300, 1000, 3000]
+@export var recruit_costs: Array[int] = [150, 1000, 3000]
 ## Rarity bands: the first Act of each band. Your band = the highest Act you have unlocked.
 ##   Band 1 = Acts 1-2, Band 2 = Acts 3-4, Band 3 = Acts 5-6, Band 4 = Acts 7-10.
 ## Prime first appears in Band 2 (Act 3+), Ascendant in Band 3 (Act 5+),

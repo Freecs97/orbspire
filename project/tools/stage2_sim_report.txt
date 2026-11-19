@@ -1,0 +1,26 @@
+== 1. ARCHETYPES: Lv1 Forged stats, then SOLO vs Act 1 fights 1-3 (enemy made element-neutral)
+BERSERKER  Lv1  HP 320  ATK 95  RCV 10
+TITAN      Lv1  HP 470  ATK 78  RCV 26
+SPECTRE    Lv1  HP 230  ATK 130  RCV 8
+BIOTECH    Lv1  HP 350  ATK 72  RCV 46
+BERSERKER  | F1 good  2 avg  3 survives | F2 good  1 avg  3 survives | F3 good  5 avg 14 DIES   
+TITAN      | F1 good  2 avg  4 survives | F2 good  2 avg  3 survives | F3 good  8 avg 18 DIES   
+SPECTRE    | F1 good  1 avg  3 survives | F2 good  1 avg  2 survives | F3 good  5 avg 11 DIES   
+BIOTECH    | F1 good  2 avg  4 survives | F2 good  2 avg  4 survives | F3 good  9 avg 20 DIES   
+
+== 1b. ARCHETYPES in a team: 3 of the same type (Fire, Forged) vs the whole of Act 1 (neutral enemies), good-play turns
+BERSERKER  x3  turns [1, 1, 3, 2, 1, 2, 3, 3]  total 16  survives all
+TITAN      x3  turns [1, 1, 3, 2, 1, 2, 3, 3]  total 16  survives all
+SPECTRE    x3  turns [1, 1, 2, 1, 1, 2, 2, 2]  total 12  survives all
+BIOTECH    x3  turns [1, 1, 3, 2, 1, 2, 3, 4]  total 17  survives all
+
+== 2. STARTERS solo in the tutorial (Act 1 fight 1, real enemy), Forged Lv1
+KAELA RYNN   Fire Berserker   HP 320 ATK 95 RCV 10 | vs 1/8 · HELIOS · SOLAR DRONE: good 2, avg 3, survives
+IRIS VALE    Water Berserker  HP 320 ATK 95 RCV 10 | vs 1/8 · HELIOS · SOLAR DRONE: good 2, avg 3, survives
+DREK VANE    Wood Berserker   HP 320 ATK 95 RCV 10 | vs 1/8 · HELIOS · SOLAR DRONE: good 2, avg 3, survives
+
+== 3. RAMP: Forged starter, + Scrap drop 1 after fight 1 (a character of the element that covers the
+   starter's weakness), + Scrap drop 2 after fight 2 (any of the 20). Every possible pair is played.
+KAELA RYNN   80 / 80 team draws clear all of Act 1 (good play on fight 1 + mini-bosses + boss, average elsewhere). Fails e.g.: []
+IRIS VALE    80 / 80 team draws clear all of Act 1 (good play on fight 1 + mini-bosses + boss, average elsewhere). Fails e.g.: []
+DREK VANE    80 / 80 team draws clear all of Act 1 (good play on fight 1 + mini-bosses + boss, average elsewhere). Fails e.g.: []

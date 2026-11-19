@@ -46,10 +46,12 @@ Look, weapon, personality and gender: **yours** — whatever your art shows. Ski
 
 ## Team and roster
 
-- **Starter:** always Fire Berserker. **Story unlocks:** Water Biotech and Wood Titan join right after the tutorial; Dark Spectre joins in Act 2.
+- **Starter (Big Pump Stage 2, 2026-11-18):** New Game shows a starter screen before the tutorial. Pick ONE Berserker: Kaela Rynn (Fire), Iris Vale (Water) or Drek Vane (Wood). Identical stats and skills. Saved; only a New Game changes it. Nobody else is given: no story trio, no free Dark Spectre in Act 2 (Act 2 just opens team slot 4).
+- **Tutorial (Act 1 fight 1):** Helios, a Light enemy, neutral to all three starters, so every starter gets the same fight.
+- **Scrap characters from fights:** the first win of Act 1 fights 1 and 2 always gives a Scrap character (fight 1's is Water, strong against the Fire boss; fight 2's is any). Later wins of regular fights in Acts 1-2: 10% chance. New characters fill empty team slots.
 - **Team:** 3 in Act 1, 4 from Act 2. Only slot 1 is leader. The same design may appear twice.
 - **Roster:** cap 30, +5 slots for Credits. When full, Expand or Retire before creating a character.
-- **Recruit and Essence** can give **any affinity** from Act 1. Characters from them can be swapped into the Act 1 team; the story trio is always guaranteed. No Recruit pulls in the tutorial.
+- **Recruit and Essence** can give **any affinity** from Act 1. Basic Recruit costs 150 Credits. Mira Solace and Bram Stone are normal Recruit / Lab characters now.
 
 ## Economy (built in a later phase)
 

@@ -36,6 +36,7 @@ func _ready() -> void:
 	_test_xp_rules()
 	_test_credits_rules()
 	_test_essence_rules()
+	_test_scrap_drops()
 	await _test_lab()
 	await _test_recruit()
 	_test_roster_cap()
@@ -48,11 +49,22 @@ func _ready() -> void:
 
 func _test_start() -> void:
 	_log("\n== C1: a new game ==")
-	var ids := []
-	for u in p.data["units"]:
-		ids.append(u["id"])
-	_check(ids == ["berserker_01_angel_fire", "biotech_01_medic_water", "titan_01_shield_wood"] and p.data["team"].size() == 3,
-		"starts with the story trio as the team: %s" % [ids])
+	_check(p.needs_starter() and p.data["units"].is_empty() and p.data["team"].is_empty(), "a new game owns NO characters until you pick a starter")
+	_check(p.choose_starter("titan_01_shield_wood") == -1 and p.data["units"].is_empty(), "only the 3 Berserker starters can be picked (Bram Stone can't)")
+	var suid := p.choose_starter(Profile.STARTERS[0])
+	_check(suid > 0 and p.data["units"].size() == 1 and p.data["team"] == [suid] and p.data["starter"] == Profile.STARTERS[0],
+		"pick Kaela Rynn: she is your whole team (1 character), saved as your starter")
+	_check(p.choose_starter(Profile.STARTERS[1]) == -1 and p.data["units"].size() == 1, "picking again does nothing (only a New Game changes it)")
+	var want_stats := {"berserker_01_angel_fire": [320, 95, 10], "titan_02_guardian_fire": [470, 78, 26], "spectre_02_mage_fire": [230, 130, 8], "biotech_03_healer_fire": [350, 72, 46]}
+	var stats_ok := true
+	for id in want_stats:
+		var t := Catalog.template(id)
+		stats_ok = stats_ok and [t.max_hp, t.atk, t.rcv] == want_stats[id]
+	for id in Catalog.IDS:
+		var t := Catalog.template(id)
+		var ref := Catalog.template(Catalog.id_for(t.role, Element.Type.FIRE))
+		stats_ok = stats_ok and t.max_hp == ref.max_hp and t.atk == ref.atk and t.rcv == ref.rcv
+	_check(stats_ok, "Lv1 stats per type (all 5 of each type the same): Berserker 320/95/10, Titan 470/78/26 (was 420/65/22), Spectre 230/130/8, Biotech 350/72/46 (was 320/55/40)")
 	var all_lv1_forged := true
 	for u in p.data["units"]:
 		all_lv1_forged = all_lv1_forged and u["level"] == 1 and u["rarity"] == 2
@@ -98,11 +110,12 @@ func _test_battle_levels_and_rewards() -> void:
 	await _until(func() -> bool: return b.result_panel.visible, 15.0)
 	var r: Dictionary = b.last_rewards
 	_check(r.get("credits", 0) == 30 and r.get("xp", 0) == 100, "win fight 1: +100 XP and +30 Credits (20 + 10 x Act 1): %s" % [r])
-	var lv := []
-	for uid in p.data["team"]:
-		lv.append(p.unit(uid)["level"])
-	_check(lv == [2, 2, 2], "100 XP takes each team member Lv1 -> Lv2 (Lv2 -> 3 needs 100 more): %s" % [lv])
-	_check(b.result_panel._info.text.contains("Lv2!") and b.result_panel._info.text.contains("+30 Credits"), "the win screen lists Credits and level-ups")
+	var su := p.unit(p.data["team"][0])
+	var nu: Dictionary = r.get("new_unit", {})
+	_check(su["level"] == 2 and nu.has("uid") and p.unit(nu["uid"])["level"] == 1 and p.data["team"].size() == 2 and p.data["team"][1] == nu["uid"],
+		"100 XP takes your starter Lv1 -> Lv2; the Scrap hunter found in fight 1 joins team slot 2 at Lv1")
+	_check(b.result_panel._info.text.contains("Lv2!") and b.result_panel._info.text.contains("+30 Credits") and b.result_panel._info.text.contains("NEW HUNTER"),
+		"the win screen lists Credits, level-ups and the new hunter")
 	await _shot("c2_rewards")
 	await _click(b.result_panel._next_button)
 	await _frames(3)
@@ -202,6 +215,48 @@ func _test_essence_rules() -> void:
 	_check(rb["essence"].get("berserker_01_angel_fire", 0) == 3, "the boss always drops 3 Essence (%s)" % [rb["essence"]])
 
 
+## Stage 2: Scrap characters from fights (a separate profile, so the main one stays small).
+func _test_scrap_drops() -> void:
+	_log("\n== C5b: Scrap characters from fights ==")
+	var a1: ActData = StarMap.ACTS[0]
+	for sid in Profile.STARTERS:
+		var q := Profile.new({})
+		q.rng.seed = 3
+		q.choose_starter(sid)
+		var r1 := q.fight_rewards(a1.fights[0], 1, true, q.team_uids(3), false, 1)
+		var r2 := q.fight_rewards(a1.fights[1], 1, true, q.team_uids(3), false, 2)
+		var n1: Dictionary = r1["new_unit"]
+		var n2: Dictionary = r2["new_unit"]
+		var ok: bool = n1.has("id") and n2.has("id") and Catalog.template(n1["id"]).element == Element.Type.WATER and n1["id"] != sid and n2["id"] != sid \
+			and q.unit(n1["uid"])["rarity"] == 0 and q.unit(n2["uid"])["rarity"] == 0 and q.team_uids(3).size() == 3
+		_check(ok, "%s: first win of fight 1 -> %s (Water, Scrap), fight 2 -> %s (Scrap); team of 3 for fight 3" % [Catalog.display_name(sid),
+			Catalog.display_name(n1.get("id", "")) if n1.has("id") else "nothing", Catalog.display_name(n2.get("id", "")) if n2.has("id") else "nothing"])
+	var q := Profile.new({})
+	q.rng.seed = 9
+	q.choose_starter(Profile.STARTERS[1])
+	q.fight_rewards(a1.fights[0], 1, true, [], false, 1)
+	var drops := 0
+	var trials := 3000
+	q.data["roster_cap"] = 99999
+	for k in trials:
+		if q.fight_rewards(a1.fights[3], 1, true, [], false, 4)["new_unit"].has("id"):
+			drops += 1
+	var rate := float(drops) / trials
+	_check(rate > 0.085 and rate < 0.115, "replays of a regular Act 1 fight: a Scrap hunter %.1f%% of the time (target 10%%)" % (rate * 100))
+	var boss_drops := 0
+	var act3_drops := 0
+	for k in 300:
+		boss_drops += 1 if q.fight_rewards(a1.fights[7], 1, true, [], false, 8)["new_unit"].has("id") else 0
+		act3_drops += 1 if q.fight_rewards(StarMap.ACTS[2].fights[0], 3, true, [], false, 1)["new_unit"].has("id") else 0
+	_check(boss_drops == 0 and act3_drops == 0, "bosses never drop one, and from Act 3 on they stop (%d boss, %d Act 3 in 300 wins each)" % [boss_drops, act3_drops])
+	var f := Profile.new({})
+	f.choose_starter(Profile.STARTERS[0])
+	f.data["roster_cap"] = 1
+	var full := f.fight_rewards(a1.fights[0], 1, true, [], false, 1)
+	_check(full["new_unit"].get("roster_full", false) and Profile.rewards_text(full).contains("roster is full") and f.data["units"].size() == 1,
+		"roster full: nobody joins, the win screen says so")
+
+
 func _test_lab() -> void:
 	_log("\n== C6: Lab: 10 Essence -> craft ==")
 	p.data["essence"]["spectre_03_sniper_wood"] = 10
@@ -233,7 +288,7 @@ func _test_recruit() -> void:
 	var n_before: int = p.data["units"].size()
 	await _click(rc.tier_buttons[0])
 	await _frames(3)
-	_check(rc.reveal.visible and p.data["credits"] == 4700 and p.data["units"].size() == n_before + 1, "BASIC recruit: -300 Credits, a new character revealed")
+	_check(rc.reveal.visible and p.data["credits"] == 4850 and p.data["units"].size() == n_before + 1, "BASIC recruit: -150 Credits, a new character revealed")
 	await _shot("c7_recruit_reveal")
 	await _click(rc.reveal_ok)
 	p.data["credits"] = 0

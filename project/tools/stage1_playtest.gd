@@ -94,12 +94,12 @@ func _campaigns(act1: ActData, e: EconomyTuning) -> void:
 	var lv_after := []
 	for run in RUNS:
 		var prof := Profile.new({})
-		prof.ensure_start()
+		prof.choose_starter(Profile.STARTERS[run % 3])   # Stage 2: one starter, the rest earned
 		var credits_earned := 0
 		for i in 8:
 			if i == 7:
 				lv_before_boss.append(prof.unit(prof.data["team"][0])["level"])
-			var r := prof.fight_rewards(act1.fights[i], 1, true, prof.team_uids(3), i == 7)
+			var r := prof.fight_rewards(act1.fights[i], 1, true, prof.team_uids(3), i == 7, i + 1)
 			credits_earned += r["credits"]
 			while prof.can_recruit(0) == "":
 				prof.recruit(0)
@@ -116,7 +116,7 @@ func _campaigns(act1: ActData, e: EconomyTuning) -> void:
 		var forged := 0
 		var prime := false
 		var sing := false
-		for u in prof.data["units"].slice(3):   # everything except the story trio
+		for u in prof.data["units"].slice(1):   # everything except the starter
 			by_rarity[u["rarity"]] += 1
 			forged += 1 if u["rarity"] == 2 else 0
 			prime = prime or u["rarity"] >= 3
@@ -151,7 +151,7 @@ func _campaigns(act1: ActData, e: EconomyTuning) -> void:
 func _farming(act1: ActData, p: ProgressionTuning) -> void:
 	out.append("\n== 4. Farming after Act 1 (replay fights, full team XP) ==")
 	var prof := Profile.new({})
-	prof.ensure_start()
+	prof.choose_starter(Profile.STARTERS[0])
 	for i in 8:
 		prof.fight_rewards(act1.fights[i], 1, true, prof.team_uids(3), i == 7)
 	var lead := prof.unit(prof.data["team"][0])

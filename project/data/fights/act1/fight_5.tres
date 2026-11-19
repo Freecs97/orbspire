@@ -2,11 +2,11 @@
 
 [ext_resource type="Script" path="res://scripts/data/fight_data.gd" id="1_fd"]
 [ext_resource type="Script" path="res://scripts/data/fighter_data.gd" id="1_qho8l"]
-[ext_resource type="Resource" path="res://data/enemies/act1/solar_drone.tres" id="e0"]
+[ext_resource type="Resource" path="res://data/enemies/act1/ember_drone.tres" id="e0"]
 
 [resource]
 script = ExtResource("1_fd")
-display_name = "5/8 · HELIOS · SOLAR DRONE"
+display_name = "5/8 · EMBER DRONE"
 enemies = Array[ExtResource("1_qho8l")]([ExtResource("e0")])
 xp = 215
 expected_level = 5

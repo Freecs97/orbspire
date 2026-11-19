@@ -53,8 +53,8 @@ const ENEMY_FEET_Y := 560.0
 const ENEMY_X := {1: [540.0], 2: [320.0, 760.0], 3: [190.0, 540.0, 890.0]}
 const ENEMY_BAR_W := {1: 440.0, 2: 330.0, 3: 270.0}
 const TEAM_FEET_Y := 935.0
-const TEAM_X := {3: [250.0, 540.0, 830.0], 4: [150.0, 395.0, 685.0, 930.0]}
-const TEAM_CARD := {3: Vector2(260, 270), 4: Vector2(230, 270)}
+const TEAM_X := {1: [540.0], 2: [395.0, 685.0], 3: [250.0, 540.0, 830.0], 4: [150.0, 395.0, 685.0, 930.0]}
+const TEAM_CARD := {1: Vector2(260, 270), 2: Vector2(260, 270), 3: Vector2(260, 270), 4: Vector2(230, 270)}
 const TEAM_BAR_Y := 975.0
 const TIMER_BAR_Y := 1030.0
 const BOARD_POS := Vector2(45, 1090)
@@ -105,7 +105,7 @@ var has_home := false
 var start_fight := 0
 ## Play the Act's 2-line intro before the first fight.
 var play_act_intro := false
-## Show the one-time "a Dark Spectre joins" notice (first time in Act 2+).
+## Show the one-time "team slot 4 is open" notice (first time in Act 2+).
 var show_join_notice := false
 ## The player's profile (real levels, rewards). null = test mode with the Lv preview.
 var profile: Profile = null
@@ -152,7 +152,7 @@ func _ready() -> void:
 	if play_act_intro and act and not act.intro_lines.is_empty():
 		_play_beat(act.intro_lines, act.intro_seconds, ("%s  ·  %s" % [act.colony_name, act.colony_kind]).to_upper())
 	elif show_join_notice:
-		_play_beat(["A Dark Spectre joins your hunters.", "From Act 2 on, you fight as a team of 4."], 6.0, "NEW HUNTER")
+		_play_beat(["Team slot 4 is open.", "From Act 2 on, you fight as a team of 4. Fill it on the TEAM screen."], 6.0, "NEW SLOT")
 
 
 ## Lock the board, show a story beat, then hand the turn back to the player.
@@ -373,7 +373,7 @@ func _build_team_views() -> void:
 		var view := FighterView.new()
 		view.z_index = FRONT_Z
 		world.add_child(view)
-		view.card_size = TEAM_CARD[clampi(team_data.size(), 3, 4)]
+		view.card_size = TEAM_CARD[clampi(team_data.size(), 1, 4)]
 		view.setup(d)
 		team_views.append(view)
 		var label := _make_label(Vector2.ZERO, view.card_size.x, 22, Element.color(d.element).lightened(0.4))
@@ -425,7 +425,7 @@ func _apply_layout() -> void:
 		var p := enemy_position(i)
 		enemy_views[i].position = p
 		enemy_bars[i].position = Vector2(p.x - enemy_bars[i].bar_size.x * 0.5, p.y + 40)
-	var n := clampi(team_views.size(), 3, 4)
+	var n := clampi(team_views.size(), 1, 4)
 	for i in team_views.size():
 		var x: float = TEAM_X[n][mini(i, n - 1)]
 		team_views[i].position = Vector2(x, TEAM_FEET_Y + extra)
@@ -870,7 +870,8 @@ func _show_result(won: bool) -> void:
 	# Rewards (real profile only): XP + level-ups, Credits, Essence, first-clear Keys.
 	var reward_text := ""
 	if profile:
-		var r := profile.fight_rewards(fight, act.act_number if act else 1, won, _team_uids, act_clear)
+		var fight_no := fight_index + 1 if act and test_fight_override == null else 0
+		var r := profile.fight_rewards(fight, act.act_number if act else 1, won, _team_uids, act_clear, fight_no)
 		last_rewards = r
 		reward_text = Profile.rewards_text(r)
 		_load_profile_team()   # new levels -> new stats for the next fight

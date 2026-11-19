@@ -73,7 +73,7 @@ static func turns_to_win(enemy_data: Array, team: Array[FighterData], mode: Stri
 		var best_size := 4 if enemies[front].armor_up else 3
 		var groups := [group(r[0].element, best_size), group(Element.Type.HEART, 3)]
 		if mode == "GOOD":
-			groups.append(group(r[1].element, 3))
+			groups.append(group(r[mini(1, r.size() - 1)].element, 3))   # solo: its colour twice
 		attack(team, groups, groups.size(), enemies)
 		if CombatRules.pick_target(enemies, -1) < 0:
 			return turn
@@ -107,7 +107,7 @@ static func avg_survives(enemy_data: Array, team: Array[FighterData], mode := "A
 		var r := ranked(team, enemies[front].data.element)
 		var groups := [group(r[0].element, 4 if enemies[front].armor_up else 3), group(Element.Type.HEART, 3)]
 		if mode == "GOOD":
-			groups.append(group(r[1].element, 3))
+			groups.append(group(r[mini(1, r.size() - 1)].element, 3))   # solo: its colour twice
 		attack(team, groups, groups.size(), enemies)
 		if CombatRules.pick_target(enemies, -1) < 0:
 			return true

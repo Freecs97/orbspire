@@ -267,26 +267,26 @@ func _test_3_damage() -> void:
 	_check(not hit.is_empty() and hit[1] == 92, "big \"190!\" shown on screen (font size %s, normal is 66)" % [hit[1] if not hit.is_empty() else "missing"])
 	await _shot("t3_fire_190")
 
-	# Water Biotech ATK 55 x 0.5 = 27.5 -> rounds to 28.
+	# Water Biotech ATK 72 x 0.5 = 36 (Stage 2 buff: was 55).
 	ok = await _single_combo_turn(WATER3, 0)
-	var weak := _find_text("28")
-	_check(ok and battle.enemies[0].hp == 772, "3 water vs Wood, 1 combo: 55 x 0.5 = 27.5 -> shows %s, enemy HP 800 -> %d (want 28 / 772)" % [weak[0] if not weak.is_empty() else "?", battle.enemies[0].hp])
+	var weak := _find_text("36")
+	_check(ok and battle.enemies[0].hp == 764, "3 water vs Wood, 1 combo: 72 x 0.5 = 36 -> shows %s, enemy HP 800 -> %d (want 36 / 764)" % [weak[0] if not weak.is_empty() else "?", battle.enemies[0].hp])
 	_check(not weak.is_empty() and weak[1] == 48, "weak hit shown SMALL (font size %s)" % [weak[1] if not weak.is_empty() else "missing"])
 
 
 func _test_4_enemy_attack_heal_win_lose() -> void:
 	_log("\n== Test 4: enemy attack + team HP + heal + WIN / LOSE ==")
-	# Team HP 320 + 320 + 420 = 1060. RCV 10 + 40 + 22 = 72.
+	# Team HP 320 + 350 + 470 = 1140. RCV 10 + 46 + 26 = 82 (Stage 2 Biotech / Titan buff).
 	battle._start_battle(0)
 	await _frames(2)
-	_check(battle.team.max_hp == 1060 and battle.team.total_rcv == 72, "story team: max HP %d (want 1060), RCV %d (want 72)" % [battle.team.max_hp, battle.team.total_rcv])
+	_check(battle.team.max_hp == 1140 and battle.team.total_rcv == 82, "story team: max HP %d (want 1140), RCV %d (want 82)" % [battle.team.max_hp, battle.team.total_rcv])
 	_set_board(BASE)
 	texts.clear()
 	await _tap(Vector2i(5, 0))
 	await _await_turn_end()
-	_check(battle.team.hp == 940 and not _find_text("-120").is_empty(), "no match -> enemy hits for 120: team HP 1060 -> %d" % battle.team.hp)
+	_check(battle.team.hp == 1020 and not _find_text("-120").is_empty(), "no match -> enemy hits for 120: team HP 1140 -> %d" % battle.team.hp)
 
-	# Hearts heal 72 (RCV 72 x 3/3), then the enemy hits again.
+	# Hearts heal 82 (RCV 82 x 3/3), then the enemy hits again.
 	var healed_ok := false
 	for attempt in 20:
 		battle._start_battle(0)
@@ -302,7 +302,7 @@ func _test_4_enemy_attack_heal_win_lose() -> void:
 		if last_cleared.get(Element.Type.HEART, 0) == 3 and last_combos == 1:
 			healed_ok = true
 			break
-	_check(healed_ok and not _find_text("+72").is_empty() and battle.team.hp == 892, "3 hearts at 940 HP: \"+72\" -> 1012, then enemy -120 -> %d (want 892)" % battle.team.hp)
+	_check(healed_ok and not _find_text("+82").is_empty() and battle.team.hp == 982, "3 hearts at 1020 HP: \"+82\" -> 1102, then enemy -120 -> %d (want 982)" % battle.team.hp)
 
 	# Heal cap: hearts at full HP.
 	max_team_hp_seen = 0
@@ -312,11 +312,11 @@ func _test_4_enemy_attack_heal_win_lose() -> void:
 	texts.clear()
 	await _tap(Vector2i(5, 0))
 	await _await_turn_end()
-	_check(not _find_text("+0").is_empty() and max_team_hp_seen == 1060, "hearts at full HP heal +0; highest team HP ever seen = %d (cap 1060)" % max_team_hp_seen)
+	_check(not _find_text("+0").is_empty() and max_team_hp_seen == 1140, "hearts at full HP heal +0; highest team HP ever seen = %d (cap 1140)" % max_team_hp_seen)
 	var probe := Team.new(_typed([BERSERKER, BIOTECH, TITAN]))
 	probe.take_damage(100)
 	var got := probe.heal(9999)
-	_check(got == 100 and probe.hp == 1060, "Team.heal(9999) at 960 HP heals only %d -> %d" % [got, probe.hp])
+	_check(got == 100 and probe.hp == 1140, "Team.heal(9999) at 1040 HP heals only %d -> %d" % [got, probe.hp])
 
 	# WIN.
 	var turns := await _play_until_result(0, FIRE3)
@@ -325,7 +325,7 @@ func _test_4_enemy_attack_heal_win_lose() -> void:
 
 	# LOSE: never match anything.
 	turns = await _play_until_result(0, BASE)
-	_check(battle.result_panel.visible and battle.result_panel._title.text == "LOSE", "LOSE after %d turns of no damage (1060 / 120 = 8.8 -> 9 hits); team HP %d" % [turns, battle.team.hp])
+	_check(battle.result_panel.visible and battle.result_panel._title.text == "LOSE", "LOSE after %d turns of no damage (1140 / 120 = 9.5 -> 10 hits); team HP %d" % [turns, battle.team.hp])
 	_check(battle.result_panel._retry_button.text == "Retry" and not battle.result_panel._next_button.visible, "LOSE screen shows only \"Retry\"")
 	await _shot("t4_lose")
 
@@ -335,7 +335,7 @@ func _test_5_fight_again_next_fight() -> void:
 	await _play_until_result(0, FIRE3)
 	_check(battle.result_panel._retry_button.text == "Fight Again" and battle.result_panel._next_button.text == "Next Fight", "WIN buttons: \"%s\" + \"%s\"" % [battle.result_panel._retry_button.text, battle.result_panel._next_button.text])
 	await _click(battle.result_panel._retry_button)
-	_check(not battle.result_panel.visible and battle.fight_index == 0 and battle.enemies[0].hp == 800 and battle.team.hp == 1060 and battle.board.state == Board.State.READY,
+	_check(not battle.result_panel.visible and battle.fight_index == 0 and battle.enemies[0].hp == 800 and battle.team.hp == 1140 and battle.board.state == Board.State.READY,
 		"Fight Again: fight %d, enemy at %d HP, team %d HP, board ready" % [battle.fight_index + 1, battle.enemies[0].hp, battle.team.hp])
 
 	await _play_until_result(0, FIRE3, false)
@@ -360,7 +360,8 @@ func _test_groundwork() -> void:
 	_check(Element.multiplier(T.FIRE, T.WOOD) == 2.0 and Element.multiplier(T.FIRE, T.WATER) == 0.5, "old wheel unchanged: Fire 2x Wood, 0.5x Water")
 
 	_log("\n== G2: type stats (Lv1) ==")
-	var rows := [[BERSERKER, 320, 95, 10], [TITAN, 420, 65, 22], [SPECTRE, 230, 130, 8], [BIOTECH, 320, 55, 40]]
+	# Stage 2: Titan and Biotech buffed (were 420/65/22 and 320/55/40).
+	var rows := [[BERSERKER, 320, 95, 10], [TITAN, 470, 78, 26], [SPECTRE, 230, 130, 8], [BIOTECH, 350, 72, 46]]
 	for r in rows:
 		var d: FighterData = r[0]
 		_check(d.max_hp == r[1] and d.atk == r[2] and d.rcv == r[3], "%s: %d / %d / %d (want %d / %d / %d)" % [d.display_name, d.max_hp, d.atk, d.rcv, r[1], r[2], r[3]])
@@ -371,7 +372,7 @@ func _test_groundwork() -> void:
 	var ok := await _single_combo_turn(FIRE3, 2)
 	var hp := _enemy_hps()
 	_check(ok and hp == [452, 500, 500], "no target chosen: 3 fire hits only the FRONT enemy (Drone A, Water: 95 x 0.5 = 48) -> HP %s" % [hp])
-	_check(battle.team.hp == 1060 - 180, "all 3 enemies attack after the turn: 60 x 3 = 180 -> team %d" % battle.team.hp)
+	_check(battle.team.hp == 1140 - 180, "all 3 enemies attack after the turn: 60 x 3 = 180 -> team %d" % battle.team.hp)
 	for attempt in 30:
 		battle._start_battle(2)
 		await _frames(2)
@@ -406,17 +407,17 @@ func _test_groundwork() -> void:
 	hp = _enemy_hps()
 	# Spectre ATK 130 x 4/3 = 173 vs Drone A (Water, neutral). 4 dark is NOT "hit all" for a Spectre.
 	_check(ok and hp == [327, 500, 500], "4 dark in one group: Spectre still hits only the front enemy (173) -> HP %s" % [hp])
-	_check(battle.team.max_hp == 1290, "team of 4 (Spectre + story trio): max HP %d (want 1290)" % battle.team.max_hp)
+	_check(battle.team.max_hp == 1370, "team of 4 (Spectre + story trio): max HP %d (want 1370)" % battle.team.max_hp)
 	await _shot("g5_team_of_4")
 	_story_team()
 
 	_log("\n== G6: Shield (Armoured) gimmick ==")
-	# Test boss: Fire, 1500 HP, armoured. Water Biotech hits Fire 2x: 55 x 2 = 110.
+	# Test boss: Fire, 1500 HP, armoured. Water Biotech hits Fire 2x: 72 x 2 = 144.
 	ok = await _single_combo_turn(WATER3, 3)
-	_check(ok and battle.enemies[0].hp == 1500 - 55 and battle.enemies[0].armor_up, "armour up: 3 water (110) is halved to 55 -> HP %d, armour still up" % battle.enemies[0].hp)
+	_check(ok and battle.enemies[0].hp == 1500 - 72 and battle.enemies[0].armor_up, "armour up: 3 water (144) is halved to 72 -> HP %d, armour still up" % battle.enemies[0].hp)
 	ok = await _single_combo_turn(WATER4, 3)
-	# 55 x 4/3 x 2 = 146.7 -> 147, full damage because the 4+ group breaks the armour.
-	_check(ok and battle.enemies[0].hp == 1500 - 147 and not battle.enemies[0].armor_up, "a 4+ group breaks the armour and hits in full (147) -> HP %d" % battle.enemies[0].hp)
+	# 72 x 4/3 x 2 = 192, full damage because the 4+ group breaks the armour.
+	_check(ok and battle.enemies[0].hp == 1500 - 192 and not battle.enemies[0].armor_up, "a 4+ group breaks the armour and hits in full (192) -> HP %d" % battle.enemies[0].hp)
 
 
 # ---------------------------------------------------------------- A: active skills
@@ -427,29 +428,29 @@ func _test_active_skills() -> void:
 	_story_team()
 	battle._start_battle(0, Mode.NEW_ACT)
 	await _frames(2)
-	_check(battle.team.skill_turns == [4, 3, 4], "first fight of an Act starts half charged: Overrun 7->4, Mend 5->3, Bulwark 8->4 turns left: %s" % [battle.team.skill_turns])
-	_check(battle.team_views[0].skill_turns == 4 and battle.team_views[1].skill_turns == 3, "card badges show the turns left (%d, %d, %d)" % [battle.team_views[0].skill_turns, battle.team_views[1].skill_turns, battle.team_views[2].skill_turns])
+	_check(battle.team.skill_turns == [4, 2, 3], "first fight of an Act starts half charged: Overrun 7->4, Mend 4->2, Bulwark 6->3 turns left: %s" % [battle.team.skill_turns])
+	_check(battle.team_views[0].skill_turns == 4 and battle.team_views[1].skill_turns == 2, "card badges show the turns left (%d, %d, %d)" % [battle.team_views[0].skill_turns, battle.team_views[1].skill_turns, battle.team_views[2].skill_turns])
 	_set_board(BASE)
 	await _tap(Vector2i(5, 0))
 	await _await_turn_end()
-	_check(battle.team.skill_turns == [4, 3, 4], "a turn with NO match does not charge skills: %s" % [battle.team.skill_turns])
+	_check(battle.team.skill_turns == [4, 2, 3], "a turn with NO match does not charge skills: %s" % [battle.team.skill_turns])
 	_set_board(FIRE3)
 	await _tap(Vector2i(5, 0))
 	await _await_turn_end()
-	_check(battle.team.skill_turns == [3, 2, 3], "a turn with a match charges every skill by 1: %s" % [battle.team.skill_turns])
+	_check(battle.team.skill_turns == [3, 1, 2], "a turn with a match charges every skill by 1: %s" % [battle.team.skill_turns])
 	await _play_until_result(0, FIRE3, false)
 	var end_turns: Array = battle.team.skill_turns.duplicate()
 	await _click(battle.result_panel._next_button)
 	_check(battle.fight_index == 1 and battle.team.skill_turns == end_turns, "charge carries over to the next fight in the Act: %s -> %s" % [end_turns, battle.team.skill_turns])
 	await _use_skill_by_tapping(1)
-	_check(battle.team.skill_turns[1] == 5, "used Mend in fight 2: it needs 5 turns again (%d)" % battle.team.skill_turns[1])
+	_check(battle.team.skill_turns[1] == 4, "used Mend in fight 2: it needs 4 turns again (%d)" % battle.team.skill_turns[1])
 	await _play_until_result(1, BASE, false)
 	await _click(battle.result_panel._retry_button)
 	_check(battle.team.skill_turns == end_turns, "Retry restores the charge this fight started with: %s" % [battle.team.skill_turns])
 	battle.fight_index = battle.act_fights.size() - 1
 	battle._on_next_pressed()
 	await _frames(2)
-	_check(battle.fight_index == 0 and battle.team.skill_turns == [4, 3, 4], "after the last fight a new Act starts half charged again: %s" % [battle.team.skill_turns])
+	_check(battle.fight_index == 0 and battle.team.skill_turns == [4, 2, 3], "after the last fight a new Act starts half charged again: %s" % [battle.team.skill_turns])
 
 	_log("\n== A1: Overrun (Berserker) ==")
 	battle._start_battle(0, Mode.NEW_ACT)
@@ -468,7 +469,7 @@ func _test_active_skills() -> void:
 	var fire_after: int = battle.board.count_type(Element.Type.FIRE)
 	_check(wood_after == 0 and fire_after == fire_before + wood_before, "Overrun: all %d Wood orbs became Fire (Fire %d -> %d, Wood %d -> %d)" % [wood_before, fire_before, fire_after, wood_before, wood_after])
 	_check(battle.team.skill_turns[0] == 7 and battle.team_views[0].skill_turns == 7, "Overrun goes back to 7 turns after use")
-	_check(battle.board.state == Board.State.READY and battle.turn_count == turns_before and battle.team.hp == 1060, "using a skill does NOT end the turn (board ready, enemy did not attack)")
+	_check(battle.board.state == Board.State.READY and battle.turn_count == turns_before and battle.team.hp == 1140, "using a skill does NOT end the turn (board ready, enemy did not attack)")
 	await _shot("a1_overrun")
 
 	_log("\n== A2: Bulwark (Titan) ==")
@@ -483,7 +484,7 @@ func _test_active_skills() -> void:
 		await _tap(Vector2i(5, 0))
 		await _await_turn_end()
 		hps.append(battle.team.hp)
-	_check(hps == [1000, 940, 820], "enemy ATK 120: hits for 60, 60, then 120 again -> team HP %s (want [1000, 940, 820])" % [hps])
+	_check(hps == [1080, 1020, 900], "enemy ATK 120: hits for 60, 60, then 120 again -> team HP %s (want [1080, 1020, 900])" % [hps])
 	battle._start_battle(2, Mode.NEW_ACT)
 	await _frames(2)
 	_ready_skill(2)
@@ -491,7 +492,7 @@ func _test_active_skills() -> void:
 	_set_board(BASE)
 	await _tap(Vector2i(5, 0))
 	await _await_turn_end()
-	_check(battle.team.hp == 1060 - 30 - 30 - 60, "vs 3 drones (ATK 60 each): Bulwark covers the first 2 ATTACKS, not 2 turns -> 30 + 30 + 60, team %d (want 940)" % battle.team.hp)
+	_check(battle.team.hp == 1140 - 30 - 30 - 60, "vs 3 drones (ATK 60 each): Bulwark covers the first 2 ATTACKS, not 2 turns -> 30 + 30 + 60, team %d (want 1020)" % battle.team.hp)
 
 	_log("\n== A3: Execute (Spectre) ==")
 	battle.set_team([SPECTRE, BERSERKER, BIOTECH, TITAN])
@@ -539,7 +540,7 @@ func _test_active_skills() -> void:
 	var others_before: Array = battle.team.skill_turns.duplicate()
 	_ready_skill(1)
 	await _use_skill_by_tapping(1)
-	_check(battle.team.hp == 560 + 318, "Mend heals 30%% of 1060 = 318: 560 -> %d (want 878)" % battle.team.hp)
+	_check(battle.team.hp == 640 + 342, "Mend heals 30%% of 1140 = 342: 640 -> %d (want 982)" % battle.team.hp)
 	_check(battle.board.count_type(Element.Type.HEART) == hearts_before + 3, "Mend turns 3 orbs into Hearts (%d -> %d)" % [hearts_before, battle.board.count_type(Element.Type.HEART)])
 	_check(battle.team.skill_turns[0] == others_before[0] and battle.team.skill_turns[2] == others_before[2], "without Field Medic (locked) the other skills don't charge")
 	await _shot("a4_mend")
@@ -565,13 +566,13 @@ func _test_leader_skills() -> void:
 	battle.test_fight_override = null
 	battle._start_battle(0, battle.StartMode.NEW_ACT)
 	await _frames(2)
-	_check(battle.team.max_hp == 1378, "team HP x1.3: 1060 -> %d (want 1378)" % battle.team.max_hp)
+	_check(battle.team.max_hp == 1482, "team HP x1.3: 1140 -> %d (want 1482)" % battle.team.max_hp)
 	ok = await _turn_with(HEART3, 1, 0)
-	_check(ok and battle.team.hp == 1378 - 90, "Hearts matched: the next enemy hit is 25%% weaker (120 -> 90) -> team %d" % battle.team.hp)
+	_check(ok and battle.team.hp == 1482 - 90, "Hearts matched: the next enemy hit is 25%% weaker (120 -> 90) -> team %d" % battle.team.hp)
 	_set_board(BASE)
 	await _tap(Vector2i(5, 0))
 	await _await_turn_end()
-	_check(battle.team.hp == 1378 - 90 - 120, "guard is used up: the hit after that is a full 120 -> team %d" % battle.team.hp)
+	_check(battle.team.hp == 1482 - 90 - 120, "guard is used up: the hit after that is a full 120 -> team %d" % battle.team.hp)
 
 	_log("\n== K3: Spectre leader ==")
 	battle.set_team([SPECTRE, BERSERKER, BIOTECH, TITAN])
@@ -582,16 +583,18 @@ func _test_leader_skills() -> void:
 	battle.test_fight_override = _dummy_fight(4000, false, false)
 	ok = await _turn_with(FIVE_COMBOS, 5)
 	# 5 combos = x2.0 combo, x1.5 leader. Dark 130x2x1.5=390, Fire 95x2x2x1.5=570,
-	# Water 55x2x0.5x1.5=82.5->83, Wood 65x2x1x1.5=195. Total 1238.
-	_check(ok and battle.enemies[0].hp == 4000 - 1238, "a real 5-combo turn with the Spectre leading: 390 + 570 + 83 + 195 = 1238 -> HP %d" % battle.enemies[0].hp)
+	# Water 72x2x0.5x1.5=108, Wood 78x2x1x1.5=234. Total 1302.
+	_check(ok and battle.enemies[0].hp == 4000 - 1302, "a real 5-combo turn with the Spectre leading: 390 + 570 + 108 + 234 = 1302 -> HP %d" % battle.enemies[0].hp)
 	await _shot("k3_five_combos")
 
 	_log("\n== K4: Biotech leader ==")
 	battle.set_team([BIOTECH, BERSERKER, TITAN])
 	ok = await _turn_with(THREE_ELEMENTS, 3, -1, 500)
-	# 3 combos = x1.5. Fire 95x1.5x2x1.5=427.5->428, Water 55x1.5x0.5x1.5=61.9->62, Wood 65x1.5x1.5=146.3->146
-	_check(ok and battle.enemies[0].hp == 4000 - 636, "Fire + Water + Wood matched: team ATK x1.5 -> 428 + 62 + 146 = 636 -> HP %d" % battle.enemies[0].hp)
-	_check(battle.team.hp == 500 + 106 - 10, "and heals 10%% of 1060 = 106 with no Hearts: 500 -> 606, dummy hits 10 -> %d (want 596)" % battle.team.hp)
+	# 3 combos = x1.5. Fire 95x1.5x2x1.5=427.5->428, Water 72x1.5x0.5x1.5=81, Wood 78x1.5x1.5=175.5->176
+	_check(ok and battle.enemies[0].hp == 4000 - 685, "Fire + Water + Wood matched (needs 2+ elements since Stage 2): team ATK x1.5 -> 428 + 81 + 176 = 685 -> HP %d" % battle.enemies[0].hp)
+	_check(battle.team.hp == 500 + 114 - 10, "and heals 10%% of 1140 = 114 with no Hearts: 500 -> 614, dummy hits 10 -> %d (want 604)" % battle.team.hp)
+	_check(CombatRules.distinct_attack_types([{"type": Element.Type.FIRE, "cells": []}, {"type": Element.Type.WATER, "cells": []}]) >= Skills.TUNING.leader_biotech_affinities,
+		"2 elements are enough for the Biotech leader now (was 3)")
 	ok = await _turn_with(FIRE3, 1)
 	_check(ok and battle.enemies[0].hp == 4000 - 190, "only 1 element matched: no bonus (190) -> HP %d" % battle.enemies[0].hp)
 	battle.test_fight_override = null
@@ -609,7 +612,7 @@ func _test_passives() -> void:
 	battle.set_team([_unlocked(BERSERKER, 2), BIOTECH, TITAN])
 	battle._start_battle(0, battle.StartMode.NEW_ACT)
 	await _frames(2)
-	_check(battle.team.skill_turns[0] == 3 and battle.team.skill_turns[1] == 3, "Skill Boost (Evo 1): Overrun starts the Act at 3 turns instead of 4 (others unchanged): %s" % [battle.team.skill_turns])
+	_check(battle.team.skill_turns[0] == 3 and battle.team.skill_turns[1] == 2, "Skill Boost (Evo 1): Overrun starts the Act at 3 turns instead of 4 (others unchanged): %s" % [battle.team.skill_turns])
 	battle.set_team([BIOTECH, _unlocked(BERSERKER, 3), TITAN])
 	battle.test_fight_override = _dummy_fight(4000, false, true)   # armoured
 	ok = await _turn_with(FIRE_SQUARE, 1)
@@ -622,17 +625,17 @@ func _test_passives() -> void:
 	battle.test_fight_override = null
 	battle.set_team([BERSERKER, BIOTECH, _unlocked(TITAN, 1)])
 	ok = await _turn_with(BASE, 0, 0)
-	_check(ok and battle.enemies[0].hp == 800 - 65 and battle.team.hp == 1060 - 120, "Counter (Lv10): enemy hits 120, Titan strikes back for ATK 65 -> enemy HP %d" % battle.enemies[0].hp)
+	_check(ok and battle.enemies[0].hp == 800 - 78 and battle.team.hp == 1140 - 120, "Counter (Lv10): enemy hits 120, Titan strikes back for ATK 78 -> enemy HP %d" % battle.enemies[0].hp)
 	battle._start_battle(2, battle.StartMode.NEW_ACT)
 	await _frames(2)
 	_set_board(BASE)
 	await _tap(Vector2i(5, 0))
 	await _await_turn_end()
-	_check(_enemy_hps() == [500 - 130, 500 - 65, 500 - 65], "Counter vs 3 drones: strikes back at EACH enemy that attacked (Wood vs Water 2x = 130, then 65, 65) -> HP %s" % [_enemy_hps()])
+	_check(_enemy_hps() == [500 - 156, 500 - 78, 500 - 78], "Counter vs 3 drones: strikes back at EACH enemy that attacked (Wood vs Water 2x = 156, then 78, 78) -> HP %s" % [_enemy_hps()])
 	battle.set_team([BERSERKER, BIOTECH, _unlocked(TITAN, 2)])
 	battle._start_battle(0, battle.StartMode.NEW_ACT)
 	await _frames(2)
-	battle.team.hp = 300   # below 30% of 1060 (318)
+	battle.team.hp = 300   # below 30% of 1140 (342)
 	_set_board(BASE)
 	await _tap(Vector2i(5, 0))
 	await _await_turn_end()
@@ -690,15 +693,15 @@ func _test_passives() -> void:
 	battle.set_team([BERSERKER, _unlocked(BIOTECH, 2), TITAN])
 	battle.test_fight_override = _dummy_fight(4000, false, false)
 	ok = await _turn_with(HEART5, 1, -1, 500)
-	# RCV 72 x 5/3 = 120, x1.5 = 180. 500 + 180 = 680, dummy hits 10 -> 670.
-	_check(ok and battle.team.hp == 670, "Overflow Heal (Evo 1): 5 Hearts in one group heal 120 x 1.5 = 180 -> team %d (want 670)" % battle.team.hp)
+	# RCV 82 x 5/3 = 136.7, x1.5 = 205. 500 + 205 = 705, dummy hits 10 -> 695.
+	_check(ok and battle.team.hp == 695, "Overflow Heal (Evo 1): 5 Hearts in one group heal 136.7 x 1.5 = 205 -> team %d (want 695)" % battle.team.hp)
 	battle.set_team([BERSERKER, _unlocked(BIOTECH, 3), TITAN])
 	battle._start_battle(0, battle.StartMode.NEW_ACT)
 	await _frames(2)
 	battle.team.skill_turns.assign([4, 0, 4])
 	battle._refresh_team_ui()
 	await _use_skill_by_tapping(1)
-	_check(battle.team.skill_turns == [3, 5, 3], "Field Medic (Evo 2): using Mend charges both allies by 1 turn: [4, 0, 4] -> %s" % [battle.team.skill_turns])
+	_check(battle.team.skill_turns == [3, 4, 3], "Field Medic (Evo 2): using Mend charges both allies by 1 turn: [4, 0, 4] -> %s" % [battle.team.skill_turns])
 	battle.test_fight_override = null
 	_story_team()
 

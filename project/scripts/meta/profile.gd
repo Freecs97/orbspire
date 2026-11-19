@@ -12,10 +12,12 @@ extends RefCounted
 
 const ECONOMY: EconomyTuning = preload("res://data/economy.tres")
 const PROGRESSION: ProgressionTuning = preload("res://data/progression.tres")
-const STORY_START := ["berserker_01_angel_fire", "biotech_01_medic_water", "titan_01_shield_wood"]
-const SPECTRE_ID := "spectre_01_rogue_dark"
+## The 3 starters (New Game: pick ONE). Same type (Berserker), same stats and
+## skills; only the element differs: Kaela = Fire, Iris = Water, Drek = Wood.
+const STARTERS := ["berserker_01_angel_fire", "berserker_03_thin_water", "berserker_02_hulk_wood"]
+const TEAM_SLOTS := 4
 const DEFAULTS := {"units": [], "next_uid": 1, "team": [], "credits": 0, "cores": 0, "keys": 0,
-	"essence": {}, "roster_cap": 30, "first_clears": []}
+	"essence": {}, "roster_cap": 30, "first_clears": [], "starter": "", "fight_clears": []}
 
 var data: Dictionary
 var rng := RandomNumberGenerator.new()
@@ -32,25 +34,35 @@ func _init(save: Dictionary) -> void:
 	_fix_types()
 
 
-## A brand-new save starts with the story trio (Forged, Lv1) as the team.
-func ensure_start() -> void:
-	if not data["units"].is_empty():
-		return
-	for id in STORY_START:
-		data["team"].append(add_unit(id, ECONOMY.story_rarity))
+## A brand-new save owns NO characters: the player picks one starter first.
+func needs_starter() -> bool:
+	return data["units"].is_empty()
 
 
-## The Dark Spectre joins (story, Act 2): added once, placed in slot 4.
-func join_spectre() -> bool:
-	for u in data["units"]:
-		if u["id"] == SPECTRE_ID:
-			return false
-	var uid := add_unit(SPECTRE_ID, ECONOMY.story_rarity, maxi(highest_level() - 2, 1))
-	while data["team"].size() < 4:
-		data["team"].append(-1)
-	if data["team"][3] == -1:
-		data["team"][3] = uid
-	return true
+## New Game: the ONE starter (Forged, Lv1) becomes the whole team. Everyone else
+## is earned (fight drops, Recruit, Lab). Saved; only a New Game changes it.
+## Returns the new uid, or -1 if a starter was already chosen / unknown id.
+func choose_starter(id: String) -> int:
+	if not needs_starter() or not id in STARTERS:
+		return -1
+	data["starter"] = id
+	var uid := add_unit(id, ECONOMY.story_rarity)
+	data["team"] = [uid]
+	return uid
+
+
+## A new character fills the first empty team slot (4 slots; Act 1 fights with
+## the first 3). Returns true if it went into the team.
+func auto_slot(uid: int) -> bool:
+	var t: Array = data["team"]
+	var i := t.find(-1)
+	if i >= 0:
+		t[i] = uid
+		return true
+	if t.size() < TEAM_SLOTS:
+		t.append(uid)
+		return true
+	return false
 
 
 # ---------------------------------------------------------------- units
@@ -231,7 +243,8 @@ func add_xp(u: Dictionary, amount: int) -> void:
 ## Called after every fight. Returns what was earned, for the result screen.
 ## WIN: XP to the team, Credits, Essence drops; first Act clear: bonus + Keys.
 ## LOSE: a share of the Credits only.
-func fight_rewards(fight: FightData, act_number: int, won: bool, team: Array, is_act_clear: bool) -> Dictionary:
+## fight_no (1-8) turns on Scrap character drops; 0 = no drop (tests, sims).
+func fight_rewards(fight: FightData, act_number: int, won: bool, team: Array, is_act_clear: bool, fight_no := 0) -> Dictionary:
 	var e := ECONOMY
 	var credits := e.win_credits_base + e.win_credits_per_act * act_number
 	var top := fight.enemies[0]
@@ -239,7 +252,7 @@ func fight_rewards(fight: FightData, act_number: int, won: bool, team: Array, is
 		credits *= e.boss_credit_mult
 	elif top.is_boss:
 		credits *= e.mini_boss_credit_mult
-	var r := {"credits": 0, "xp": 0, "essence": {}, "keys": 0, "level_ups": []}
+	var r := {"credits": 0, "xp": 0, "essence": {}, "keys": 0, "level_ups": [], "new_unit": {}}
 	if not won:
 		r["credits"] = roundi(credits * e.lose_credit_share)
 		data["credits"] += r["credits"]
@@ -267,7 +280,46 @@ func fight_rewards(fight: FightData, act_number: int, won: bool, team: Array, is
 		r["keys"] = e.keys_per_act_clear
 		data["keys"] += r["keys"]
 	data["credits"] += r["credits"]
+	if fight_no > 0:
+		r["new_unit"] = _scrap_drop(fight, act_number, fight_no)
 	return r
+
+
+## Scrap characters found after a WIN (the easy way to fill a team early):
+##   - Act 1, first clear of fights 1 and 2: always one. Fight 1's is a character
+##     strong against the Act boss's element (Water vs Emberfang-9), so every
+##     starter gets the same help; fight 2's is any character. Prefers ones you
+##     don't own yet.
+##   - Any later win of a regular fight in Acts 1-2: a small chance.
+## The new character joins the first empty team slot. Returns {} if nothing dropped.
+func _scrap_drop(fight: FightData, act_number: int, fight_no: int) -> Dictionary:
+	var e := ECONOMY
+	var key := "%d-%d" % [act_number, fight_no]
+	var first: bool = not key in data["fight_clears"]
+	if first:
+		data["fight_clears"].append(key)
+	var guaranteed := first and act_number == 1 and fight_no <= e.scrap_guaranteed_fights
+	var lucky := not guaranteed and not fight.enemies[0].is_boss and act_number <= e.scrap_drop_max_act and rng.randf() < e.scrap_drop_chance
+	if not (guaranteed or lucky):
+		return {}
+	if roster_full():
+		return {"id": "", "roster_full": true}
+	var pool: Array = Catalog.IDS.duplicate()
+	if guaranteed and fight_no == 1:
+		var acts := StarMap.ACTS
+		var boss: FighterData = acts[act_number - 1].fights[-1].enemies[0]
+		var counter := Element.beaten_by(boss.element)
+		pool = pool.filter(func(id: String) -> bool: return Catalog.template(id).element == counter)
+	if guaranteed:
+		var owned := {}
+		for u in data["units"]:
+			owned[u["id"]] = true
+		var fresh := pool.filter(func(id: String) -> bool: return not owned.has(id))
+		if not fresh.is_empty():
+			pool = fresh
+	var id: String = pool[rng.randi_range(0, pool.size() - 1)]
+	var uid := add_unit(id, 0)
+	return {"uid": uid, "id": id, "in_team": auto_slot(uid)}
 
 
 ## One line for the result screen.
@@ -280,6 +332,11 @@ static func rewards_text(r: Dictionary) -> String:
 	if r["keys"] > 0:
 		parts.append("+%d Key" % r["keys"])
 	var text := "  ·  ".join(parts)
+	var nu: Dictionary = r.get("new_unit", {})
+	if nu.get("roster_full", false):
+		text += "\nA Scrap hunter wanted to join, but your roster is full"
+	elif nu.has("id"):
+		text += "\nNEW HUNTER: %s (Scrap) %s" % [Catalog.display_name(nu["id"]), "joined your team!" if nu["in_team"] else "joined your roster"]
 	if not r["level_ups"].is_empty():
 		text += "\n" + "   ".join(PackedStringArray(r["level_ups"]))
 	return text
@@ -300,7 +357,9 @@ func craft(id: String) -> int:
 	if can_craft(id) != "":
 		return -1
 	data["essence"][id] = int(data["essence"][id]) - ECONOMY.essence_to_craft
-	return add_unit(id, ECONOMY.crafted_rarity(progress_act()))
+	var uid := add_unit(id, ECONOMY.crafted_rarity(progress_act()))
+	auto_slot(uid)
+	return uid
 
 
 # ---------------------------------------------------------------- Recruit
@@ -326,7 +385,7 @@ func recruit(tier: int) -> Dictionary:
 	var rarity := roll_rarity(ECONOMY.odds_for(tier, progress_act()))
 	var id: String = Catalog.IDS[rng.randi_range(0, Catalog.IDS.size() - 1)]
 	var uid := add_unit(id, rarity)
-	return {"uid": uid, "id": id, "rarity": rarity}
+	return {"uid": uid, "id": id, "rarity": rarity, "in_team": auto_slot(uid)}
 
 
 func roll_rarity(odds: Array[int]) -> int:
@@ -429,6 +488,8 @@ func _fix_types() -> void:
 	data["team"] = team
 	for id in data["essence"]:
 		data["essence"][id] = int(data["essence"][id])
+	if data["starter"] == "" and not data["units"].is_empty():
+		data["starter"] = data["units"][0]["id"]   # saves from before the starter choice
 	var fc := []
 	for a in data["first_clears"]:
 		fc.append(int(a))
