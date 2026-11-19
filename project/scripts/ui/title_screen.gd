@@ -5,7 +5,7 @@ extends Control
 ## Plain English:
 ##   - Background: your title art, cropped to fill the phone (never stretched).
 ##   - ORBSPIRE in big glowing cyan + gold text, with a glitch flicker every few seconds.
-##   - The 3 story hunters stand on the terrace floor and bob (same idle as in battle).
+##   - The 3 story hunters stand still on the terrace floor (no idle bob, same as in battle).
 ##   - Your orb art drifts slowly up the screen.
 ##   - Buttons: TAP TO START (first time) or CONTINUE, plus NEW GAME and SETTINGS.
 ##     Tapping anywhere else does the same as the big button.
@@ -73,7 +73,7 @@ func _init() -> void:
 	_orb_layer = Node2D.new()
 	_content.add_child(_orb_layer)
 
-	# Party on the floor, with the shared idle bob.
+	# Party on the floor, standing still (shared idle = no motion).
 	for i in PARTY.size():
 		var d: FighterData = PARTY[i].duplicate()
 		d.figure_height = PARTY_HEIGHT

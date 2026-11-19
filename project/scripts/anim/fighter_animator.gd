@@ -3,11 +3,12 @@ extends Node
 ## ONE reusable, Tween-only animator for every character AND the enemy.
 ##
 ## Plain English: it moves a "body" node around with code. To stop animations
-## fighting each other, it keeps three separate offsets and adds them up:
-##   bob_offset    - the gentle idle up/down
+## fighting each other, it keeps two separate offsets and adds them up:
 ##   action_offset - the attack lunge
 ##   shake_offset  - the jitter when hit
 ## A tiny shader makes the body flash white when it gets hit.
+## IDLE = STANDING STILL (no bob, no float, no bounce; removed 2026-11-18 at the
+## user's request). Fighters only move on attack, on hit, on skill, or on death.
 ##
 ## Why Tween-only (no AnimationPlayer)? Every fighter uses the same moves with
 ## different numbers. Tweens read those numbers at runtime, so one script covers
@@ -21,8 +22,6 @@ void fragment() {
 }
 """
 
-@export var bob_height := 8.0         ## Idle: pixels up/down.
-@export var bob_period := 1.5         ## Idle: seconds for one full up-and-down.
 @export var lunge_distance := 40.0    ## Attack: pixels forward.
 @export var lunge_time := 0.25        ## Attack: seconds to lunge out.
 @export var return_time := 0.15       ## Attack: seconds to come back.
@@ -33,7 +32,6 @@ void fragment() {
 static var _flash_shader: Shader
 
 var body: Node2D
-var bob_offset := 0.0
 var action_offset := Vector2.ZERO
 var shake_offset := Vector2.ZERO
 var flash_amount := 0.0:
@@ -43,7 +41,6 @@ var flash_amount := 0.0:
 			_material.set_shader_parameter("flash_amount", value)
 
 var _material: ShaderMaterial
-var _idle_tween: Tween
 var _action_tween: Tween
 var _flash_tween: Tween
 var _shake_tween: Tween
@@ -63,18 +60,13 @@ func setup(target: Node2D) -> void:
 
 func _process(_delta: float) -> void:
 	if body:
-		body.position = Vector2(0, bob_offset) + action_offset + shake_offset
+		body.position = action_offset + shake_offset
 
 
-## Idle: loop a gentle bob forever.
+## Idle: stand still. (No bob, no float, no bounce.)
 func play_idle() -> void:
-	_kill(_idle_tween)
-	bob_offset = 0.0
-	_idle_tween = create_tween().set_loops()
-	_idle_tween.tween_property(self, "bob_offset", -bob_height, bob_period * 0.5).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-	_idle_tween.tween_property(self, "bob_offset", 0.0, bob_period * 0.5).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-	# Start each fighter at a random point in the loop so they don't bob in sync.
-	_idle_tween.custom_step(randf() * bob_period)
+	action_offset = Vector2.ZERO
+	shake_offset = Vector2.ZERO
 
 
 ## Attack: lunge toward `direction` (UP for the team, DOWN for the enemy), then return.
@@ -102,9 +94,8 @@ func play_hit() -> void:
 	_shake_tween.tween_property(self, "shake_offset", Vector2.ZERO, step)
 
 
-## Defeat: stop bobbing, shrink slightly and fade out.
+## Defeat: shrink slightly and fade out.
 func play_defeat() -> void:
-	_kill(_idle_tween)
 	_kill(_defeat_tween)
 	_defeat_tween = create_tween()
 	_defeat_tween.tween_property(body, "modulate:a", 0.0, defeat_time)
@@ -113,7 +104,7 @@ func play_defeat() -> void:
 
 ## Back to normal (used when a battle restarts).
 func reset() -> void:
-	for t in [_idle_tween, _action_tween, _flash_tween, _shake_tween, _defeat_tween]:
+	for t in [_action_tween, _flash_tween, _shake_tween, _defeat_tween]:
 		_kill(t)
 	action_offset = Vector2.ZERO
 	shake_offset = Vector2.ZERO

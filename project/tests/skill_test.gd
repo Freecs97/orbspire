@@ -45,6 +45,7 @@ func _ready() -> void:
 		last_cleared = cl)
 	_log("Godot %s · Stage 3 Part A: per-character skills" % Engine.get_version_info().string)
 	_test_table()
+	await _test_no_idle_bob()
 	await _test_actives()
 	_test_leaders()
 	await _test_passives()
@@ -84,6 +85,23 @@ func _test_table() -> void:
 	_check(not "bind_resist" in str(Catalog.template("titan_01_shield_wood").passives) and Catalog.template("titan_01_shield_wood").passives[2] == &"damage_resist",
 		"Bram Stone: Passive 3 is Damage Resist now (Bind Resist removed until binds exist)")
 	_check(Skills.cooldown(&"mend") == 5, "Mend is CD 5")
+
+
+## Idle = standing still: no bob, no float, no bounce (hunters AND enemies).
+func _test_no_idle_bob() -> void:
+	_log("\n== I: idle = standing still ==")
+	await _setup([_hero("berserker_01_angel_fire"), _hero("titan_01_shield_wood")], _dummy(4000, 2))
+	var bodies: Array[Node2D] = []
+	for v in battle.team_views + battle.enemy_views:
+		bodies.append(v.figure)
+	var start := bodies.map(func(b: Node2D) -> Vector2: return b.global_position)
+	var moved := 0
+	for k in 25:
+		await get_tree().create_timer(0.1).timeout
+		for i in bodies.size():
+			if bodies[i].global_position.distance_to(start[i]) > 0.5:
+				moved += 1
+	_check(moved == 0, "in battle, 2 hunters + 2 enemies stay perfectly still for 2.5 s while idle (%d moves seen)" % moved)
 
 
 # ---------------------------------------------------------------- A: actives

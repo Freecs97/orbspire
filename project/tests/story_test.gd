@@ -58,7 +58,7 @@ func _test_title() -> void:
 	for i in t.party_bodies.size():
 		if absf(t.party_bodies[i].position.y - y0[i]) > 0.5:
 			moved += 1
-	_check(t.party_bodies.size() == 3 and moved == 3, "3 hunters (your art) stand on the floor and idle-bob (%d of 3 moved)" % moved)
+	_check(t.party_bodies.size() == 3 and moved == 0, "3 hunters (your art) stand STILL on the floor: no idle bob (%d of 3 moved in 2.5 s)" % moved)
 	_check(t.orb_count() > 0, "your orb art drifts up the screen (%d orbs floating)" % t.orb_count())
 	_check(t.glitch_count >= 1, "title glitch flicker played %d time(s) in 2.5 s" % t.glitch_count)
 	await _shot("s1_title")
