@@ -339,13 +339,17 @@ static func move_time(team: Team) -> float:
 
 
 ## Total healing this turn (never above max HP: Team.heal caps it):
-##   Hearts x team RCV (x1.5 Overflow Heal on a 5+ Heart group; x1.5 Rootwork leader)
+##   Hearts x team RCV x combo multiplier (Stage 4)
+##     (x1.5 Overflow Heal on a 5+ Heart group; x1.5 Rootwork leader)
 ##   + Lifeline leader 10% when 2+ elements were matched
 ##   + Overgrowth leader 5% on a 4+ group of its element
 ##   + Regrowth 4% for each hunter with it whose element was matched
 static func turn_heal(team: Team, hearts: int, groups: Array) -> int:
 	var t := Skills.TUNING
 	var amount := team.total_rcv * (hearts / 3.0)   # same as DamageCalculator.healing, before rounding
+	# Combo multiplier on the Hearts part (each matched group is one combo).
+	if t.combo_boosts_healing and hearts > 0:
+		amount *= DamageCalculator.combo_multiplier(groups.size())
 	if hearts > 0 and team_has(team, &"overflow_heal") and has_group(groups, Element.Type.HEART, t.overflow_group):
 		amount *= t.overflow_mult
 	var leader := team.leader()

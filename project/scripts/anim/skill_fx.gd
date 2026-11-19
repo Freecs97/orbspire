@@ -10,6 +10,56 @@ extends Node2D
 
 enum Kind { RING, STREAK, FLASH, DOME, SPARKLES }
 
+## Stage 4: Leonardo FX sprite sheets (4 frames in a row, transparent PNG).
+## If a sheet is in res://assets/fx/, skill hits play it (AnimatedSprite2D) on
+## top of the code effects; if not, only the code effects play.
+const FX_DIR := "res://assets/fx/"
+const SHEET_FOR_ELEMENT := {
+	Element.Type.FIRE: "fx_fire_slash", Element.Type.WATER: "fx_water_blast", Element.Type.WOOD: "fx_wood_thorn",
+	Element.Type.LIGHT: "fx_light_burst", Element.Type.DARK: "fx_dark_slash",
+}
+const HEAL_SHEET := "fx_heal"
+const SHEET_FRAMES := 4
+static var _frames_cache := {}
+
+
+## Is this FX sheet in the project? (e.g. "fx_fire_slash")
+static func has_sheet(key: String) -> bool:
+	return key != "" and ResourceLoader.exists(FX_DIR + key + ".png")
+
+
+## Play an FX sheet centred on `center`: 4 frames over `time` seconds while it
+## scales up and fades out. Returns false (and does nothing) if the sheet isn't there.
+static func sheet(parent: Node, center: Vector2, key: String, height := 280.0, time := 0.4) -> bool:
+	if not has_sheet(key):
+		return false
+	if not _frames_cache.has(key):
+		var tex: Texture2D = load(FX_DIR + key + ".png")
+		var frames := SpriteFrames.new()
+		frames.add_animation("hit")
+		frames.set_animation_loop("hit", false)
+		frames.set_animation_speed("hit", SHEET_FRAMES / time)
+		var fw := tex.get_width() / SHEET_FRAMES
+		for i in SHEET_FRAMES:
+			var at := AtlasTexture.new()
+			at.atlas = tex
+			at.region = Rect2(i * fw, 0, fw, tex.get_height())
+			frames.add_frame("hit", at)
+		_frames_cache[key] = frames
+	var spr := AnimatedSprite2D.new()
+	spr.sprite_frames = _frames_cache[key]
+	spr.z_index = 31
+	spr.position = center
+	var s := height / float((spr.sprite_frames.get_frame_texture("hit", 0) as Texture2D).get_height())
+	spr.scale = Vector2.ONE * s
+	parent.add_child(spr)
+	spr.play("hit")
+	var tw := spr.create_tween()
+	tw.tween_property(spr, "scale", Vector2.ONE * s * 1.3, time)
+	tw.parallel().tween_property(spr, "modulate:a", 0.0, time).set_delay(time * 0.5)
+	tw.tween_callback(spr.queue_free)
+	return true
+
 var kind := Kind.RING
 var color := Color.WHITE
 var a := Vector2.ZERO        ## centre / start point / top-left

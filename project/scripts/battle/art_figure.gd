@@ -9,6 +9,11 @@ extends Node2D
 
 var data: FighterData
 var sprite: Sprite2D
+## Stage 4 head-only party plates: > 0 = show only the head / face, cropped
+## from the art (ArtBounds.head_region), as a head_size x head_size square
+## centred on head_center. 0 = the full body (enemies, title screen).
+var head_size := 0.0
+var head_center := Vector2.ZERO
 
 
 func setup(fighter: FighterData) -> void:
@@ -17,6 +22,17 @@ func setup(fighter: FighterData) -> void:
 		sprite = Sprite2D.new()
 		sprite.use_parent_material = true   # so the hit flash shows on the art
 		add_child(sprite)
+	if head_size > 0.0:
+		var region := ArtBounds.head_region(fighter.art)
+		var crop := AtlasTexture.new()
+		crop.atlas = fighter.art
+		crop.region = region
+		sprite.texture = crop
+		var hs := head_size / region.size.y
+		sprite.scale = Vector2(hs, hs)
+		sprite.position = head_center
+		queue_redraw()
+		return
 	sprite.texture = fighter.art
 	var h := float(fighter.art.get_height())
 	var s := fighter.figure_height / h

@@ -49,12 +49,16 @@ const ROLE_NAMES := ["BERSERKER", "TITAN", "SPECTRE", "BIOTECH", "ENEMY"]
 
 # Layout for the base 1080 x 1920 screen.
 const BASE_SIZE := Vector2(1080, 1920)
-const ENEMY_FEET_Y := 560.0
+const ENEMY_FEET_Y := 640.0   ## Stage 4: 80 px lower (was 560) so the bigger enemies fit under the titles
+## Stage 4: enemies are drawn 20% bigger (15% in a fight where 20% would make two overlap).
+const ENEMY_SCALE := 1.2
+const ENEMY_SCALE_TIGHT := 1.15
 const ENEMY_X := {1: [540.0], 2: [320.0, 760.0], 3: [190.0, 540.0, 890.0]}
 const ENEMY_BAR_W := {1: 440.0, 2: 330.0, 3: 270.0}
 const TEAM_FEET_Y := 935.0
 const TEAM_X := {1: [540.0], 2: [395.0, 685.0], 3: [250.0, 540.0, 830.0], 4: [150.0, 395.0, 685.0, 930.0]}
-const TEAM_CARD := {1: Vector2(260, 270), 2: Vector2(260, 270), 3: Vector2(260, 270), 4: Vector2(230, 270)}
+## Stage 4: head-only plates (were full-body cards 260 x 270).
+const TEAM_CARD := {1: FighterView.DEFAULT_CARD, 2: FighterView.DEFAULT_CARD, 3: FighterView.DEFAULT_CARD, 4: FighterView.DEFAULT_CARD}
 const TEAM_BAR_Y := 975.0
 const TIMER_BAR_Y := 1030.0
 const BOARD_POS := Vector2(45, 1090)
@@ -74,6 +78,7 @@ var enemy_title: Label
 var enemy_hint: Label
 var enemy_attack_label: Label
 var team_status_label: Label
+var combo_counter: ComboCounter   ## Stage 4: live "COMBO 3  x1.50" next to the board
 var level_label: Label
 var result_panel: ResultPanel
 var skill_popup: SkillPopup
@@ -87,6 +92,10 @@ var team_level := 1                       ## Level the team is shown at in this 
 var target_index := -1     ## -1 = no target chosen: attacks go to the front enemy.
 var turn_count := 0
 var _extra_height := 0.0
+## How big enemies are drawn in this fight (ENEMY_SCALE or ENEMY_SCALE_TIGHT).
+var enemy_scale := ENEMY_SCALE
+## Tests only: force a scale (e.g. 1.0 for an old-size screenshot). 0 = automatic.
+var enemy_scale_override := 0.0
 
 ## Skill charge carries over from fight to fight inside an Act.
 var _act_skill_turns: Array[int] = []    ## charge at the end of the last won fight
@@ -200,8 +209,8 @@ func _build_scene() -> void:
 	world.add_child(backdrop)
 
 	enemy_title = _make_label(Vector2(0, 28), 1080, 44, Color.WHITE)
-	enemy_hint = _make_label(Vector2(0, 88), 1080, 28, Color("d6ccff"))
-	enemy_attack_label = _make_label(Vector2(0, 132), 1080, 26, Color("ff8a8a"))
+	enemy_hint = _make_label(Vector2(0, 80), 1080, 28, Color("d6ccff"))
+	enemy_attack_label = _make_label(Vector2(0, 116), 1080, 26, Color("ff8a8a"))
 
 	team_bar = HpBar.new()
 	team_bar.bar_size = Vector2(990, 38)
@@ -220,6 +229,11 @@ func _build_scene() -> void:
 	# Top-left corner: the Act and the team's level in this fight.
 	level_label = _make_label(Vector2(20, 2), 1040, 22, Color("ffd23f"))
 	level_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+	# Live combo counter, right above the board (over the timer bar, which is
+	# empty while the board resolves).
+	combo_counter = ComboCounter.new()
+	combo_counter.z_index = FRONT_Z + 5
+	world.add_child(combo_counter)
 
 	# Pop-up screens live on their own layer so the screen shake doesn't move them.
 	var ui := CanvasLayer.new()
@@ -235,7 +249,9 @@ func _build_scene() -> void:
 	skill_popup.use_pressed.connect(func(i: int) -> void: use_skill(i))
 	skill_popup.closed.connect(_on_popup_closed)
 
-	board.move_started.connect(func() -> void: _player_turn = false)
+	board.move_started.connect(func() -> void:
+		_player_turn = false
+		combo_counter.reset())   # each drag starts from COMBO 0
 	board.timer_changed.connect(_on_timer_changed)
 	board.combo_made.connect(_on_combo_made)
 	board.turn_finished.connect(_on_turn_finished)
@@ -347,6 +363,9 @@ func _on_leave_confirmed() -> void:
 
 
 func _process(_delta: float) -> void:
+	if team:
+		for v in team_views:
+			v.hp_ratio = team.hp_ratio()   # head plates: the team's shared HP
 	if menu_button and menu_button.visible:
 		# Dimmed while enemies attack / combos resolve; lights up on your turn.
 		menu_button.disabled = not can_leave() and not leave_dialog.visible
@@ -389,9 +408,11 @@ func _build_enemy_views() -> void:
 		b.queue_free()
 	enemy_views.clear()
 	enemy_bars.clear()
+	enemy_scale = enemy_scale_override if enemy_scale_override > 0.0 else fit_enemy_scale(enemies)
 	for e in enemies:
 		var view := FighterView.new()
 		view.z_index = FRONT_Z
+		view.scale = Vector2.ONE * enemy_scale
 		world.add_child(view)
 		view.setup(e.data)
 		view.armor_up = e.armor_up
@@ -424,7 +445,7 @@ func _apply_layout() -> void:
 	for i in enemy_views.size():
 		var p := enemy_position(i)
 		enemy_views[i].position = p
-		enemy_bars[i].position = Vector2(p.x - enemy_bars[i].bar_size.x * 0.5, p.y + 40)
+		enemy_bars[i].position = Vector2(p.x - enemy_bars[i].bar_size.x * 0.5, p.y + 26)
 	var n := clampi(team_views.size(), 1, 4)
 	for i in team_views.size():
 		var x: float = TEAM_X[n][mini(i, n - 1)]
@@ -432,8 +453,38 @@ func _apply_layout() -> void:
 		team_labels[i].position = Vector2(x - team_views[i].card_size.x * 0.5, TEAM_FEET_Y + extra - 4)
 	team_bar.position = Vector2(45, TEAM_BAR_Y + extra)
 	team_status_label.position = Vector2(45, TEAM_BAR_Y + extra - 34)
+	combo_counter.position = Vector2(540 - combo_counter.size.x * 0.5, TIMER_BAR_Y + extra + 14 - combo_counter.size.y * 0.5)
 	timer_bar.position = Vector2(45, TIMER_BAR_Y + extra)
 	board.position = BOARD_POS + Vector2(0, extra)
+
+
+## Stage 4: 1.20, or 1.15 if at 1.20 two neighbouring enemies' visible art
+## would overlap (measured from the art's non-transparent pixels).
+static func fit_enemy_scale(list: Array) -> float:
+	var n := list.size()
+	if n <= 1:
+		return ENEMY_SCALE
+	var xs: Array = ENEMY_X[clampi(n, 1, 3)]
+	for s in [ENEMY_SCALE, ENEMY_SCALE_TIGHT]:
+		var ok := true
+		for i in n - 1:
+			var right: float = enemy_extent(list[i].data)[1]
+			var left: float = enemy_extent(list[i + 1].data)[0]
+			if (right + left) * s > xs[i + 1] - xs[i]:
+				ok = false
+		if ok:
+			return s
+	return ENEMY_SCALE_TIGHT
+
+
+## How far an enemy's visible art reaches [left, right] of its centre at scale 1.
+static func enemy_extent(d: FighterData) -> Array:
+	if d.art == null:
+		return [d.figure_width * 0.5, d.figure_width * 0.5]
+	var r := ArtBounds.opaque_rect(d.art)
+	var k := d.figure_height / float(d.art.get_height())
+	var half := d.art.get_width() * 0.5
+	return [(half - r.position.x) * k, (r.end.x - half) * k]
 
 
 ## Where enemy number i stands (world space).
@@ -488,6 +539,7 @@ func _start_battle(index: int, mode := StartMode.RETRY) -> void:
 	_refresh_team_ui()
 	result_panel.hide()
 	skill_popup.hide()
+	combo_counter.reset()
 	board.fill_new_board()
 	_begin_player_turn()
 	# Boss fight: the singularity speaks first (5 s, skippable).
@@ -556,7 +608,7 @@ func _unhandled_input(event: InputEvent) -> void:
 	for i in enemy_views.size():
 		if enemies[i].is_defeated():
 			continue
-		if enemy_views[i].hit_rect().has_point(p - enemy_views[i].position):
+		if enemy_views[i].hit_rect().has_point((p - enemy_views[i].position) / enemy_views[i].scale):
 			set_target(-1 if target_index == i else i)
 			get_viewport().set_input_as_handled()
 			return
@@ -596,7 +648,7 @@ func use_skill(i: int) -> bool:
 	team_views[i].light_up()
 	team_views[i].animator.play_attack(Vector2.UP)
 	FloatingText.spawn(world, team_views[i].position + Vector2(0, -team_views[i].card_size.y - 20), Skills.display_name(member.active_skill).to_upper() + "!", Element.color(member.element).lightened(0.4), 58, 50.0, 0.6)
-	await _wait(0.25)
+	await _wait(0.2)   # Stage 4: every skill finishes in under 1.0 s
 
 	var col := Element.color(member.element)
 	var from_pos := team_views[i].position + Vector2(0, -team_views[i].card_size.y * 0.55)
@@ -615,7 +667,7 @@ func use_skill(i: int) -> bool:
 			var target := CombatRules.pick_target(enemies, target_index)
 			if target >= 0:
 				var enemy := enemies[target]
-				await _strike_fx(from_pos, target, col, 20.0)
+				await _strike_fx(from_pos, target, col, 20.0, member.element)
 				var damage := CombatRules.execute_damage(member, enemy)
 				var dealt := enemy.take_hit(damage, true)   # a skill hit always breaks armour
 				_show_hit(target, dealt, member, 1)
@@ -662,7 +714,7 @@ func use_skill(i: int) -> bool:
 					&"thorn_snipe": mult = t.thorn_snipe_atk_mult
 					&"undertow_strike": mult = t.undertow_low_atk_mult if enemy.hp_ratio() < t.undertow_low_ratio else t.undertow_atk_mult
 					&"radiant_pierce": mult = t.radiant_pierce_atk_mult
-				await _strike_fx(from_pos, target, col, 30.0 if member.active_skill == &"ember_lance" else 18.0)
+				await _strike_fx(from_pos, target, col, 30.0 if member.active_skill == &"ember_lance" else 18.0, member.element)
 				# Skill hits break armour (Ember Lance goes straight through it).
 				var dealt := enemy.take_hit(CombatRules.skill_hit(member, enemy, mult), true)
 				_show_hit(target, dealt, member, 1)
@@ -756,7 +808,7 @@ func use_skill(i: int) -> bool:
 				for h in hits:
 					if enemy.is_defeated():
 						break
-					await _strike_fx(from_pos + Vector2((h * 2 - 1) * 40 if hits > 1 else 0, 0), target, col, 16.0)
+					await _strike_fx(from_pos + Vector2((h * 2 - 1) * 40 if hits > 1 else 0, 0), target, col, 16.0, member.element)
 					var dealt := enemy.take_hit(CombatRules.skill_hit(member, enemy, mult), true)
 					total += dealt
 					_show_hit(target, dealt, member, h)
@@ -788,7 +840,7 @@ func use_skill(i: int) -> bool:
 			if j != i:
 				team.skill_turns[j] = maxi(team.skill_turns[j] - t.field_medic_turns, 0)
 	_refresh_team_ui()
-	await _wait(0.45)
+	await _wait(0.3)
 	if _all_enemies_down():
 		await _wait(0.6)
 		_show_result(true)
@@ -811,15 +863,16 @@ func _weaken(enemy: Enemy, attacks: int, mult: float) -> void:
 
 ## Skill FX helpers (code-only effects, see scripts/anim/skill_fx.gd).
 func _enemy_center(k: int) -> Vector2:
-	return enemy_position(k) + Vector2(0, -enemies[k].data.figure_height * 0.5)
+	return enemy_position(k) + Vector2(0, -enemies[k].data.figure_height * 0.5 * enemy_scale)
 
 
 ## A beam from the hunter to enemy `target`, then a ring where it lands.
 ## Returns when the beam arrives, so the damage number shows on impact.
-func _strike_fx(from_pos: Vector2, target: int, col: Color, w: float) -> void:
+func _strike_fx(from_pos: Vector2, target: int, col: Color, w: float, element := -1) -> void:
 	SkillFx.streak(world, from_pos, _enemy_center(target), col, w, 0.32)
 	await _wait(0.15)
 	SkillFx.ring(world, _enemy_center(target), col, 30.0, 180.0, 0.4)
+	SkillFx.sheet(world, _enemy_center(target), SkillFx.SHEET_FOR_ELEMENT.get(element, ""))   # FX sheet if you've added it
 	_shake_screen(6.0, 0.18)
 
 
@@ -837,6 +890,7 @@ func _team_dome(col: Color) -> void:
 func _heal_fx(healed: int, col: Color) -> void:
 	team_bar.set_values(team.hp, team.max_hp)
 	SkillFx.sparkles(world, _team_text_pos() + Vector2(0, -60), Vector2(420, 40), col, 20)
+	SkillFx.sheet(world, _team_text_pos() + Vector2(0, -120), SkillFx.HEAL_SHEET, 240.0)   # fx_heal.png if added
 	FloatingText.spawn(world, _team_text_pos(), "+%d" % healed, col, 64, 60.0)
 
 
@@ -877,13 +931,16 @@ func _on_timer_changed(ratio: float) -> void:
 
 
 ## Show "COMBO n" right where the group cleared.
+## Every combo tick (cascades too): the popup at the group AND the big counter
+## both show the count and the multiplier right now.
 func _on_combo_made(count: int, _orb_type: int, world_position: Vector2) -> void:
 	var color := Color.WHITE
 	if count >= 8:
 		color = Color("ff7a3d")
 	elif count >= 5:
 		color = Color("ffd23f")
-	FloatingText.spawn(world, world.to_local(world_position), "COMBO %d" % count, color, 58, 40.0, 0.7)
+	FloatingText.spawn(world, world.to_local(world_position), "COMBO %d  %s" % [count, ComboCounter.multiplier_text(count)], color, 50, 40.0, 0.7)
+	combo_counter.tick(count)
 
 
 ## The rest of the turn after the board finishes.
@@ -898,6 +955,9 @@ func _on_turn_finished(combos: int, cleared: Dictionary, groups: Array) -> void:
 		var healed := team.heal(heal_amount)
 		team_bar.set_values(team.hp, team.max_hp)
 		FloatingText.spawn(world, _team_text_pos(), "+%d" % healed, Color("6dff8a"), 64, 60.0)
+		if hearts > 0 and Skills.TUNING.combo_boosts_healing:
+			# Hearts x RCV x combo: show the multiplier on the heal too.
+			FloatingText.spawn(world, _team_text_pos() + Vector2(150, 0), "x%.2f" % DamageCalculator.combo_multiplier(combos), Color("ffe9a0"), 30, 60.0)
 		await _wait(0.35)
 	# Stone Wall leader: matching Hearts arms a guard against the next enemy hit.
 	# Riptide leader: a 4+ group of its element does the same (smaller guard).
@@ -945,12 +1005,13 @@ func _on_turn_finished(combos: int, cleared: Dictionary, groups: Array) -> void:
 			var damage := DamageCalculator.attack_damage(member.atk, orbs, combos, member.element, enemy.data.element, bonus)
 			damage = CombatRules.after_def(damage, enemy)
 			var dealt := enemy.take_hit(damage, CombatRules.breaks_armor(member, groups), CombatRules.ignores_armor(member, groups))
-			_show_hit(t, dealt, member, i)
+			_show_hit(t, dealt, member, i, DamageCalculator.combo_multiplier(combos))
 		await _wait(0.28)
 		_update_enemy_labels()
 		if _all_enemies_down():
 			break
 	team.boost_element = -1   # one-turn skill boosts (Solar Flare, Cauterize) end here
+	combo_counter.fade_out()  # the combo never carries over to the enemy turn
 
 	if _all_enemies_down():
 		await _wait(0.85)
@@ -1060,13 +1121,13 @@ func _enemy_attack_damage(enemy: Enemy) -> int:
 
 
 ## One hit landing on enemy t: flash, HP bar, damage number, defeat.
-func _show_hit(t: int, dealt: int, member: FighterData, attacker_index: int) -> void:
+func _show_hit(t: int, dealt: int, member: FighterData, attacker_index: int, combo_mult := 0.0) -> void:
 	var enemy := enemies[t]
 	enemy_views[t].animator.play_hit()
 	enemy_bars[t].set_values(enemy.hp, enemy.data.max_hp)
-	_show_damage(dealt, member, t, attacker_index)
+	_show_damage(dealt, member, t, attacker_index, combo_mult)
 	if enemy_views[t].armor_up and not enemy.armor_up:
-		FloatingText.spawn(world, enemy_position(t) + Vector2(0, -enemy.data.figure_height - 30), "ARMOUR BROKEN!", Color("8fd8ff"), 46, 50.0, 0.6)
+		FloatingText.spawn(world, enemy_position(t) + Vector2(0, -enemy.data.figure_height * enemy_scale - 30), "ARMOUR BROKEN!", Color("8fd8ff"), 46, 50.0, 0.6)
 	enemy_views[t].armor_up = enemy.armor_up
 	if enemy.is_defeated():
 		enemy_views[t].targeted = false
@@ -1074,7 +1135,9 @@ func _show_hit(t: int, dealt: int, member: FighterData, attacker_index: int) -> 
 
 
 ## Damage numbers in the attacker's colour. Super-effective hits are bigger with "!".
-func _show_damage(amount: int, member: FighterData, enemy_i: int, attacker_index: int) -> void:
+## combo_mult > 0: an orb attack; the combo multiplier that applied to THIS hit
+## is shown next to the number (e.g. "x1.50"). Skill / counter hits pass 0.
+func _show_damage(amount: int, member: FighterData, enemy_i: int, attacker_index: int, combo_mult := 0.0) -> void:
 	var mult := Element.multiplier(member.element, enemies[enemy_i].data.element)
 	var size := 66
 	var text := str(amount)
@@ -1088,6 +1151,8 @@ func _show_damage(amount: int, member: FighterData, enemy_i: int, attacker_index
 	var spread := 170.0 if enemies.size() == 1 else 70.0
 	var pos := enemy_position(enemy_i) + Vector2(-spread + attacker_index * spread, -230 - attacker_index * 24)
 	FloatingText.spawn(world, pos, text, Element.color(member.element).lightened(0.3), size)
+	if combo_mult > 0.0:
+		FloatingText.spawn(world, pos + Vector2(0, size * 0.75), "x%.2f" % combo_mult, Color("ffe9a0"), 30, 110.0)
 
 
 func _team_text_pos() -> Vector2:

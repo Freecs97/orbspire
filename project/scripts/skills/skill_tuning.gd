@@ -5,6 +5,11 @@ extends Resource
 ## Plain English: open res://data/skills/skill_tuning.tres in Godot and change
 ## any value in the Inspector (cooldowns, multipliers, percentages).
 
+@export_group("Combo")
+## Stage 4: the combo multiplier (1 + 0.25 x (combos - 1)) also boosts the
+## Hearts part of healing, like it boosts damage. false = the old rule.
+@export var combo_boosts_healing := true
+
 @export_group("Charging")
 ## The first fight of an Act starts with skills half charged (rounded up).
 @export var act_start_charge_ratio := 0.5

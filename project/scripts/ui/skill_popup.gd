@@ -2,10 +2,11 @@ class_name SkillPopup
 extends Control
 ## The pop-up you get when you tap a hunter's card.
 ##
-## Plain English: it explains the hunter's active skill (with a USE button
-## that only works when the skill is charged), its leader skill if it is in
-## slot 1, and its 3 passives (locked ones are greyed out with when they unlock).
-## Tapping USE never ends your turn: you still move orbs afterwards.
+## Plain English (Stage 4): a small tooltip with the hunter's name, HP / ATK /
+## RCV and active skill name + charge, with a USE button that only works when
+## the skill is charged. Tapping USE never ends your turn: you still move orbs
+## afterwards. The full skill / leader / passive text is on the Roster detail
+## screen (and the Stage 5 detail screen).
 
 signal use_pressed(member_index: int)
 ## Emitted whenever the pop-up goes away (USE or CLOSE).
@@ -43,7 +44,7 @@ func _init() -> void:
 	add_child(content)
 
 	_panel = PanelContainer.new()
-	_panel.position = Vector2(50, 300)
+	_panel.position = Vector2(50, 480)
 	_panel.custom_minimum_size = Vector2(980, 0)
 	var box := StyleBoxFlat.new()
 	box.bg_color = Color("161a30")
@@ -81,31 +82,20 @@ func _init() -> void:
 
 
 ## Show hunter `index`. turns_left = turns until the skill is ready (0 = ready).
+## Stage 4: a small tooltip: name, HP / ATK / RCV, skill name + charge, and
+## USE / CLOSE. (Full skill, leader and passive text: the Stage 5 detail screen.)
 func open(index: int, data: FighterData, is_leader: bool, turns_left: int, can_use_now: bool) -> void:
 	member_index = index
 	var c := Element.color(data.element)
-	_title.text = data.display_name + ("  ·  " + data.title if data.title != "" else "")
+	_title.text = data.display_name + ("  ·  LEADER" if is_leader else "")
 	_title.label_settings.font_color = c.lightened(0.35)
 	for child in _body.get_children():
 		child.queue_free()
-
+	_text("%s   ·   HP %d   ATK %d   RCV %d" % [data.title, data.max_hp, data.atk, data.rcv], Color.WHITE)
 	var cd := data.skill_cooldown()
-	_section("ACTIVE: %s  ·  cooldown %d" % [Skills.display_name(data.active_skill).to_upper(), cd], Color("ffd23f"))
-	_text(Skills.describe(data.active_skill, data.element), Color.WHITE)
-	_text("READY!" if turns_left <= 0 else "Ready in %d turn%s (charges on turns you make a match)" % [turns_left, "" if turns_left == 1 else "s"],
-		Color("6dff8a") if turns_left <= 0 else Color("a9a3c9"))
-
-	_section("LEADER: %s  ·  %s" % [Skills.display_name(data.leader_skill).to_upper(), "ACTIVE (slot 1)" if is_leader else "only works in slot 1"], Color("ffd23f"))
-	_text(Skills.describe(data.leader_skill, data.element), Color.WHITE if is_leader else Color("6f6a8a"))
-
-	_section("PASSIVES", Color("ffd23f"))
-	for i in data.passives.size():
-		var id := data.passives[i]
-		var unlocked := i < data.passives_unlocked
-		var when: String = Skills.UNLOCK_TEXT[mini(i, 2)]
-		var head := "%s  (%s)" % [Skills.display_name(id), "unlocked" if unlocked else "locked until " + when]
-		_text(head + ": " + Skills.describe(id, data.element), Color.WHITE if unlocked else Color("6f6a8a"))
-
+	_section("SKILL: %s  ·  %s" % [Skills.display_name(data.active_skill).to_upper(),
+		"READY!" if turns_left <= 0 else "ready in %d turn%s (cooldown %d)" % [turns_left, "" if turns_left == 1 else "s", cd]],
+		Color("6dff8a") if turns_left <= 0 else Color("ffd23f"))
 	use_button.disabled = not (turns_left <= 0 and can_use_now)
 	use_button.modulate = Color.WHITE if not use_button.disabled else Color(1, 1, 1, 0.4)
 	visible = true

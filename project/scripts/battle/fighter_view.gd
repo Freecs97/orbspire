@@ -2,13 +2,18 @@ class_name FighterView
 extends Node2D
 ## One fighter on screen.
 ##
-## Plain English: hunters stand inside a rounded "card" with a glowing border
-## in their element colour (the card lights up when they attack). Enemies have
-## no card, just a ground shadow, and show a yellow target ring when you tap
-## them. The body is a PlaceholderFigure, and the shared FighterAnimator moves it.
+## Plain English: hunters are HEAD-ONLY plates (Stage 4): a rounded plate with a
+## glowing border in their element colour, their face cropped from their own art,
+## a slim HP bar, the skill-charge badge and a LEADER tag. Full-body art is for
+## the Roster / detail screens. Enemies have no plate, just a ground shadow, and
+## show a yellow target ring when you tap them. The shared FighterAnimator moves
+## the art (lunge on attack, flash on hit); idle = still.
 
-const DEFAULT_CARD := Vector2(260, 270)
+const DEFAULT_CARD := Vector2(200, 236)
 const TARGET_COLOR := Color("ffd23f")
+## Head plate layout (relative to the plate's feet point, like the old card).
+const FACE_SIZE := 172.0
+const FACE_CENTER := Vector2(0, -120)
 
 var data: FighterData
 var figure: Node2D          ## ArtFigure (your PNG) or PlaceholderFigure (code shapes)
@@ -32,6 +37,13 @@ var skill_turns := -1
 var skill_max := 1
 ## Hunter only: slot 1 shows a LEADER tag.
 var is_leader := false
+## Hunter only: the plate's HP bar (the team shares one HP pool, so every
+## plate shows the team's HP). -1 = no bar.
+var hp_ratio := -1.0:
+	set(value):
+		if not is_equal_approx(value, hp_ratio):
+			hp_ratio = value
+			queue_redraw()
 ## Enemy only: armour is up (draws a shield badge on the enemy).
 var armor_up := false:
 	set(value):
@@ -62,7 +74,14 @@ func skill_is_ready() -> bool:
 
 ## Call after this node has been added to the scene.
 func setup(fighter: FighterData) -> void:
-	figure = ArtFigure.new() if fighter.art else PlaceholderFigure.new()
+	if fighter.art:
+		var art := ArtFigure.new()
+		if not fighter.is_enemy():
+			art.head_size = FACE_SIZE      # head-only plate
+			art.head_center = FACE_CENTER
+		figure = art
+	else:
+		figure = PlaceholderFigure.new()
 	add_child(figure)
 	# The skill badge and LEADER tag live on a layer ABOVE the body, so a big
 	# weapon or your final art never covers them.
@@ -117,6 +136,7 @@ func _draw() -> void:
 		return
 	if not data.is_enemy():
 		_draw_card()
+		return   # head plates have no ground shadow
 	# Ground shadow (a squashed circle).
 	var w := data.figure_width * (0.8 if data.is_enemy() else 0.75)
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2(1.0, 0.24))
@@ -148,11 +168,11 @@ func _draw_card() -> void:
 	card.shadow_color = Color(c, 0.25 + glow * 0.55)
 	card.shadow_size = int(10 + glow * 26)
 	draw_style_box(card, rect)
-	# Element-coloured light rising from the floor of the card.
-	var inner := StyleBoxFlat.new()
-	inner.bg_color = Color(c, 0.14 + highlight * 0.2)
-	inner.set_corner_radius_all(20)
-	draw_style_box(inner, Rect2(rect.position + Vector2(10, rect.size.y * 0.5), Vector2(rect.size.x - 20, rect.size.y * 0.5 - 10)))
+	# Face window: a slightly lighter square behind the cropped head.
+	var face := StyleBoxFlat.new()
+	face.bg_color = Color(c, 0.16 + highlight * 0.2)
+	face.set_corner_radius_all(18)
+	draw_style_box(face, Rect2(FACE_CENTER - Vector2.ONE * FACE_SIZE * 0.5, Vector2.ONE * FACE_SIZE))
 
 
 ## Drawn on the overlay layer (above the body): skill badge + LEADER tag.
@@ -167,6 +187,13 @@ func _draw_overlay() -> void:
 	_draw_skill_badge(rect, Element.color(data.element))
 	if is_leader:
 		_draw_tag(rect.position + Vector2(10, -16), "LEADER", Color("ffd23f"))
+	if hp_ratio >= 0.0:
+		# Slim HP bar under the face (the team's shared HP).
+		var bar := Rect2(Vector2(-FACE_SIZE * 0.5, FACE_CENTER.y + FACE_SIZE * 0.5 + 4), Vector2(FACE_SIZE, 10))
+		_overlay.draw_rect(bar.grow(2), Color(0.03, 0.02, 0.06))
+		_overlay.draw_rect(bar, Color(0.2, 0.08, 0.1))
+		var fill := Color("4dff7a") if hp_ratio > 0.5 else (Color("ffd23f") if hp_ratio > 0.25 else Color("ff5a5a"))
+		_overlay.draw_rect(Rect2(bar.position, Vector2(bar.size.x * clampf(hp_ratio, 0.0, 1.0), bar.size.y)), fill)
 
 
 ## Round badge in the card's top-right corner: how charged the active skill is.

@@ -62,4 +62,6 @@ static func apply(src: Texture2D, hue_deg: float, value := 1.0, tint := Color(1,
 			data[i + 2] = clampi(int(b2), 0, 255)
 		i += 4
 	var out := Image.create_from_data(img.get_width(), img.get_height(), false, Image.FORMAT_RGBA8, data)
-	return ImageTexture.create_from_image(out)
+	var tex := ImageTexture.create_from_image(out)
+	tex.resource_name = src.resource_path.get_file().get_basename()   # so head crops match the original
+	return tex

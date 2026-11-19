@@ -989,7 +989,7 @@ func _shot_popup() -> void:
 	await _frames(1)
 	_release(p)
 	await _frames(3)
-	_check(battle.skill_popup.visible and battle.skill_popup._title.text.contains("WREN"), "tapping a card shows the character's OWN active, leader (with name) and passives")
+	_check(battle.skill_popup.visible and battle.skill_popup._title.text.contains("WREN"), "tapping a plate shows the character's tooltip (name, stats, own skill name + charge, USE)")
 	await _shot("sk_popup_wren")
 	battle.skill_popup.visible = false
 	await _frames(2)
