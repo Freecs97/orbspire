@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="FighterData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/fighter_data.gd" id="1_fd"]
+[ext_resource type="Texture2D" path="res://assets/characters/friend/friend_johnny.png" id="2_art"]
+
+[resource]
+script = ExtResource("1_fd")
+display_name = "JOHNNY"
+title = "Dark Titan"
+element = 6
+role = 1
+max_hp = 470
+atk = 78
+rcv = 26
+design_id = "friend_johnny"
+leader_skill = &"leader_bedrock"
+active_skill = &"thunder_hammer"
+passives = Array[StringName]([&"storm_battery", &"counter", &"damage_resist"])
+fixed_rarity = 3
+body_color = Color(0.35, 0.3, 0.25, 1)
+figure_height = 250.0
+figure_width = 110.0
+art = ExtResource("2_art")

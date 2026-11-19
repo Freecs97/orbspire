@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="FighterData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/fighter_data.gd" id="1_fd"]
+[ext_resource type="Texture2D" path="res://assets/characters/friend/friend_jake.png" id="2_art"]
+
+[resource]
+script = ExtResource("1_fd")
+display_name = "JAKE"
+title = "Light Berserker"
+element = 5
+role = 0
+max_hp = 320
+atk = 95
+rcv = 10
+design_id = "friend_jake"
+leader_skill = &"leader_hammerfall"
+active_skill = &"twin_comet"
+passives = Array[StringName]([&"double_swing", &"cleave", &"orb_enhance"])
+fixed_rarity = 3
+body_color = Color(0.98, 0.85, 0.4, 1)
+figure_height = 250.0
+figure_width = 110.0
+art = ExtResource("2_art")

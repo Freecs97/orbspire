@@ -63,6 +63,9 @@ const TEAM_BAR_Y := 975.0
 const TIMER_BAR_Y := 1030.0
 const BOARD_POS := Vector2(45, 1090)
 const FRONT_Z := 11   ## Above the scenery (z 10), which is above the board (z 0).
+## Bailey's attack animation on every orb hit: drawn this tall, over this many seconds.
+const ATTACK_FX_HEIGHT := 300.0
+const ATTACK_FX_TIME := 0.36
 
 var stage: Node2D          ## Centres the 1080-wide layout on wider screens.
 var world: Node2D          ## Everything that shakes with the screen.
@@ -79,6 +82,8 @@ var enemy_hint: Label
 var enemy_attack_label: Label
 var team_status_label: Label
 var combo_counter: ComboCounter   ## Stage 4: live "COMBO 3  x1.50" next to the board
+var cut_in: SkillCutIn            ## Skill cut-in: the hunter's portrait over the BOARD (never the arena)
+var cut_in_toggle: Button         ## In the MENU dialog: Skill Cut-ins ON / OFF
 var level_label: Label
 var result_panel: ResultPanel
 var skill_popup: SkillPopup
@@ -234,6 +239,11 @@ func _build_scene() -> void:
 	combo_counter = ComboCounter.new()
 	combo_counter.z_index = FRONT_Z + 5
 	world.add_child(combo_counter)
+	# Skill cut-in: covers exactly the board, above the orbs and effects.
+	cut_in = SkillCutIn.new()
+	cut_in.z_index = 60
+	cut_in.size = Vector2(Board.COLS * Board.CELL, Board.ROWS * Board.CELL)
+	world.add_child(cut_in)
 
 	# Pop-up screens live on their own layer so the screen shake doesn't move them.
 	var ui := CanvasLayer.new()
@@ -302,10 +312,27 @@ func _build_menu_ui(ui: CanvasLayer) -> void:
 	sb.set_border_width_all(3)
 	sb.border_color = MenuStyle.NEON
 	panel.add_theme_stylebox_override("panel", sb)
-	panel.position = Vector2(100, 700)
-	panel.size = Vector2(880, 480)
+	panel.position = Vector2(100, 520)
+	panel.size = Vector2(880, 660)
 	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	content.add_child(panel)
+	# Settings you may want mid-fight: Skill Cut-ins ON / OFF (same setting as ⚙ at home).
+	cut_in_toggle = Button.new()
+	cut_in_toggle.text = GameSettings.cut_ins_text()
+	cut_in_toggle.position = Vector2(190, 560)
+	cut_in_toggle.size = Vector2(700, 100)
+	MenuStyle.apply(cut_in_toggle, 36, MenuStyle.NEON)
+	cut_in_toggle.focus_mode = Control.FOCUS_NONE
+	content.add_child(cut_in_toggle)
+	cut_in_toggle.pressed.connect(func() -> void:
+		GameSettings.set_skill_cut_ins(not GameSettings.skill_cut_ins)
+		cut_in_toggle.text = GameSettings.cut_ins_text())
+	var line := ColorRect.new()
+	line.color = Color(MenuStyle.NEON, 0.5)
+	line.position = Vector2(160, 700)
+	line.size = Vector2(760, 3)
+	line.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	content.add_child(line)
 	var l := Label.new()
 	var s := LabelSettings.new()
 	s.font_size = 40
@@ -345,6 +372,7 @@ func open_leave_dialog() -> bool:
 	if not can_leave():
 		return false
 	board.lock()   # so a tap on YES / NO can never pick up an orb underneath
+	cut_in_toggle.text = GameSettings.cut_ins_text()
 	leave_dialog.visible = true
 	return true
 
@@ -456,6 +484,7 @@ func _apply_layout() -> void:
 	combo_counter.position = Vector2(540 - combo_counter.size.x * 0.5, TIMER_BAR_Y + extra + 14 - combo_counter.size.y * 0.5)
 	timer_bar.position = Vector2(45, TIMER_BAR_Y + extra)
 	board.position = BOARD_POS + Vector2(0, extra)
+	cut_in.position = board.position
 
 
 ## Stage 4: 1.20, or 1.15 if at 1.20 two neighbouring enemies' visible art
@@ -558,7 +587,36 @@ func _begin_player_turn() -> void:
 		team.regen_turns -= 1
 		_heal_fx(team.heal(roundi(team.max_hp * team.regen_ratio)), Color("6dff8a"))
 		_refresh_team_ui()
+	# Inferno Cleaver: burning enemies take their burn now. It can win the fight.
+	if turn_count > 0 and _apply_burns():
+		_player_turn = false
+		board.lock()
+		await _wait(0.85)
+		_show_result(true)
+		return
 	board.begin_player_turn()
+
+
+## Inferno Cleaver (Logan): every burning enemy takes its burn (start of your turn).
+## Returns true if that defeated the last enemy.
+func _apply_burns() -> bool:
+	var any := false
+	for k in enemies.size():
+		var e := enemies[k]
+		if e.is_defeated() or e.burn_turns <= 0:
+			continue
+		e.burn_turns -= 1
+		var dealt := e.take_hit(e.burn_damage)
+		enemy_views[k].animator.play_hit()
+		enemy_bars[k].set_values(e.hp, e.data.max_hp)
+		SkillFx.sheet(world, _enemy_center(k), SkillFx.SHEET_FOR_ELEMENT[Element.Type.FIRE], 200.0, 0.34)
+		FloatingText.spawn(world, enemy_position(k) + Vector2(0, -230), "BURN %d" % dealt, Color("ff9a3d"), 54)
+		if e.is_defeated():
+			_enemy_down(k)
+		any = true
+	if any:
+		_update_enemy_labels()
+	return any and _all_enemies_down()
 
 
 func _on_next_pressed() -> void:
@@ -645,6 +703,10 @@ func use_skill(i: int) -> bool:
 	var member := team.members[i]
 	var t := Skills.TUNING
 	team.skill_turns[i] = member.skill_cooldown()
+	# Skill cut-in over the board first (tap to skip; off in Settings). The arena
+	# stays visible; the effects and damage numbers land after it clears.
+	if GameSettings.skill_cut_ins:
+		await cut_in.play(member, Skills.display_name(member.active_skill))
 	team_views[i].light_up()
 	team_views[i].animator.play_attack(Vector2.UP)
 	FloatingText.spawn(world, team_views[i].position + Vector2(0, -team_views[i].card_size.y - 20), Skills.display_name(member.active_skill).to_upper() + "!", Element.color(member.element).lightened(0.4), 58, 50.0, 0.6)
@@ -834,6 +896,62 @@ func use_skill(i: int) -> bool:
 			var changed := board.convert_type(from, member.element)
 			FloatingText.spawn(world, board.position + Vector2(495, 400), "%d %s -> %s" % [changed, Element.display_name(from), Element.display_name(member.element)], col.lightened(0.4), 52, 40.0, 0.6)
 			_heal_fx(team.heal(roundi(team.max_hp * t.refract_heal_ratio)), Color("6dff8a"))
+		# ---- Bailey's friends (ultra-rare drops)
+		&"twin_comet":
+			# Jake: hits EVERY enemy twice (its element), then random orbs -> its element.
+			for h in t.twin_comet_hits:
+				for k in enemies.size():
+					if not enemies[k].is_defeated():
+						SkillFx.streak(world, from_pos + Vector2((h * 2 - 1) * 60, 0), _enemy_center(k), col, 16.0, 0.26)
+				await _wait(0.13)
+				_shake_screen(6.0, 0.16)
+				for k in enemies.size():
+					if enemies[k].is_defeated():
+						continue
+					SkillFx.sheet(world, _enemy_center(k), SkillFx.SHEET_FOR_ELEMENT.get(member.element, ""), 250.0, 0.34)
+					var dealt := enemies[k].take_hit(CombatRules.skill_hit(member, enemies[k], t.twin_comet_atk_mult), true)
+					_show_hit(k, dealt, member, h)
+				_update_enemy_labels()
+			_board_burst(col)
+			board.convert_random(t.twin_comet_orbs, member.element)
+		&"thunder_hammer":
+			# Johnny: a heavy hit that stuns (bosses: their next attack is weaker instead).
+			var target := CombatRules.pick_target(enemies, target_index)
+			if target >= 0:
+				var enemy := enemies[target]
+				await _strike_fx(from_pos, target, col, 28.0, member.element)
+				_shake_screen(10.0, 0.25)
+				var dealt := enemy.take_hit(CombatRules.skill_hit(member, enemy, t.thunder_hammer_atk_mult), true)
+				_show_hit(target, dealt, member, 1)
+				if not enemy.is_defeated():
+					if enemy.data.is_boss:
+						_weaken(enemy, 1, t.thunder_hammer_boss_weaken)
+						FloatingText.spawn(world, _enemy_center(target) + Vector2(0, -150), "NEXT HIT -%d%%" % roundi((1.0 - t.thunder_hammer_boss_weaken) * 100), col.lightened(0.4), 42, 40.0, 0.6)
+					else:
+						enemy.stunned_attacks = maxi(enemy.stunned_attacks, 1)
+						FloatingText.spawn(world, _enemy_center(target) + Vector2(0, -150), "STUNNED!", Color("ffe08a"), 50, 40.0, 0.7)
+				_update_enemy_labels()
+		&"overclock":
+			# Khoel: every OTHER hunter's skill charges, and a small heal.
+			for j in team.skill_turns.size():
+				if j != i:
+					team.skill_turns[j] = maxi(team.skill_turns[j] - t.overclock_turns, 0)
+					SkillFx.ring(world, team_views[j].position + Vector2(0, -team_views[j].card_size.y * 0.55), col, 20.0, 130.0, 0.45)
+			_heal_fx(team.heal(roundi(team.max_hp * t.overclock_heal_ratio)), Color("6dff8a"))
+			FloatingText.spawn(world, board.position + Vector2(495, 400), "SKILLS +%d TURNS" % t.overclock_turns, col.lightened(0.4), 52, 40.0, 0.6)
+		&"inferno_cleaver":
+			# Logan: a big hit, then the target burns for 3 turns.
+			var target := CombatRules.pick_target(enemies, target_index)
+			if target >= 0:
+				var enemy := enemies[target]
+				await _strike_fx(from_pos, target, col, 30.0, member.element)
+				var dealt := enemy.take_hit(CombatRules.skill_hit(member, enemy, t.inferno_cleaver_atk_mult), true)
+				_show_hit(target, dealt, member, 1)
+				if not enemy.is_defeated():
+					enemy.burn_turns = t.inferno_burn_turns
+					enemy.burn_damage = CombatRules.skill_hit(member, enemy, t.inferno_burn_mult)
+					FloatingText.spawn(world, _enemy_center(target) + Vector2(0, -150), "BURNING x%d" % t.inferno_burn_turns, Color("ff9a3d"), 46, 40.0, 0.6)
+				_update_enemy_labels()
 	if member.has_passive(&"field_medic"):
 		# Field Medic: using the skill charges every OTHER ally's skill by 1 turn.
 		for j in team.skill_turns.size():
@@ -910,7 +1028,9 @@ func _update_enemy_labels() -> void:
 	var prefix := "TARGET: " if target_index >= 0 else ""
 	var who := e.data.display_name + (" (%s)" % e.data.title if e.data.title != "" else "")
 	enemy_hint.text = "%s%s · %s   ·   %s" % [prefix, who, Element.display_name(e.data.element), _matchup_hint(e.data.element)]
-	if enemies.size() == 1 and e.turn_room() >= 0:
+	if enemies.size() == 1 and e.stunned_attacks > 0:
+		enemy_attack_label.text = "STUNNED  ·  skips its next attack"
+	elif enemies.size() == 1 and e.turn_room() >= 0:
 		enemy_attack_label.text = "Attacks after your turn  ·  ATK %d  ·  RESOLVE: max -%d%% HP per turn" % [e.data.atk, roundi(Skills.TUNING.boss_turn_cap * 100)]
 	elif enemies.size() == 1:
 		enemy_attack_label.text = "Attacks after your turn  ·  ATK %d" % e.data.atk
@@ -955,6 +1075,7 @@ func _on_turn_finished(combos: int, cleared: Dictionary, groups: Array) -> void:
 		var healed := team.heal(heal_amount)
 		team_bar.set_values(team.hp, team.max_hp)
 		FloatingText.spawn(world, _team_text_pos(), "+%d" % healed, Color("6dff8a"), 64, 60.0)
+		SkillFx.sheet(world, _team_text_pos() + Vector2(0, -120), SkillFx.HEAL_SHEET, 220.0, 0.45)
 		if hearts > 0 and Skills.TUNING.combo_boosts_healing:
 			# Hearts x RCV x combo: show the multiplier on the heal too.
 			FloatingText.spawn(world, _team_text_pos() + Vector2(150, 0), "x%.2f" % DamageCalculator.combo_multiplier(combos), Color("ffe9a0"), 30, 60.0)
@@ -974,6 +1095,10 @@ func _on_turn_finished(combos: int, cleared: Dictionary, groups: Array) -> void:
 	# Skills charge by one turn, but only on turns where you made a match.
 	if combos > 0:
 		team.tick_skills()
+		# Neural Link (Khoel leader): 3+ elements matched -> every skill 1 extra turn.
+		var extra := CombatRules.leader_skill_charge(team.leader(), groups)
+		if extra > 0:
+			team.tick_skills(extra)
 		# Heart Charge: 5+ Hearts this turn charge that hunter's skill 1 extra turn.
 		for k in team.members.size():
 			if team.members[k].has_passive(&"heart_charge") and hearts >= Skills.TUNING.heart_charge_hearts:
@@ -1006,6 +1131,8 @@ func _on_turn_finished(combos: int, cleared: Dictionary, groups: Array) -> void:
 			damage = CombatRules.after_def(damage, enemy)
 			var dealt := enemy.take_hit(damage, CombatRules.breaks_armor(member, groups), CombatRules.ignores_armor(member, groups))
 			_show_hit(t, dealt, member, i, DamageCalculator.combo_multiplier(combos))
+			# The attack animation of the hunter's element (doesn't slow the turn down).
+			SkillFx.sheet(world, _enemy_center(t), SkillFx.SHEET_FOR_ELEMENT.get(member.element, ""), ATTACK_FX_HEIGHT, ATTACK_FX_TIME)
 		await _wait(0.28)
 		_update_enemy_labels()
 		if _all_enemies_down():
@@ -1019,10 +1146,20 @@ func _on_turn_finished(combos: int, cleared: Dictionary, groups: Array) -> void:
 		return
 
 	# 3) Every enemy still alive attacks, one after another.
+	var team_was_hit := false
 	for t in enemies.size():
 		var enemy := enemies[t]
 		if enemy.is_defeated():
 			continue
+		# Thunder Hammer: a stunned enemy skips this attack.
+		if enemy.stunned_attacks > 0:
+			enemy.stunned_attacks -= 1
+			_update_enemy_labels()
+			await _wait(0.25)
+			FloatingText.spawn(world, _enemy_center(t) + Vector2(0, -150), "STUNNED", Color("ffe08a"), 50, 40.0, 0.6)
+			await _wait(0.35)
+			continue
+		team_was_hit = true
 		await _wait(0.25)
 		enemy_views[t].animator.play_attack(Vector2.DOWN)
 		await _wait(0.2)
@@ -1066,6 +1203,14 @@ func _on_turn_finished(combos: int, cleared: Dictionary, groups: Array) -> void:
 				await _wait(0.3)
 		if _all_enemies_down():
 			break
+
+	# Storm Battery (Johnny): the team was hit this enemy turn -> its skill charges.
+	if team_was_hit and not team.is_defeated():
+		for k in team.members.size():
+			if team.members[k].has_passive(&"storm_battery") and team.skill_turns[k] > 0:
+				team.skill_turns[k] = maxi(team.skill_turns[k] - Skills.TUNING.storm_battery_turns, 0)
+				FloatingText.spawn(world, team_views[k].position + Vector2(0, -team_views[k].card_size.y - 10), "CHARGE +%d" % Skills.TUNING.storm_battery_turns, Element.color(team.members[k].element).lightened(0.4), 34, 40.0, 0.6)
+		_refresh_team_ui()
 
 	if _all_enemies_down():
 		await _wait(0.85)
@@ -1130,8 +1275,21 @@ func _show_hit(t: int, dealt: int, member: FighterData, attacker_index: int, com
 		FloatingText.spawn(world, enemy_position(t) + Vector2(0, -enemy.data.figure_height * enemy_scale - 30), "ARMOUR BROKEN!", Color("8fd8ff"), 46, 50.0, 0.6)
 	enemy_views[t].armor_up = enemy.armor_up
 	if enemy.is_defeated():
-		enemy_views[t].targeted = false
-		enemy_views[t].animator.play_defeat()
+		_enemy_down(t)
+
+
+## Enemy t was just defeated (once per enemy): fall over, and the Executioner
+## leader (Logan) charges every skill.
+func _enemy_down(t: int) -> void:
+	if enemy_views[t].has_meta("down"):
+		return
+	enemy_views[t].set_meta("down", true)
+	enemy_views[t].targeted = false
+	enemy_views[t].animator.play_defeat()
+	var charge := CombatRules.leader_kill_charge(team.leader())
+	if charge > 0:
+		team.tick_skills(charge)
+		_refresh_team_ui()
 
 
 ## Damage numbers in the attacker's colour. Super-effective hits are bigger with "!".

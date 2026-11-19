@@ -21,6 +21,7 @@ const HEAD_OVERRIDE := {
 	"enemy_light_solar_drone": [0.31, 0.195, 0.39],
 	"enemy_light_prism_wisp": [0.33, 0.17, 0.35],
 	"enemy_dark_void_imp": [0.31, 0.06, 0.33],
+	"friend_khoel": [0.31, 0.1, 0.38],   # a giant face in a pod: frame the face
 }
 
 static var _opaque := {}

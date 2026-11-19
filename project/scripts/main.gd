@@ -33,6 +33,7 @@ var current_act: ActData
 
 
 func _ready() -> void:
+	GameSettings.load_settings()
 	_load()
 	var ui := CanvasLayer.new()
 	ui.layer = 10

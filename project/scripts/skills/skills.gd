@@ -44,6 +44,10 @@ const NAMES := {
 	&"strangle": "Strangle",
 	&"refract": "Refract",
 	&"void_bite": "Void Bite",
+	&"twin_comet": "Twin Comet",
+	&"thunder_hammer": "Thunder Hammer",
+	&"overclock": "Overclock",
+	&"inferno_cleaver": "Inferno Cleaver",
 	# Leader skills
 	&"leader_kindling_swarm": "Kindling Swarm",
 	&"leader_coolant_loop": "Coolant Loop",
@@ -75,6 +79,10 @@ const NAMES := {
 	&"leader_second_wind": "Second Wind",
 	&"leader_umbral_pact": "Umbral Pact",
 	&"leader_radiance": "Radiance",
+	&"leader_hammerfall": "Hammerfall",
+	&"leader_bedrock": "Bedrock",
+	&"leader_neural_link": "Neural Link",
+	&"leader_executioner": "Executioner",
 	# Passives
 	&"cleave": "Cleave",
 	&"skill_boost": "Skill Boost",
@@ -97,10 +105,14 @@ const NAMES := {
 	&"damage_resist": "Damage Resist",
 	&"heart_charge": "Heart Charge",
 	&"fire_atk_up": "Fire ATK Up",
+	&"double_swing": "Double Swing",
+	&"storm_battery": "Storm Battery",
+	&"thruster_boost": "Thruster Boost",
+	&"molten_edge": "Molten Edge",
 }
 
 ## Passives that work for the whole TEAM and count once (never stack).
-const TEAM_PASSIVES := [&"time_extend", &"overflow_heal", &"last_stand", &"damage_resist", &"fire_atk_up"]
+const TEAM_PASSIVES := [&"time_extend", &"overflow_heal", &"last_stand", &"damage_resist", &"fire_atk_up", &"thruster_boost"]
 
 ## When each passive unlocks, by its position in the character's list.
 const UNLOCK_TEXT := ["Lv10", "Evolution 1", "Evolution 2"]
@@ -146,6 +158,10 @@ static func cooldown(id: StringName) -> int:
 		&"strangle": return t.strangle_cooldown
 		&"refract": return t.refract_cooldown
 		&"void_bite": return t.void_bite_cooldown
+		&"twin_comet": return t.twin_comet_cooldown
+		&"thunder_hammer": return t.thunder_hammer_cooldown
+		&"overclock": return t.overclock_cooldown
+		&"inferno_cleaver": return t.inferno_cleaver_cooldown
 	return 0
 
 
@@ -219,6 +235,14 @@ static func describe(id: StringName, element := -1) -> String:
 			return "Every %s orb turns into %s, and heals %d%% of max HP." % [beats, own, _pct(t.refract_heal_ratio)]
 		&"void_bite":
 			return "Hits the target for ATK x%s (%s damage) and heals the team for %d%% of the damage dealt." % [_num(t.void_bite_atk_mult), own, _pct(t.void_bite_lifesteal)]
+		&"twin_comet":
+			return "Hits EVERY enemy %d times for ATK x%s each (%s damage), and turns %d random orbs into %s." % [t.twin_comet_hits, _num(t.twin_comet_atk_mult), own, t.twin_comet_orbs, own]
+		&"thunder_hammer":
+			return "Hits the target for ATK x%s (%s damage) and stuns it: it skips its next attack. Bosses and mini-bosses can't be stunned; their next attack is %d%% weaker instead." % [_num(t.thunder_hammer_atk_mult), own, _pct(1.0 - t.thunder_hammer_boss_weaken)]
+		&"overclock":
+			return "Every OTHER hunter's skill charges %d turns, and heals %d%% of max HP." % [t.overclock_turns, _pct(t.overclock_heal_ratio)]
+		&"inferno_cleaver":
+			return "Hits the target for ATK x%s (%s damage), then it BURNS for ATK x%s at the start of each of your next %d turns." % [_num(t.inferno_cleaver_atk_mult), own, _num(t.inferno_burn_mult), t.inferno_burn_turns]
 		# ---- leader skills (slot 1 only, never stack)
 		&"leader_kindling_swarm":
 			return "Match %d+ separate %s groups: %s hunters ATK x%s." % [t.leader_kindling_groups, own, el, _num(t.leader_kindling_mult)]
@@ -280,6 +304,14 @@ static func describe(id: StringName, element := -1) -> String:
 			return "Team RCV x%s. Match %d+ different elements: %s hunters ATK x%s." % [_num(t.leader_umbral_rcv_mult), t.leader_umbral_elements, el, _num(t.leader_umbral_mult)]
 		&"leader_radiance":
 			return "+%s s to move orbs. Match Hearts: every hunter ATK x%s." % [_num(t.leader_radiance_seconds), _num(t.leader_radiance_mult)]
+		&"leader_hammerfall":
+			return "%s hunters ATK x%s; x%s when %d+ separate %s groups are matched." % [el, _num(t.leader_hammerfall_mult), _num(t.leader_hammerfall_high_mult), t.leader_hammerfall_groups, own]
+		&"leader_bedrock":
+			return "Team HP x%s, the team takes %d%% less from every hit, and %s hunters ATK x%s." % [_num(t.leader_bedrock_hp_mult), _pct(1.0 - t.leader_bedrock_damage_taken), el, _num(t.leader_bedrock_mult)]
+		&"leader_neural_link":
+			return "Match %d+ different elements (Hearts don't count): team ATK x%s, and every skill charges %d extra turn." % [t.leader_neural_elements, _num(t.leader_neural_mult), t.leader_neural_turns]
+		&"leader_executioner":
+			return "%s hunters hit x%s against enemies below %d%% HP. Every enemy defeated charges every skill %d turn." % [el, _num(t.leader_executioner_mult), _pct(t.leader_executioner_hp_ratio), t.leader_executioner_kill_turns]
 		# ---- passives
 		&"cleave":
 			return "%d+ orbs of its element in one group: its ATK x%s." % [t.cleave_group, _num(t.cleave_mult)]
@@ -323,6 +355,14 @@ static func describe(id: StringName, element := -1) -> String:
 			return "Match %d+ Hearts in one turn: its skill charges %d extra turn." % [t.heart_charge_hearts, t.heart_charge_turns]
 		&"fire_atk_up":
 			return "TEAM: Fire hunters ATK +%d%% (doesn't stack)." % _pct(t.fire_atk_up_mult - 1.0)
+		&"double_swing":
+			return "%d+ separate groups of its element in one turn: its ATK x%s." % [t.double_swing_groups, _num(t.double_swing_mult)]
+		&"storm_battery":
+			return "When the team is hit, its skill charges %d extra turn (once per enemy turn)." % t.storm_battery_turns
+		&"thruster_boost":
+			return "TEAM: +%s s to move orbs (adds to Time Extend; doesn't stack with itself)." % _num(t.thruster_boost_seconds)
+		&"molten_edge":
+			return "Its attacks ignore enemy armour (full damage, armour stays up)."
 	return ""
 
 

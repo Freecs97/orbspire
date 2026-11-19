@@ -131,6 +131,22 @@ extends Resource
 @export var void_bite_atk_mult := 2.5
 @export var void_bite_lifesteal := 0.5          ## Heals the team for this share of damage dealt.
 
+@export_group("Friend actives (ultra-rare drops)")
+@export var twin_comet_cooldown := 7            ## Jake
+@export var twin_comet_atk_mult := 1.0          ## Per hit, EVERY enemy...
+@export var twin_comet_hits := 2                ## ...this many times.
+@export var twin_comet_orbs := 3                ## Random orbs -> its element.
+@export var thunder_hammer_cooldown := 8        ## Johnny
+@export var thunder_hammer_atk_mult := 2.0
+@export var thunder_hammer_boss_weaken := 0.5   ## Bosses aren't stunned: next attack x this.
+@export var overclock_cooldown := 8             ## Khoel
+@export var overclock_turns := 2                ## Every OTHER hunter's skill charges this much.
+@export var overclock_heal_ratio := 0.1
+@export var inferno_cleaver_cooldown := 7       ## Logan
+@export var inferno_cleaver_atk_mult := 3.0
+@export var inferno_burn_mult := 0.5            ## Burn: ATK x this at the start of...
+@export var inferno_burn_turns := 3             ## ...each of your next 3 turns.
+
 @export_group("Leader skills")
 @export var leader_berserker_group := 4
 @export var leader_berserker_mult := 2.0
@@ -205,6 +221,19 @@ extends Resource
 @export var leader_refraction_heal_ratio := 0.08
 @export var leader_void_hp_ratio := 0.5
 @export var leader_void_mult := 1.4
+# Friend leaders, tuned in the balance sim (teams of 3 clear Act 1 in 15-17 turns).
+@export var leader_hammerfall_mult := 1.15       ## Jake: its element's hunters...
+@export var leader_hammerfall_groups := 3        ## ...and with this many separate groups of its element:
+@export var leader_hammerfall_high_mult := 2.0
+@export var leader_bedrock_hp_mult := 1.2        ## Johnny
+@export var leader_bedrock_damage_taken := 0.9
+@export var leader_bedrock_mult := 1.15
+@export var leader_neural_elements := 3          ## Khoel: this many different elements...
+@export var leader_neural_mult := 1.35           ## ...team ATK x this, and every skill
+@export var leader_neural_turns := 1             ## charges this many extra turns.
+@export var leader_executioner_hp_ratio := 0.15  ## Logan: its element's hunters, vs enemies below this HP...
+@export var leader_executioner_mult := 2.0       ## ...hit x this.
+@export var leader_executioner_kill_turns := 1   ## Each enemy defeated: every skill charges this much.
 
 @export_group("Passives")
 @export var cleave_group := 4
@@ -236,6 +265,11 @@ extends Resource
 @export var overflow_group := 5
 @export var overflow_mult := 1.5
 @export var field_medic_turns := 1
+# Friend passives
+@export var double_swing_groups := 2       ## Jake: this many separate groups of its element...
+@export var double_swing_mult := 1.3       ## ...its ATK x this.
+@export var storm_battery_turns := 1       ## Johnny: the team is hit -> its skill charges this much (once per enemy turn).
+@export var thruster_boost_seconds := 0.5  ## Khoel (TEAM): + this to move orbs.
 
 @export_group("Bosses")
 ## Resolve: a boss or mini-boss can lose at most this share of its max HP in

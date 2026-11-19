@@ -23,6 +23,9 @@ var fails := 0
 
 
 func _ready() -> void:
+	GameSettings.path = "user://test_settings.json"   # never touch the player's settings
+	GameSettings.skill_cut_ins = false   # cut-ins are tested in friends_test; keep these timings as they were
+	Profile.friend_drops = false   # no random 1-in-400 friend joining this test's teams
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path("res://tests/screenshots"))
 	if FileAccess.file_exists("user://test_save.json"):
 		DirAccess.remove_absolute(ProjectSettings.globalize_path("user://test_save.json"))

@@ -60,6 +60,9 @@ var only: PackedStringArray = []
 
 
 func _ready() -> void:
+	GameSettings.path = "user://test_settings.json"   # never touch the player's settings
+	GameSettings.skill_cut_ins = false   # cut-ins are tested in friends_test; keep these timings as they were
+	Profile.friend_drops = false   # no random 1-in-400 friend joining this test's teams
 	screenshots = DisplayServer.get_name() != "headless"
 	for a in OS.get_cmdline_user_args():
 		if a.begins_with("--only="):

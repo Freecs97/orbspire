@@ -33,6 +33,10 @@ const RECOLOR_IDS := [
 	"enemy_frost_drone", "enemy_moss_drone", "enemy_magma_slime", "enemy_bog_slime", "enemy_ash_sprout",
 	"enemy_dew_sprout", "enemy_eclipse_drone", "enemy_glint", "enemy_umbral_wisp", "enemy_lux_imp",
 ]
+## Bailey's friends (their own art + their own skills). Ultra-rare: they only come
+## from a tiny chance after any won fight (economy friend_drop_chance), never from
+## Recruit, the Lab or Essence. Always Prime rarity (fixed_rarity 3).
+const FRIEND_IDS := ["friend_jake", "friend_johnny", "friend_khoel", "friend_logan"]
 ## Which enemy PNG drops which playable enemy's OWN Essence.
 const OWN_ESSENCE := {
 	"enemy_fire_ember_drone": "enemy_ember_drone", "enemy_water_coolant_slime": "enemy_coolant_slime",
@@ -59,9 +63,13 @@ static func lab_ids() -> Array:
 	return IDS + ENEMY_IDS
 
 
-## Every playable character (humans, enemies, enemy colour versions).
+## Every playable character (humans, enemies, enemy colour versions, friends).
 static func all_ids() -> Array:
-	return IDS + ENEMY_IDS + RECOLOR_IDS
+	return IDS + ENEMY_IDS + RECOLOR_IDS + FRIEND_IDS
+
+
+static func is_friend(id: String) -> bool:
+	return id in FRIEND_IDS
 
 
 ## Who Recruit / fight drops can give at this rarity: every human (any rarity)

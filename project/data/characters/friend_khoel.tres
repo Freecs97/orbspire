@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="FighterData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/fighter_data.gd" id="1_fd"]
+[ext_resource type="Texture2D" path="res://assets/characters/friend/friend_khoel.png" id="2_art"]
+
+[resource]
+script = ExtResource("1_fd")
+display_name = "KHOEL"
+title = "Fire Biotech"
+element = 0
+role = 3
+max_hp = 350
+atk = 72
+rcv = 46
+design_id = "friend_khoel"
+leader_skill = &"leader_neural_link"
+active_skill = &"overclock"
+passives = Array[StringName]([&"thruster_boost", &"rcv_up", &"heart_charge"])
+fixed_rarity = 3
+body_color = Color(0.85, 0.2, 0.15, 1)
+figure_height = 250.0
+figure_width = 110.0
+art = ExtResource("2_art")

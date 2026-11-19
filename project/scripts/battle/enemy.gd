@@ -26,6 +26,11 @@ var vulnerable_mult := 1.0
 ## Gravity Well: its next N attacks are weaker.
 var weakened_attacks := 0
 var weakened_mult := 1.0
+## Thunder Hammer (Johnny): it skips its next N attacks (never bosses).
+var stunned_attacks := 0
+## Inferno Cleaver (Logan): takes burn_damage at the start of each of the next burn_turns player turns.
+var burn_turns := 0
+var burn_damage := 0
 
 
 ## Call at the start of every player turn.

@@ -232,7 +232,39 @@ static func leader_multiplier(leader: FighterData, member: FighterData, groups: 
 		&"leader_void_hunger":
 			if same and enemy != null and enemy.hp_ratio() < t.leader_void_hp_ratio:
 				return t.leader_void_mult
+		# ---- friend leaders (ultra-rare drops)
+		&"leader_hammerfall":
+			if same:
+				return t.leader_hammerfall_high_mult if groups_of(groups, el) >= t.leader_hammerfall_groups else t.leader_hammerfall_mult
+		&"leader_bedrock":
+			if same:
+				return t.leader_bedrock_mult
+		&"leader_neural_link":
+			if distinct_attack_types(groups) >= t.leader_neural_elements:
+				return t.leader_neural_mult
+		&"leader_executioner":
+			if same and enemy != null and enemy.hp_ratio() < t.leader_executioner_hp_ratio:
+				return t.leader_executioner_mult
 	return 1.0
+
+
+## How many separate groups of this type were matched this turn.
+static func groups_of(groups: Array, type: int) -> int:
+	return groups.filter(func(g: Dictionary) -> bool: return g["type"] == type).size()
+
+
+## Executioner (Logan leader): skill charge for every enemy defeated (0 = other leaders).
+static func leader_kill_charge(leader: FighterData) -> int:
+	if leader and leader.leader_skill == &"leader_executioner":
+		return Skills.TUNING.leader_executioner_kill_turns
+	return 0
+
+
+## Neural Link (Khoel leader): extra skill charge this turn (0 if it didn't trigger).
+static func leader_skill_charge(leader: FighterData, groups: Array) -> int:
+	if leader and leader.leader_skill == &"leader_neural_link" and distinct_attack_types(groups) >= Skills.TUNING.leader_neural_elements:
+		return Skills.TUNING.leader_neural_turns
+	return 0
 
 
 ## Team max HP from the leader (applied when the team is built).
@@ -248,6 +280,7 @@ static func team_hp_multiplier(leader: FighterData) -> float:
 		&"leader_dawn_aegis": return t.leader_aegis_hp_mult
 		&"leader_heat_shielding": return t.leader_heat_hp_mult
 		&"leader_wave_wall": return t.leader_wave_hp_mult
+		&"leader_bedrock": return t.leader_bedrock_hp_mult
 	return 1.0
 
 
@@ -281,6 +314,8 @@ static func leader_damage_taken(team: Team, attacker: Enemy = null) -> float:
 		&"leader_heat_shielding":
 			if attacker != null and attacker.data.element == leader.element:
 				return t.leader_heat_damage_taken
+		&"leader_bedrock":
+			return t.leader_bedrock_damage_taken
 	return 1.0
 
 
@@ -303,6 +338,8 @@ static func passive_multiplier(member: FighterData, groups: Array, combos: int, 
 		m *= t.finisher_mult
 	if member.has_passive(&"orb_enhance") and has_group(groups, member.element, t.orb_enhance_group):
 		m *= t.orb_enhance_mult
+	if member.has_passive(&"double_swing") and groups_of(groups, member.element) >= t.double_swing_groups:
+		m *= t.double_swing_mult
 	if team != null:
 		if member.has_passive(&"bloodlust") and team.hp_ratio() < t.bloodlust_hp_ratio:
 			m *= t.bloodlust_mult
@@ -312,8 +349,9 @@ static func passive_multiplier(member: FighterData, groups: Array, combos: int, 
 
 
 ## Breaker: a 3x3 square of its element ignores enemy armour.
+## Molten Edge (Logan): every attack ignores enemy armour.
 static func ignores_armor(member: FighterData, groups: Array) -> bool:
-	return member.has_passive(&"breaker") and has_square(groups, member.element)
+	return member.has_passive(&"molten_edge") or (member.has_passive(&"breaker") and has_square(groups, member.element))
 
 
 ## Any team member with this unlocked passive?
@@ -330,6 +368,8 @@ static func move_time(team: Team) -> float:
 	var s := Board.MOVE_TIME
 	if team_has(team, &"time_extend"):
 		s += Skills.TUNING.time_extend_seconds
+	if team_has(team, &"thruster_boost"):
+		s += Skills.TUNING.thruster_boost_seconds
 	var leader := team.leader()
 	if leader and leader.leader_skill == &"leader_radiance":
 		s += Skills.TUNING.leader_radiance_seconds

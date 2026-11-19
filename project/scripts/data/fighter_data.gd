@@ -38,6 +38,9 @@ enum Role { BERSERKER, TITAN, SPECTRE, BIOTECH, ENEMY }
 @export var cooldown_cut: int = 0
 ## Evolution stage 1-3 (set from the save; templates are Stage 1).
 @export var stage: int = 1
+## Rarity 0-5 of the owned unit (set from the save; -1 = a template / test fighter).
+## Stage 3 or Singularity (5) = the long 2 s skill cut-in.
+@export var rarity: int = -1
 
 @export_group("Enemy only")
 ## DEF: every orb attack on this enemy loses this much damage (never below 1).

@@ -16,6 +16,9 @@ const PROGRESSION: ProgressionTuning = preload("res://data/progression.tres")
 ## skills; only the element differs: Kaela = Fire, Iris = Water, Drek = Wood.
 const STARTERS := ["berserker_01_angel_fire", "berserker_03_thin_water", "berserker_02_hulk_wood"]
 const TEAM_SLOTS := 4
+## The ultra-rare friend roll after every win. Always on in the game; older tests
+## switch it off so a 1-in-400 friend can't join their teams at random.
+static var friend_drops := true
 const DEFAULTS := {"units": [], "next_uid": 1, "team": [], "credits": 0, "cores": 0, "keys": 0,
 	"essence": {}, "roster_cap": 30, "first_clears": [], "starter": "", "fight_clears": []}
 
@@ -118,6 +121,7 @@ func fighter(uid: int) -> FighterData:
 	f.atk = roundi(base.atk * m)
 	f.rcv = roundi(base.rcv * m)
 	f.stage = stage
+	f.rarity = int(u["rarity"])
 	f.cooldown_cut = stage - 1
 	f.passives_unlocked = mini((1 if u["level"] >= ECONOMY.passive_1_level else 0) + stage - 1, base.passives.size())
 	f.art = Catalog.art(u["id"], stage)
@@ -286,7 +290,26 @@ func fight_rewards(fight: FightData, act_number: int, won: bool, team: Array, is
 	data["credits"] += r["credits"]
 	if fight_no > 0:
 		r["new_unit"] = _scrap_drop(fight, act_number, fight_no)
+		r["friend"] = friend_drop() if friend_drops else {}
 	return r
+
+
+## Ultra-rare: after a won fight, one of Bailey's friends may join (Prime, Lv1).
+## Prefers a friend you don't own yet; joins even past the roster cap (it would
+## be cruel to lose a 1-in-400 drop to a full roster). Returns {} if nothing dropped.
+## `roll` < 0 = roll the dice; tests pass a fixed roll.
+func friend_drop(roll := -1.0) -> Dictionary:
+	if (rng.randf() if roll < 0.0 else roll) >= ECONOMY.friend_drop_chance:
+		return {}
+	var owned := {}
+	for u in data["units"]:
+		owned[u["id"]] = true
+	var pool: Array = Catalog.FRIEND_IDS.filter(func(id: String) -> bool: return not owned.has(id))
+	if pool.is_empty():
+		pool = Catalog.FRIEND_IDS.duplicate()
+	var id: String = pool[rng.randi_range(0, pool.size() - 1)]
+	var uid := add_unit(id, Catalog.template(id).fixed_rarity)
+	return {"uid": uid, "id": id, "in_team": auto_slot(uid)}
 
 
 ## Scrap characters found after a WIN (the easy way to fill a team early):
@@ -341,6 +364,9 @@ static func rewards_text(r: Dictionary) -> String:
 		text += "\nA Scrap hunter wanted to join, but your roster is full"
 	elif nu.has("id"):
 		text += "\nNEW HUNTER: %s (Scrap) %s" % [Catalog.display_name(nu["id"]), "joined your team!" if nu["in_team"] else "joined your roster"]
+	var fr: Dictionary = r.get("friend", {})
+	if fr.has("id"):
+		text += "\nULTRA RARE! %s (%s) %s" % [Catalog.display_name(fr["id"]), Catalog.rarity_name(Catalog.template(fr["id"]).fixed_rarity), "joined your team!" if fr["in_team"] else "joined your roster"]
 	if not r["level_ups"].is_empty():
 		text += "\n" + "   ".join(PackedStringArray(r["level_ups"]))
 	return text

@@ -16,6 +16,8 @@ const TABS := ["PLAY", "TEAM", "ROSTER", "RECRUIT", "QUESTS"]
 var tab_name := "PLAY"
 var nav_buttons: Array[Button] = []
 var settings_button: Button
+var settings_panel: Control
+var cut_in_button: Button
 var toast: Label
 var _top_labels: Array[Label] = []
 var _toast_tween: Tween
@@ -43,7 +45,7 @@ func _build_bars() -> void:
 	settings_button.text = "⚙"
 	settings_button.size = Vector2(80, 80)
 	MenuStyle.apply(settings_button, 40)
-	settings_button.pressed.connect(func() -> void: show_toast("Settings arrive in the save + settings step (Phase 8)"))
+	settings_button.pressed.connect(open_settings)
 	add_child(settings_button)
 
 	var nav := ColorRect.new()
@@ -101,6 +103,41 @@ func show_toast(text: String) -> void:
 	_toast_tween = create_tween()
 	_toast_tween.tween_interval(1.6)
 	_toast_tween.tween_property(toast, "modulate:a", 0.0, 0.4)
+
+
+## ⚙ Settings pop-up. For now one setting: Skill Cut-ins ON / OFF
+## (saved in user://settings.json; a New Game keeps it).
+func open_settings() -> void:
+	if settings_panel:
+		settings_panel.queue_free()
+	settings_panel = Control.new()
+	settings_panel.set_anchors_preset(Control.PRESET_FULL_RECT)
+	settings_panel.mouse_filter = Control.MOUSE_FILTER_STOP
+	add_child(settings_panel)
+	var dim := ColorRect.new()
+	dim.color = Color(0.01, 0.01, 0.04, 0.8)
+	dim.set_anchors_preset(Control.PRESET_FULL_RECT)
+	dim.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	settings_panel.add_child(dim)
+	var w := size.x
+	var top := size.y * 0.5 - 300
+	make_panel(Vector2((w - 840) * 0.5, top), Vector2(840, 600), MenuStyle.NEON, settings_panel)
+	var title := make_label(52, GOLD, settings_panel)
+	title.text = "SETTINGS"
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title.position = Vector2(0, top + 40)
+	title.size = Vector2(w, 70)
+	cut_in_button = make_button(GameSettings.cut_ins_text(), Vector2((w - 680) * 0.5, top + 150), Vector2(680, 110), 38, MenuStyle.NEON, settings_panel)
+	cut_in_button.pressed.connect(func() -> void:
+		GameSettings.set_skill_cut_ins(not GameSettings.skill_cut_ins)
+		cut_in_button.text = GameSettings.cut_ins_text())
+	var hint := make_label(28, Color("c9c2ff"), settings_panel)
+	hint.text = "When a hunter uses a skill, its portrait\nflashes over the orb board. Tap to skip it."
+	hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	hint.position = Vector2(0, top + 285)
+	hint.size = Vector2(w, 110)
+	var close := make_button("CLOSE", Vector2((w - 360) * 0.5, top + 440), Vector2(360, 100), 36, MenuStyle.NEON, settings_panel)
+	close.pressed.connect(func() -> void: settings_panel.visible = false)
 
 
 ## The usable area between the two bars.

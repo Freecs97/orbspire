@@ -69,6 +69,12 @@ extends Resource
 ## ...in Acts 1..this one only.
 @export var scrap_drop_max_act := 2
 
+@export_group("Friend drops (ultra-rare)")
+## After ANY won fight (any Act, bosses too): this chance that one of Bailey's
+## friends joins (0.0025 = 0.25% = about 1 win in 400). Prefers friends you
+## don't own yet. They join even if the roster is full. Never in Recruit or the Lab.
+@export var friend_drop_chance := 0.0025
+
 @export_group("Recruit")
 @export var recruit_names: Array[String] = ["Basic", "Advanced", "Elite"]
 @export var recruit_costs: Array[int] = [150, 1000, 3000]

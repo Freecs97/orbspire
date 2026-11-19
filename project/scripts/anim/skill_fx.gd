@@ -1,8 +1,8 @@
 class_name SkillFx
 extends Node2D
-## Skill effects drawn in CODE only: no video, no image files.
+## Skill effects: shapes drawn in code, plus Bailey's attack-animation sheets. No video.
 ##
-## Plain English: each effect is a shape (ring, streak, flash, shield dome,
+## Plain English: each code effect is a shape (ring, streak, flash, shield dome,
 ## sparkles) that grows and fades with a Tween, then deletes itself.
 ## battle.gd combines them per skill (e.g. Ember Lance = a fire streak from the
 ## hunter to the target + a ring burst on impact). Damage numbers are shown the
@@ -10,9 +10,10 @@ extends Node2D
 
 enum Kind { RING, STREAK, FLASH, DOME, SPARKLES }
 
-## Stage 4: Leonardo FX sprite sheets (4 frames in a row, transparent PNG).
-## If a sheet is in res://assets/fx/, skill hits play it (AnimatedSprite2D) on
-## top of the code effects; if not, only the code effects play.
+## Bailey's attack animations (Attack_Animations/*.png, cut into equal frames by
+## tools/make_fx_sheets.gd): 4 frames in a row, transparent PNG, in res://assets/fx/.
+## Every orb attack, skill hit and heal plays its sheet (AnimatedSprite2D) on top
+## of the code effects; a missing sheet just means code effects only.
 const FX_DIR := "res://assets/fx/"
 const SHEET_FOR_ELEMENT := {
 	Element.Type.FIRE: "fx_fire_slash", Element.Type.WATER: "fx_water_blast", Element.Type.WOOD: "fx_wood_thorn",
@@ -20,6 +21,9 @@ const SHEET_FOR_ELEMENT := {
 }
 const HEAL_SHEET := "fx_heal"
 const SHEET_FRAMES := 4
+## Sheet pixels drawn per `height` unit: a 250 px tall cell is drawn `height` tall,
+## so the effects keep the sizes they have in the art (vines taller than sparks).
+const SHEET_REF_HEIGHT := 250.0
 static var _frames_cache := {}
 
 
@@ -29,7 +33,7 @@ static func has_sheet(key: String) -> bool:
 
 
 ## Play an FX sheet centred on `center`: 4 frames over `time` seconds while it
-## scales up and fades out. Returns false (and does nothing) if the sheet isn't there.
+## grows a little and fades out. Returns false (and does nothing) if the sheet isn't there.
 static func sheet(parent: Node, center: Vector2, key: String, height := 280.0, time := 0.4) -> bool:
 	if not has_sheet(key):
 		return false
@@ -50,12 +54,12 @@ static func sheet(parent: Node, center: Vector2, key: String, height := 280.0, t
 	spr.sprite_frames = _frames_cache[key]
 	spr.z_index = 31
 	spr.position = center
-	var s := height / float((spr.sprite_frames.get_frame_texture("hit", 0) as Texture2D).get_height())
+	var s := height / SHEET_REF_HEIGHT
 	spr.scale = Vector2.ONE * s
 	parent.add_child(spr)
 	spr.play("hit")
 	var tw := spr.create_tween()
-	tw.tween_property(spr, "scale", Vector2.ONE * s * 1.3, time)
+	tw.tween_property(spr, "scale", Vector2.ONE * s * 1.15, time)
 	tw.parallel().tween_property(spr, "modulate:a", 0.0, time).set_delay(time * 0.5)
 	tw.tween_callback(spr.queue_free)
 	return true
