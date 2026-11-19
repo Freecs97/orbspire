@@ -36,7 +36,7 @@ func _init() -> void:
 	title.position = Vector2(0, 110)
 	title.size = Vector2(1080, 80)
 	var sub := make_label(28, Color("cfc8ee"))
-	sub.text = "All three are Berserkers with the SAME stats and skills.\nOnly the element is different. Pick the one you like.\nThe rest of your team is earned in Act 1."
+	sub.text = "All three are Berserkers with the SAME stats and the same skill (Overrun).\nThe element, leader skill and passives differ. Pick the one you like.\nThe rest of your team is earned in Act 1."
 	sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	sub.position = Vector2(0, 210)
 	sub.size = Vector2(1080, 130)
@@ -65,10 +65,15 @@ func _init() -> void:
 	shared_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	var t0 := Catalog.template(Profile.STARTERS[0])
 	var f := Profile.ECONOMY.rarity_stat_mult[Profile.ECONOMY.story_rarity]
-	shared_label.text = "SAME FOR ALL THREE  (%s, Lv1)\nHP %d   ATK %d   RCV %d\nActive: %s  (cooldown %d)\n   %s\nLeader: %s\nPassives: %s (Lv10), %s (Evolution 1), %s (Evolution 2)" % [
+	var own := PackedStringArray()
+	for id in Profile.STARTERS:
+		var s := Catalog.template(id)
+		own.append("%s: leader %s, passives %s / %s / %s" % [s.display_name.get_slice(" ", 0), Skills.display_name(s.leader_skill),
+			Skills.display_name(s.passives[0]), Skills.display_name(s.passives[1]), Skills.display_name(s.passives[2])])
+	shared_label.text = "SAME FOR ALL THREE  (%s, Lv1)\nHP %d   ATK %d   RCV %d   ·   Active: %s (cooldown %d)\n   %s\nEACH HAS THEIR OWN leader skill and passives:\n%s" % [
 		Catalog.rarity_name(Profile.ECONOMY.story_rarity), roundi(t0.max_hp * f), roundi(t0.atk * f), roundi(t0.rcv * f),
-		Skills.display_name(t0.active_skill), t0.skill_cooldown(), Skills.describe(t0.active_skill), Skills.describe(t0.leader_skill),
-		Skills.display_name(t0.passives[0]), Skills.display_name(t0.passives[1]), Skills.display_name(t0.passives[2])]
+		Skills.display_name(t0.active_skill), t0.skill_cooldown(), Skills.describe(t0.active_skill),
+		"\n".join(own)]
 	start_button = make_button("TAP A STARTER", Vector2(140, 1560), Vector2(800, 130), 40, GOLD)
 	start_button.disabled = true
 	start_button.pressed.connect(_open_confirm)

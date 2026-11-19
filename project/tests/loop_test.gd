@@ -361,7 +361,7 @@ func _test_groundwork() -> void:
 
 	_log("\n== G2: type stats (Lv1) ==")
 	# Stage 2: Titan and Biotech buffed (were 420/65/22 and 320/55/40).
-	var rows := [[BERSERKER, 320, 95, 10], [TITAN, 470, 78, 26], [SPECTRE, 230, 130, 8], [BIOTECH, 350, 72, 46]]
+	var rows := [[BERSERKER, 320, 95, 10], [TITAN, 470, 78, 26], [SPECTRE, 230, 110, 8], [BIOTECH, 350, 72, 46]]
 	for r in rows:
 		var d: FighterData = r[0]
 		_check(d.max_hp == r[1] and d.atk == r[2] and d.rcv == r[3], "%s: %d / %d / %d (want %d / %d / %d)" % [d.display_name, d.max_hp, d.atk, d.rcv, r[1], r[2], r[3]])
@@ -405,8 +405,8 @@ func _test_groundwork() -> void:
 	battle.set_team([SPECTRE, BERSERKER, BIOTECH, TITAN])
 	ok = await _single_combo_turn(DARK4, 2)
 	hp = _enemy_hps()
-	# Spectre ATK 130 x 4/3 = 173 vs Drone A (Water, neutral). 4 dark is NOT "hit all" for a Spectre.
-	_check(ok and hp == [327, 500, 500], "4 dark in one group: Spectre still hits only the front enemy (173) -> HP %s" % [hp])
+	# Spectre ATK 110 x 4/3 = 146.7 -> 147 vs Drone A (Water, neutral). 4 dark is NOT "hit all" for a Spectre.
+	_check(ok and hp == [353, 500, 500], "4 dark in one group: Spectre still hits only the front enemy (147) -> HP %s" % [hp])
 	_check(battle.team.max_hp == 1370, "team of 4 (Spectre + story trio): max HP %d (want 1370)" % battle.team.max_hp)
 	await _shot("g5_team_of_4")
 	_story_team()
@@ -428,29 +428,29 @@ func _test_active_skills() -> void:
 	_story_team()
 	battle._start_battle(0, Mode.NEW_ACT)
 	await _frames(2)
-	_check(battle.team.skill_turns == [4, 2, 3], "first fight of an Act starts half charged: Overrun 7->4, Mend 4->2, Bulwark 6->3 turns left: %s" % [battle.team.skill_turns])
-	_check(battle.team_views[0].skill_turns == 4 and battle.team_views[1].skill_turns == 2, "card badges show the turns left (%d, %d, %d)" % [battle.team_views[0].skill_turns, battle.team_views[1].skill_turns, battle.team_views[2].skill_turns])
+	_check(battle.team.skill_turns == [4, 3, 3], "first fight of an Act starts half charged: Overrun 7->4, Mend 5->3, Bulwark 6->3 turns left: %s" % [battle.team.skill_turns])
+	_check(battle.team_views[0].skill_turns == 4 and battle.team_views[1].skill_turns == 3, "card badges show the turns left (%d, %d, %d)" % [battle.team_views[0].skill_turns, battle.team_views[1].skill_turns, battle.team_views[2].skill_turns])
 	_set_board(BASE)
 	await _tap(Vector2i(5, 0))
 	await _await_turn_end()
-	_check(battle.team.skill_turns == [4, 2, 3], "a turn with NO match does not charge skills: %s" % [battle.team.skill_turns])
+	_check(battle.team.skill_turns == [4, 3, 3], "a turn with NO match does not charge skills: %s" % [battle.team.skill_turns])
 	_set_board(FIRE3)
 	await _tap(Vector2i(5, 0))
 	await _await_turn_end()
-	_check(battle.team.skill_turns == [3, 1, 2], "a turn with a match charges every skill by 1: %s" % [battle.team.skill_turns])
+	_check(battle.team.skill_turns == [3, 2, 2], "a turn with a match charges every skill by 1: %s" % [battle.team.skill_turns])
 	await _play_until_result(0, FIRE3, false)
 	var end_turns: Array = battle.team.skill_turns.duplicate()
 	await _click(battle.result_panel._next_button)
 	_check(battle.fight_index == 1 and battle.team.skill_turns == end_turns, "charge carries over to the next fight in the Act: %s -> %s" % [end_turns, battle.team.skill_turns])
 	await _use_skill_by_tapping(1)
-	_check(battle.team.skill_turns[1] == 4, "used Mend in fight 2: it needs 4 turns again (%d)" % battle.team.skill_turns[1])
+	_check(battle.team.skill_turns[1] == 5, "used Mend in fight 2: it needs 5 turns again (%d)" % battle.team.skill_turns[1])
 	await _play_until_result(1, BASE, false)
 	await _click(battle.result_panel._retry_button)
 	_check(battle.team.skill_turns == end_turns, "Retry restores the charge this fight started with: %s" % [battle.team.skill_turns])
 	battle.fight_index = battle.act_fights.size() - 1
 	battle._on_next_pressed()
 	await _frames(2)
-	_check(battle.fight_index == 0 and battle.team.skill_turns == [4, 2, 3], "after the last fight a new Act starts half charged again: %s" % [battle.team.skill_turns])
+	_check(battle.fight_index == 0 and battle.team.skill_turns == [4, 3, 3], "after the last fight a new Act starts half charged again: %s" % [battle.team.skill_turns])
 
 	_log("\n== A1: Overrun (Berserker) ==")
 	battle._start_battle(0, Mode.NEW_ACT)
@@ -501,7 +501,7 @@ func _test_active_skills() -> void:
 	await _frames(2)
 	_ready_skill(0)
 	await _use_skill_by_tapping(0)
-	_check(battle.enemies[0].hp == 4000 - 520, "Execute on a healthy enemy: ATK 130 x 4 = 520 -> HP %d (want 3480)" % battle.enemies[0].hp)
+	_check(battle.enemies[0].hp == 4000 - 440, "Shadow Verdict on a healthy enemy: ATK 110 x 4 = 440 -> HP %d (want 3560)" % battle.enemies[0].hp)
 	battle.enemies[0].hp = 900   # 22.5% HP
 	_ready_skill(0)
 	await _use_skill_by_tapping(0)
@@ -513,20 +513,20 @@ func _test_active_skills() -> void:
 	battle.enemies[0].hp = 900
 	_ready_skill(0)
 	await _use_skill_by_tapping(0)
-	_check(battle.enemies[0].hp == 900 - 780, "a BOSS below 25%% is not killed instantly: takes ATK x6 = 780 -> HP %d (want 120)" % battle.enemies[0].hp)
+	_check(battle.enemies[0].hp == 900 - 660, "a BOSS below 25%% is not killed instantly: takes ATK x6 = 660 -> HP %d (want 240)" % battle.enemies[0].hp)
 	battle.test_fight_override = _dummy_fight(4000, false, true)
 	battle._start_battle(0, Mode.NEW_ACT)
 	await _frames(2)
 	_ready_skill(0)
 	await _use_skill_by_tapping(0)
-	_check(battle.enemies[0].hp == 4000 - 520 and not battle.enemies[0].armor_up, "Execute on an ARMOURED enemy breaks the armour and hits in full (520, not 260) -> HP %d" % battle.enemies[0].hp)
+	_check(battle.enemies[0].hp == 4000 - 440 and not battle.enemies[0].armor_up, "Shadow Verdict on an ARMOURED enemy breaks the armour and hits in full (440, not 220) -> HP %d" % battle.enemies[0].hp)
 	battle.test_fight_override = null
 	battle._start_battle(2, Mode.NEW_ACT)
 	await _frames(2)
 	await _click_enemy(2)
 	_ready_skill(0)
 	await _use_skill_by_tapping(0)
-	_check(_enemy_hps() == [500, 500, 0], "Execute goes to the TAPPED enemy (Drone C): HP %s" % [_enemy_hps()])
+	_check(_enemy_hps() == [500, 500, 60], "Shadow Verdict goes to the TAPPED enemy (Drone C: 500 - 440 = 60): HP %s" % [_enemy_hps()])
 	await _shot("a3_execute_target")
 	_story_team()
 
@@ -582,9 +582,9 @@ func _test_leader_skills() -> void:
 	_check(mults == [1.0, 1.5, 2.0, 2.5, 2.5], "team ATK by combos 4 / 5 / 6 / 7 / 9: %s (6 sits between 5 and 7)" % [mults])
 	battle.test_fight_override = _dummy_fight(4000, false, false)
 	ok = await _turn_with(FIVE_COMBOS, 5)
-	# 5 combos = x2.0 combo, x1.5 leader. Dark 130x2x1.5=390, Fire 95x2x2x1.5=570,
-	# Water 72x2x0.5x1.5=108, Wood 78x2x1x1.5=234. Total 1302.
-	_check(ok and battle.enemies[0].hp == 4000 - 1302, "a real 5-combo turn with the Spectre leading: 390 + 570 + 108 + 234 = 1302 -> HP %d" % battle.enemies[0].hp)
+	# 5 combos = x2.0 combo, x1.5 leader. Dark 110x2x1.5=330, Fire 95x2x2x1.5=570,
+	# Water 72x2x0.5x1.5=108, Wood 78x2x1x1.5=234. Total 1242.
+	_check(ok and battle.enemies[0].hp == 4000 - 1242, "a real 5-combo turn with the Spectre leading: 330 + 570 + 108 + 234 = 1242 -> HP %d" % battle.enemies[0].hp)
 	await _shot("k3_five_combos")
 
 	_log("\n== K4: Biotech leader ==")
@@ -612,7 +612,7 @@ func _test_passives() -> void:
 	battle.set_team([_unlocked(BERSERKER, 2), BIOTECH, TITAN])
 	battle._start_battle(0, battle.StartMode.NEW_ACT)
 	await _frames(2)
-	_check(battle.team.skill_turns[0] == 3 and battle.team.skill_turns[1] == 2, "Skill Boost (Evo 1): Overrun starts the Act at 3 turns instead of 4 (others unchanged): %s" % [battle.team.skill_turns])
+	_check(battle.team.skill_turns[0] == 3 and battle.team.skill_turns[1] == 3, "Skill Boost (Evo 1): Overrun starts the Act at 3 turns instead of 4 (others unchanged): %s" % [battle.team.skill_turns])
 	battle.set_team([BIOTECH, _unlocked(BERSERKER, 3), TITAN])
 	battle.test_fight_override = _dummy_fight(4000, false, true)   # armoured
 	ok = await _turn_with(FIRE_SQUARE, 1)
@@ -635,20 +635,26 @@ func _test_passives() -> void:
 	battle.set_team([BERSERKER, BIOTECH, _unlocked(TITAN, 2)])
 	battle._start_battle(0, battle.StartMode.NEW_ACT)
 	await _frames(2)
-	battle.team.hp = 300   # below 30% of 1140 (342)
+	battle.team.hp = 50   # the enemy's 120 would defeat the team
 	_set_board(BASE)
 	await _tap(Vector2i(5, 0))
 	await _await_turn_end()
-	_check(battle.team.hp == 300 - 84, "Last Stand (Evo 1): team below 30%% -> enemy 120 hits for 84 -> team %d" % battle.team.hp)
+	var saved: bool = battle.team.hp == 1 and battle.team.last_stand_used and not battle.result_panel.visible
+	_check(saved, "Last Stand (Evo 1, Stage 3 version): a fatal hit (120 vs 50 HP) leaves the team at 1 HP -> team %d" % battle.team.hp)
+	_set_board(BASE)
+	await _tap(Vector2i(5, 0))
+	await _await_turn_end()
+	_check(battle.team.is_defeated() and battle.result_panel.visible, "Last Stand works once per fight: the next fatal hit defeats the team")
+	var titan3 := _unlocked(TITAN, 3)
+	battle.set_team([BERSERKER, BIOTECH, titan3])
 	battle._start_battle(0, battle.StartMode.NEW_ACT)
 	await _frames(2)
-	battle.team.hp = 900
+	var full: int = battle.team.hp
 	_set_board(BASE)
 	await _tap(Vector2i(5, 0))
 	await _await_turn_end()
-	_check(battle.team.hp == 900 - 120, "Last Stand does nothing above 30%% HP -> team %d" % battle.team.hp)
-	var titan3 := _unlocked(TITAN, 3)
-	_check(titan3.has_passive(&"bind_resist") and not TITAN.has_passive(&"bind_resist"), "Bind Resist (Evo 2): unlocks at stage 3. Nothing to test yet: no enemy uses binds in Act 1")
+	_check(titan3.has_passive(&"damage_resist") and not titan3.has_passive(&"bind_resist") and full - battle.team.hp == 108,
+		"Damage Resist (Evo 2, replaces Bind Resist): enemy 120 hits for 108 -> took %d" % (full - battle.team.hp))
 
 	_log("\n== P7-P9: Spectre passives ==")
 	battle.test_fight_override = _dummy_fight(4000, false, false)
@@ -662,7 +668,7 @@ func _test_passives() -> void:
 	var ok2 := await _turn_with(DARK3, 1, -1, -1, false)
 	ok = ok and ok2
 	var second: int = hp_before - battle.enemies[0].hp
-	_check(ok and first == 260 and second == 130, "Ambush (Lv10): first attack of the fight x2 (260), the next is normal (%d) -> got %d then %d" % [130, first, second])
+	_check(ok and first == 220 and second == 110, "Ambush (Lv10): first attack of the fight x2 (220), the next is normal (%d) -> got %d then %d" % [110, first, second])
 	var sp2 := _unlocked(SPECTRE, 2)
 	var cb6 := CombatRules.passive_multiplier(sp2, [], 6, null, false)
 	var cb7 := CombatRules.passive_multiplier(sp2, [], 7, null, false)
@@ -673,7 +679,7 @@ func _test_passives() -> void:
 	battle.team.has_attacked[1] = true   # Ambush already used
 	battle.enemies[0].hp = 1900          # 47.5% HP
 	ok = await _turn_with(DARK3, 1, -1, -1, false)
-	_check(ok and battle.enemies[0].hp == 1900 - 195, "Finisher (Evo 2): enemy below 50%% -> x1.5: 130 x 1.5 = 195 -> HP %d" % battle.enemies[0].hp)
+	_check(ok and battle.enemies[0].hp == 1900 - 165, "Finisher (Evo 2): enemy below 50%% -> x1.5: 110 x 1.5 = 165 -> HP %d" % battle.enemies[0].hp)
 
 	_log("\n== P10-P12: Biotech passives ==")
 	battle.test_fight_override = null
@@ -701,7 +707,7 @@ func _test_passives() -> void:
 	battle.team.skill_turns.assign([4, 0, 4])
 	battle._refresh_team_ui()
 	await _use_skill_by_tapping(1)
-	_check(battle.team.skill_turns == [3, 4, 3], "Field Medic (Evo 2): using Mend charges both allies by 1 turn: [4, 0, 4] -> %s" % [battle.team.skill_turns])
+	_check(battle.team.skill_turns == [3, 5, 3], "Field Medic (Evo 2): using Mend charges both allies by 1 turn: [4, 0, 4] -> %s" % [battle.team.skill_turns])
 	battle.test_fight_override = null
 	_story_team()
 
@@ -722,7 +728,7 @@ func _test_stacking() -> void:
 	var s2 := _unlocked(SPECTRE, 2)
 	for c in [5, 7, 9]:
 		var bonus := CombatRules.leader_multiplier(s2, s2, empty, c) * CombatRules.passive_multiplier(s2, empty, c, null, false)
-		var dmg := DamageCalculator.attack_damage(130, 3, c, Element.Type.DARK, Element.Type.FIRE, bonus)
+		var dmg := DamageCalculator.attack_damage(110, 3, c, Element.Type.DARK, Element.Type.FIRE, bonus)
 		_log("INFO  Spectre leads + Combo Boost, 3 dark, %d combos: Spectre alone hits Emberfang-9 for %d (%s)" % [c, dmg, "ONE-TURN KILL" if dmg >= boss_hp else "not a kill"])
 	_check(true, "Spectre's Combo Boost needs Evolution 1 (Lv15) and the Spectre joins in Act 2, so the x12 stack cannot happen in Act 1")
 
@@ -761,7 +767,9 @@ func _test_balance() -> void:
 			xp += f.xp
 		end_levels.append(p.level_for_xp(xp))
 		_check(all_survive, "Act %d: average play survives every regular fight; good play survives the mini-bosses and the boss" % n)
-		_check(good_turns[7] == good_turns.max() and good_turns.max() <= 9, "Act %d: the boss is the longest fight with good play (%s)" % [n, good_turns])
+		# Limit 10 since Stage 3 (Spectre ATK 130 -> 110 makes the Act 2+ test team a bit slower;
+		# Acts 2-10 are rebuilt in Stage 6).
+		_check(good_turns[7] == good_turns.max() and good_turns.max() <= 10, "Act %d: the boss is the longest fight with good play, 10 turns at most (%s)" % [n, good_turns])
 		_check(bosses_hold, "Act %d: mini-bosses and the boss survive one perfect 6-combo turn" % n)
 	_check(end_levels == [10, 12, 14, 16, 18, 20, 22, 24, 27, 30], "XP: story team level after each Act's boss: %s (Act 1 -> Lv10 ... Act 10 -> Lv30)" % [end_levels])
 	_log("INFO  Stage 1 balance (2026-11-18): Act 1 is tuned for a Scrap / Alloy team; see tools/stage1_playtest_report.txt.")

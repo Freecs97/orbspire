@@ -185,10 +185,10 @@ func open_detail(uid: int) -> void:
 	if stage < 3:
 		evo_line += "  ·  next: Lv%d + %d Credits + %d Cores -> +%d%% stats, cooldown -1, Passive %d" % [
 			p.level_cap(stage), e.evo_credits[stage - 1], e.evo_cores[stage - 1], roundi(e.evo_stat_bonus * 100), stage + 1]
-	detail_text.text = "%s  ·  %s  ·  %s  ·  Lv%d  ·  %s\nHP %d   ATK %d   RCV %d\n%s\nActive: %s (cooldown %d)\nLeader: %s\n%s\nTraining Cores used: %d" % [
+	detail_text.text = "%s  ·  %s  ·  %s  ·  Lv%d  ·  %s\nHP %d   ATK %d   RCV %d\n%s\nActive: %s (cooldown %d)\nLeader (slot 1): %s: %s\n%s\nTraining Cores used: %d" % [
 		Element.display_name(f.element), roles[f.role], Catalog.rarity_name(u["rarity"]), u["level"], xp_line,
 		f.max_hp, f.atk, f.rcv, evo_line, Skills.display_name(f.active_skill), f.skill_cooldown(),
-		Skills.describe(f.leader_skill), "\n".join(passive_lines), u["cores"]]
+		Skills.display_name(f.leader_skill), Skills.describe(f.leader_skill, f.element), "\n".join(passive_lines), u["cores"]]
 	use_core_button.text = "USE CORE\n+%d XP (have %d)" % [e.core_xp, profile.data["cores"]]
 	use_core_button.disabled = profile.data["cores"] <= 0 or u["level"] >= cap
 	var why_not := profile.can_evolve(_detail_uid)

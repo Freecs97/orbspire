@@ -117,18 +117,51 @@ static func distinct_attack_types(groups: Array) -> int:
 	return seen.size()
 
 
+## Total orbs of one type matched this turn, over every group.
+static func orbs_matched(groups: Array, type: int) -> int:
+	var n := 0
+	for g in groups:
+		if g["type"] == type:
+			n += (g["cells"] as Array).size()
+	return n
+
+
+static func hearts_matched(groups: Array) -> bool:
+	return orbs_matched(groups, Element.Type.HEART) > 0
+
+
 # ---------------------------------------------------------------- leader skills (slot 1 only)
 
 ## ATK multiplier the LEADER's skill gives this member this turn.
-static func leader_multiplier(leader: FighterData, member: FighterData, groups: Array, combos: int) -> float:
+## Only slot 1 leads, so leader skills never stack.
+##   enemy  - the enemy being hit (Cold Precision checks its HP)
+##   team   - the live team (Bloodmoon checks team HP); null in paper sims = full HP
+##   marked - this hit is on the enemy the player TAPPED (Hunter's Mark)
+static func leader_multiplier(leader: FighterData, member: FighterData, groups: Array, combos: int, enemy: Enemy = null, team: Team = null, marked := false) -> float:
 	if leader == null:
 		return 1.0
 	var t := Skills.TUNING
+	var el := leader.element
+	var same := member.element == el
+	var four := has_group(groups, el, t.leader_berserker_group)
 	match leader.leader_skill:
 		&"leader_berserker":
 			# 4+ orbs of the leader's element in one group: that element's hunters x2.
-			if member.element == leader.element and has_group(groups, leader.element, t.leader_berserker_group):
+			if same and four:
 				return t.leader_berserker_mult
+		&"leader_riptide":
+			if same and four:
+				return t.leader_riptide_mult
+		&"leader_overgrowth":
+			if same and four:
+				return t.leader_overgrowth_mult
+		&"leader_bloodmoon":
+			if same:
+				var low := team != null and team.hp_ratio() < t.leader_bloodmoon_hp_ratio
+				return t.leader_bloodmoon_low_mult if low else t.leader_bloodmoon_mult
+		&"leader_zenith":
+			if orbs_matched(groups, el) >= t.leader_zenith_orbs:
+				return t.leader_zenith_mult
 		&"leader_spectre":
 			# x1.5 at 5 combos, x2.5 at 7+. 6 combos sits in between (x2.0).
 			if combos >= t.leader_spectre_high_combos:
@@ -137,23 +170,85 @@ static func leader_multiplier(leader: FighterData, member: FighterData, groups: 
 				var steps := t.leader_spectre_high_combos - t.leader_spectre_low_combos
 				var k := float(combos - t.leader_spectre_low_combos) / steps
 				return lerpf(t.leader_spectre_low_mult, t.leader_spectre_high_mult, k)
+		&"leader_kindled_focus":
+			if same and combos >= t.leader_kindled_combos:
+				return t.leader_kindled_mult
+		&"leader_hunters_mark":
+			if marked:
+				return t.leader_mark_mult
+		&"leader_cold_precision":
+			if enemy != null and enemy.hp_ratio() < t.leader_cold_hp_ratio:
+				return t.leader_cold_mult
+		&"leader_halo_sight":
+			if combos >= t.leader_halo_combos:
+				return t.leader_halo_element_mult if same else t.leader_halo_mult
+		&"leader_molten_ward":
+			if same:
+				return t.leader_molten_atk_mult
 		&"leader_biotech":
 			if distinct_attack_types(groups) >= t.leader_biotech_affinities:
 				return t.leader_biotech_mult
+		&"leader_rootwork":
+			if same and hearts_matched(groups):
+				return t.leader_rootwork_atk_mult
+		&"leader_second_wind":
+			if same and hearts_matched(groups):
+				return t.leader_second_wind_atk_mult
+		&"leader_umbral_pact":
+			if same and distinct_attack_types(groups) >= t.leader_umbral_elements:
+				return t.leader_umbral_mult
+		&"leader_radiance":
+			if hearts_matched(groups):
+				return t.leader_radiance_mult
 	return 1.0
 
 
-## Titan leader: team max HP x1.3 (applied when the team is built).
+## Team max HP from the leader (applied when the team is built).
 static func team_hp_multiplier(leader: FighterData) -> float:
-	if leader and leader.leader_skill == &"leader_titan":
-		return Skills.TUNING.leader_titan_hp_mult
+	if leader == null:
+		return 1.0
+	var t := Skills.TUNING
+	match leader.leader_skill:
+		&"leader_titan": return t.leader_titan_hp_mult
+		&"leader_molten_ward": return t.leader_molten_hp_mult
+		&"leader_deep_current": return t.leader_deep_hp_mult
+		&"leader_iron_pact": return t.leader_iron_hp_mult
+		&"leader_dawn_aegis": return t.leader_aegis_hp_mult
+	return 1.0
+
+
+## Team RCV from the leader (applied when the team is built).
+static func team_rcv_multiplier(leader: FighterData) -> float:
+	if leader == null:
+		return 1.0
+	var t := Skills.TUNING
+	match leader.leader_skill:
+		&"leader_deep_current": return t.leader_deep_rcv_mult
+		&"leader_second_wind": return t.leader_second_wind_rcv_mult
+		&"leader_umbral_pact": return t.leader_umbral_rcv_mult
+	return 1.0
+
+
+## How much of an enemy hit the team takes because of the leader (1.0 = all).
+static func leader_damage_taken(team: Team) -> float:
+	var leader := team.leader()
+	if leader == null:
+		return 1.0
+	var t := Skills.TUNING
+	match leader.leader_skill:
+		&"leader_dawn_aegis":
+			return t.leader_aegis_damage_taken
+		&"leader_iron_pact":
+			if team.hp_ratio() < t.leader_iron_hp_ratio:
+				return t.leader_iron_damage_taken
 	return 1.0
 
 
 # ---------------------------------------------------------------- passives
 
-## ATK multiplier from this member's OWN unlocked passives, against `enemy`.
-static func passive_multiplier(member: FighterData, groups: Array, combos: int, enemy: Enemy, first_attack: bool) -> float:
+## ATK multiplier from this member's OWN unlocked passives, against `enemy`,
+## plus TEAM passives that boost it (Fire ATK Up). `team` null = paper sim.
+static func passive_multiplier(member: FighterData, groups: Array, combos: int, enemy: Enemy, first_attack: bool, team: Team = null) -> float:
 	var t := Skills.TUNING
 	var m := 1.0
 	if member.has_passive(&"cleave") and has_group(groups, member.element, t.cleave_group):
@@ -166,6 +261,13 @@ static func passive_multiplier(member: FighterData, groups: Array, combos: int, 
 		m *= t.combo_boost_mult
 	if member.has_passive(&"finisher") and enemy and enemy.hp_ratio() < t.finisher_hp_ratio:
 		m *= t.finisher_mult
+	if member.has_passive(&"orb_enhance") and has_group(groups, member.element, t.orb_enhance_group):
+		m *= t.orb_enhance_mult
+	if team != null:
+		if member.has_passive(&"bloodlust") and team.hp_ratio() < t.bloodlust_hp_ratio:
+			m *= t.bloodlust_mult
+		if member.element == Element.Type.FIRE and team_has(team, &"fire_atk_up"):
+			m *= t.fire_atk_up_mult   # TEAM passive: counts once
 	return m
 
 
@@ -182,25 +284,48 @@ static func team_has(team: Team, id: StringName) -> bool:
 	return false
 
 
-## Seconds to move orbs: 5, +1 with Time Extend on the team.
+## Seconds to move orbs: 5, +1 with Time Extend on the team (counts once),
+## +1 with the Radiance leader.
 static func move_time(team: Team) -> float:
 	var s := Board.MOVE_TIME
 	if team_has(team, &"time_extend"):
 		s += Skills.TUNING.time_extend_seconds
+	var leader := team.leader()
+	if leader and leader.leader_skill == &"leader_radiance":
+		s += Skills.TUNING.leader_radiance_seconds
 	return s
 
 
-## Total healing this turn: Hearts (x1.5 with Overflow Heal on a 5+ Heart group)
-## plus the Biotech leader's 10% when 3+ elements were matched.
+## Total healing this turn (never above max HP: Team.heal caps it):
+##   Hearts x team RCV (x1.5 Overflow Heal on a 5+ Heart group; x1.5 Rootwork leader)
+##   + Lifeline leader 10% when 2+ elements were matched
+##   + Overgrowth leader 5% on a 4+ group of its element
+##   + Regrowth 4% for each hunter with it whose element was matched
 static func turn_heal(team: Team, hearts: int, groups: Array) -> int:
 	var t := Skills.TUNING
 	var amount := team.total_rcv * (hearts / 3.0)   # same as DamageCalculator.healing, before rounding
 	if hearts > 0 and team_has(team, &"overflow_heal") and has_group(groups, Element.Type.HEART, t.overflow_group):
 		amount *= t.overflow_mult
 	var leader := team.leader()
-	if leader and leader.leader_skill == &"leader_biotech" and distinct_attack_types(groups) >= t.leader_biotech_affinities:
-		amount += team.max_hp * t.leader_biotech_heal_ratio
+	if leader:
+		match leader.leader_skill:
+			&"leader_biotech":
+				if distinct_attack_types(groups) >= t.leader_biotech_affinities:
+					amount += team.max_hp * t.leader_biotech_heal_ratio
+			&"leader_rootwork":
+				amount *= t.leader_rootwork_heal_mult
+			&"leader_overgrowth":
+				if has_group(groups, leader.element, t.leader_berserker_group):
+					amount += team.max_hp * t.leader_overgrowth_heal_ratio
+	for m in team.members:
+		if m.has_passive(&"regrowth") and orbs_matched(groups, m.element) > 0:
+			amount += team.max_hp * t.regrowth_heal_ratio
 	return roundi(amount)
+
+
+## A damage skill's hit: ATK x mult x element (no combo maths, ignores DEF).
+static func skill_hit(member: FighterData, enemy: Enemy, mult: float) -> int:
+	return roundi(member.atk * mult * Element.multiplier(member.element, enemy.data.element))
 
 
 # ---------------------------------------------------------------- active skills

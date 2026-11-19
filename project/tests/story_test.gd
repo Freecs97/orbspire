@@ -115,10 +115,10 @@ func _test_starter_screen() -> void:
 		var t := Catalog.template(id)
 		names.append("%s (%s)" % [t.display_name, t.title])
 		same = same and t.role == FighterData.Role.BERSERKER and t.max_hp == t0.max_hp and t.atk == t0.atk and t.rcv == t0.rcv \
-			and t.active_skill == t0.active_skill and t.leader_skill == t0.leader_skill and t.passives == t0.passives
+			and t.active_skill == &"overrun" and (id == Profile.STARTERS[0] or (t.leader_skill != t0.leader_skill and t.passives != t0.passives))
 	var els := [Catalog.template(Profile.STARTERS[0]).element, Catalog.template(Profile.STARTERS[1]).element, Catalog.template(Profile.STARTERS[2]).element]
 	_check(s.cards.size() == 3 and els == [Element.Type.FIRE, Element.Type.WATER, Element.Type.WOOD], "3 starters, one per element: %s" % ", ".join(names))
-	_check(same, "all 3 are Berserkers with IDENTICAL HP / ATK / RCV, active, leader and passives (%d / %d / %d)" % [t0.max_hp, t0.atk, t0.rcv])
+	_check(same, "all 3 are Berserkers with IDENTICAL HP / ATK / RCV (%d / %d / %d) and Overrun; each has their OWN leader skill and passives (Stage 3)" % [t0.max_hp, t0.atk, t0.rcv])
 	_check(s.start_button.disabled and s.start_button.text == "TAP A STARTER", "nothing is picked for you: START is off until you tap one")
 	await _shot("s2b_starter_screen")
 	await _click(s.cards[1])

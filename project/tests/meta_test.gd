@@ -55,7 +55,7 @@ func _test_start() -> void:
 	_check(suid > 0 and p.data["units"].size() == 1 and p.data["team"] == [suid] and p.data["starter"] == Profile.STARTERS[0],
 		"pick Kaela Rynn: she is your whole team (1 character), saved as your starter")
 	_check(p.choose_starter(Profile.STARTERS[1]) == -1 and p.data["units"].size() == 1, "picking again does nothing (only a New Game changes it)")
-	var want_stats := {"berserker_01_angel_fire": [320, 95, 10], "titan_02_guardian_fire": [470, 78, 26], "spectre_02_mage_fire": [230, 130, 8], "biotech_03_healer_fire": [350, 72, 46]}
+	var want_stats := {"berserker_01_angel_fire": [320, 95, 10], "titan_02_guardian_fire": [470, 78, 26], "spectre_02_mage_fire": [230, 110, 8], "biotech_03_healer_fire": [350, 72, 46]}
 	var stats_ok := true
 	for id in want_stats:
 		var t := Catalog.template(id)
@@ -64,7 +64,7 @@ func _test_start() -> void:
 		var t := Catalog.template(id)
 		var ref := Catalog.template(Catalog.id_for(t.role, Element.Type.FIRE))
 		stats_ok = stats_ok and t.max_hp == ref.max_hp and t.atk == ref.atk and t.rcv == ref.rcv
-	_check(stats_ok, "Lv1 stats per type (all 5 of each type the same): Berserker 320/95/10, Titan 470/78/26 (was 420/65/22), Spectre 230/130/8, Biotech 350/72/46 (was 320/55/40)")
+	_check(stats_ok, "Lv1 stats per type (all 5 of each type the same): Berserker 320/95/10, Titan 470/78/26 (was 420/65/22), Spectre 230/110/8 (Stage 3: was 130 ATK), Biotech 350/72/46 (was 320/55/40)")
 	var all_lv1_forged := true
 	for u in p.data["units"]:
 		all_lv1_forged = all_lv1_forged and u["level"] == 1 and u["rarity"] == 2
@@ -448,7 +448,7 @@ func _test_team_select() -> void:
 	main.start_act(1, 0, false)
 	await _frames(4)
 	var b = main.battle
-	_check(b.team.members.size() == 3 and b.team.members[0].display_name == "IRIS VALE" and b.team.leader().leader_skill == &"leader_berserker", "Act 1 fights with the chosen team (leader: %s)" % b.team.members[0].display_name)
+	_check(b.team.members.size() == 3 and b.team.members[0].display_name == "IRIS VALE" and b.team.leader().leader_skill == &"leader_riptide", "Act 1 fights with the chosen team (leader: %s, her own leader skill Riptide)" % b.team.members[0].display_name)
 	main.show_star_map()
 	await _frames(2)
 

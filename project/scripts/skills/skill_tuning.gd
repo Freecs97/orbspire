@@ -28,6 +28,75 @@ extends Resource
 @export var mend_heal_ratio := 0.3        ## 30% of max HP.
 @export var mend_hearts := 3              ## Orbs turned into Hearts.
 
+@export_group("Active: Night Rend (Corvin)")
+@export var night_rend_cooldown := 8
+@export var night_rend_atk_mult := 2.0         ## Hits EVERY enemy, breaks armour.
+
+@export_group("Active: Solar Flare (Sol)")
+@export var solar_flare_cooldown := 7
+@export var solar_flare_atk_mult := 1.5        ## Its element's hunters, this turn.
+
+@export_group("Active: Ember Lance (Joren)")
+@export var ember_lance_cooldown := 7
+@export var ember_lance_atk_mult := 5.0
+
+@export_group("Active: Thorn Snipe (Wren)")
+@export var thorn_snipe_cooldown := 6
+@export var thorn_snipe_atk_mult := 3.0
+@export var thorn_snipe_vulnerable := 1.25     ## Target takes +25% from everything...
+@export var thorn_snipe_turns := 2             ## ...for this many turns.
+
+@export_group("Active: Undertow Strike (Kai)")
+@export var undertow_cooldown := 8
+@export var undertow_atk_mult := 3.0
+@export var undertow_low_atk_mult := 5.0       ## If the target is below...
+@export var undertow_low_ratio := 0.5          ## ...50% HP.
+
+@export_group("Active: Radiant Pierce (Lyra)")
+@export var radiant_pierce_cooldown := 7
+@export var radiant_pierce_atk_mult := 3.0
+@export var radiant_pierce_orbs := 3           ## Random orbs turned into its element.
+
+@export_group("Active: Forge Guard (Freya)")
+@export var forge_guard_cooldown := 7
+@export var forge_guard_damage_taken := 0.65   ## 35% less...
+@export var forge_guard_attacks := 3           ## ...for the next 3 enemy attacks.
+@export var forge_guard_counter_mult := 1.0    ## She strikes back for ATK x this.
+
+@export_group("Active: Tidewall (Rowan)")
+@export var tidewall_cooldown := 7
+@export var tidewall_heal_ratio := 0.15
+@export var tidewall_damage_taken := 0.6
+@export var tidewall_attacks := 2
+
+@export_group("Active: Gravity Well (Dmitri)")
+@export var gravity_well_cooldown := 8
+@export var gravity_well_atk_mult := 0.7       ## Every enemy's ATK -30%...
+@export var gravity_well_turns := 2            ## ...for their next 2 attacks.
+
+@export_group("Active: Sanctuary (Aurelia)")
+@export var sanctuary_cooldown := 9
+@export var sanctuary_heal_ratio := 0.1
+@export var sanctuary_blocks := 1              ## Enemy attacks blocked completely.
+
+@export_group("Active: Spore Bloom (Silas)")
+@export var spore_bloom_cooldown := 6
+
+@export_group("Active: Cauterize (Ash)")
+@export var cauterize_cooldown := 7
+@export var cauterize_heal_ratio := 0.2
+@export var cauterize_atk_mult := 1.5
+
+@export_group("Active: Night Bloom (Selene)")
+@export var night_bloom_cooldown := 8
+@export var night_bloom_heal_ratio := 0.12     ## At the start of each of the next...
+@export var night_bloom_turns := 3             ## ...3 turns.
+
+@export_group("Active: Dawn Chorus (Luca)")
+@export var dawn_chorus_cooldown := 6
+@export var dawn_chorus_hearts := 4
+@export var dawn_chorus_seconds := 2.0
+
 @export_group("Leader skills")
 @export var leader_berserker_group := 4
 @export var leader_berserker_mult := 2.0
@@ -40,6 +109,41 @@ extends Resource
 @export var leader_biotech_affinities := 3
 @export var leader_biotech_mult := 1.5
 @export var leader_biotech_heal_ratio := 0.1
+@export var leader_riptide_mult := 1.75
+@export var leader_riptide_damage_taken := 0.85   ## Next enemy hit 15% weaker.
+@export var leader_overgrowth_mult := 1.75
+@export var leader_overgrowth_heal_ratio := 0.05
+@export var leader_bloodmoon_mult := 1.15
+@export var leader_bloodmoon_low_mult := 2.0
+@export var leader_bloodmoon_hp_ratio := 0.5
+@export var leader_zenith_orbs := 7
+@export var leader_zenith_mult := 1.75
+@export var leader_kindled_combos := 5
+@export var leader_kindled_mult := 2.25
+@export var leader_mark_mult := 1.75
+@export var leader_cold_hp_ratio := 0.5
+@export var leader_cold_mult := 2.0
+@export var leader_halo_combos := 4
+@export var leader_halo_mult := 1.25
+@export var leader_halo_element_mult := 1.75
+@export var leader_molten_hp_mult := 1.2
+@export var leader_molten_atk_mult := 1.3
+@export var leader_deep_hp_mult := 1.2
+@export var leader_deep_rcv_mult := 1.5
+@export var leader_iron_hp_mult := 1.25
+@export var leader_iron_hp_ratio := 0.5
+@export var leader_iron_damage_taken := 0.7
+@export var leader_aegis_hp_mult := 1.15
+@export var leader_aegis_damage_taken := 0.85
+@export var leader_rootwork_heal_mult := 1.5
+@export var leader_rootwork_atk_mult := 1.5
+@export var leader_second_wind_rcv_mult := 1.3
+@export var leader_second_wind_atk_mult := 1.5
+@export var leader_umbral_rcv_mult := 1.3
+@export var leader_umbral_elements := 3
+@export var leader_umbral_mult := 2.0
+@export var leader_radiance_seconds := 1.0
+@export var leader_radiance_mult := 1.3
 
 @export_group("Passives")
 @export var cleave_group := 4
@@ -47,9 +151,21 @@ extends Resource
 @export var skill_boost_turns := 1
 @export var breaker_mult := 2.5
 @export var counter_atk_mult := 1.0
-@export var last_stand_hp_ratio := 0.3
-@export var last_stand_damage_taken := 0.7
+## Last Stand: once per fight, a hit that would defeat the team leaves it at 1 HP.
 @export var bind_resist_chance := 0.5
+@export var regrowth_heal_ratio := 0.04
+@export var bloodlust_hp_ratio := 0.5
+@export var bloodlust_mult := 1.3
+@export var orb_enhance_group := 5
+@export var orb_enhance_mult := 1.3
+@export var hp_up_ratio := 0.15
+@export var rcv_up_ratio := 0.25
+@export var retaliation_hp_ratio := 0.5
+@export var retaliation_mult := 2.0
+@export var damage_resist_taken := 0.9
+@export var heart_charge_hearts := 5
+@export var heart_charge_turns := 1
+@export var fire_atk_up_mult := 1.1
 @export var ambush_mult := 2.0
 @export var combo_boost_combos := 7
 @export var combo_boost_mult := 2.0

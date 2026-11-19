@@ -91,13 +91,12 @@ func open(index: int, data: FighterData, is_leader: bool, turns_left: int, can_u
 
 	var cd := data.skill_cooldown()
 	_section("ACTIVE: %s  ·  cooldown %d" % [Skills.display_name(data.active_skill).to_upper(), cd], Color("ffd23f"))
-	_text(Skills.describe(data.active_skill), Color.WHITE)
+	_text(Skills.describe(data.active_skill, data.element), Color.WHITE)
 	_text("READY!" if turns_left <= 0 else "Ready in %d turn%s (charges on turns you make a match)" % [turns_left, "" if turns_left == 1 else "s"],
 		Color("6dff8a") if turns_left <= 0 else Color("a9a3c9"))
 
-	if is_leader:
-		_section("LEADER SKILL (slot 1)", Color("ffd23f"))
-		_text(Skills.describe(data.leader_skill), Color.WHITE)
+	_section("LEADER: %s  ·  %s" % [Skills.display_name(data.leader_skill).to_upper(), "ACTIVE (slot 1)" if is_leader else "only works in slot 1"], Color("ffd23f"))
+	_text(Skills.describe(data.leader_skill, data.element), Color.WHITE if is_leader else Color("6f6a8a"))
 
 	_section("PASSIVES", Color("ffd23f"))
 	for i in data.passives.size():
@@ -105,7 +104,7 @@ func open(index: int, data: FighterData, is_leader: bool, turns_left: int, can_u
 		var unlocked := i < data.passives_unlocked
 		var when: String = Skills.UNLOCK_TEXT[mini(i, 2)]
 		var head := "%s  (%s)" % [Skills.display_name(id), "unlocked" if unlocked else "locked until " + when]
-		_text(head + ": " + Skills.describe(id), Color.WHITE if unlocked else Color("6f6a8a"))
+		_text(head + ": " + Skills.describe(id, data.element), Color.WHITE if unlocked else Color("6f6a8a"))
 
 	use_button.disabled = not (turns_left <= 0 and can_use_now)
 	use_button.modulate = Color.WHITE if not use_button.disabled else Color(1, 1, 1, 0.4)

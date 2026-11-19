@@ -20,11 +20,26 @@ var armor_up := false
 var turn_taken := 0
 ## false = no Resolve (only the balance tools use this, to measure raw damage).
 var resolve := true
+## Thorn Snipe: takes x vulnerable_mult damage from everything for this many player turns.
+var vulnerable_turns := 0
+var vulnerable_mult := 1.0
+## Gravity Well: its next N attacks are weaker.
+var weakened_attacks := 0
+var weakened_mult := 1.0
 
 
 ## Call at the start of every player turn.
 func new_turn() -> void:
 	turn_taken = 0
+	vulnerable_turns = maxi(vulnerable_turns - 1, 0)
+
+
+## Its attack this enemy turn (Gravity Well softens it and uses up one charge).
+func attack_power() -> float:
+	if weakened_attacks > 0:
+		weakened_attacks -= 1
+		return data.atk * weakened_mult
+	return float(data.atk)
 
 
 ## How much more damage this enemy can take this turn (Resolve), or -1 = no limit.
@@ -43,6 +58,8 @@ func _init(enemy_data: FighterData) -> void:
 
 ## Apply one hit. Returns the damage actually dealt (after armour, capped by HP).
 func take_hit(amount: int, breaks_armor := false, ignores_armor := false) -> int:
+	if vulnerable_turns > 0:
+		amount = roundi(amount * vulnerable_mult)
 	if armor_up and breaks_armor:
 		armor_up = false
 	elif armor_up and not ignores_armor:

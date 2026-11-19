@@ -75,7 +75,7 @@ func refresh() -> void:
 	var lead := profile.unit(profile.data["team"][0]) if not profile.data["team"].is_empty() else {}
 	if not lead.is_empty():
 		var t := Catalog.template(lead["id"])
-		leader_text.text = "LEADER: %s (%s)\n%s" % [t.display_name, t.title, Skills.describe(t.leader_skill)]
+		leader_text.text = "LEADER: %s (%s)\n%s: %s" % [t.display_name, t.title, Skills.display_name(t.leader_skill), Skills.describe(t.leader_skill, t.element)]
 	picker.size = size
 
 

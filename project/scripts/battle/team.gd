@@ -1,6 +1,6 @@
 class_name Team
 extends RefCounted
-## The player's team: 3-4 hunters sharing ONE HP pool (like the genre does).
+## The player's team: 1-4 hunters sharing ONE HP pool (like the genre does).
 ##
 ## Plain English: we add up everyone's HP into one bar and everyone's RCV into
 ## one healing number. Enemies hit the shared bar; Hearts refill it.
@@ -9,7 +9,11 @@ extends RefCounted
 ## This also holds the team's live battle effects:
 ##   - skill_turns[i]: turns until hunter i's active skill is ready (0 = ready)
 ##   - bulwark_attacks: enemy attacks still softened by Bulwark
-##   - guard_next_hit: the Titan leader's "next hit does less" is armed
+##   - shields: other "next N attacks do less" skills (Forge Guard, Tidewall, Sanctuary)
+##   - guard_next_hit / guard_mult: a leader's "next hit does less" (Stone Wall, Riptide)
+##   - last_stand_used: Last Stand already saved the team this fight
+##   - regen_turns: Night Bloom heals left (start of each turn)
+##   - boost_element / boost_mult: one-turn ATK boost from a skill (Solar Flare, Cauterize)
 
 var members: Array[FighterData] = []
 var max_hp := 0
@@ -18,19 +22,31 @@ var total_rcv := 0
 var skill_turns: Array[int] = []
 var bulwark_attacks := 0
 var guard_next_hit := false
+var guard_mult := 1.0
+## Each: {"name": String, "attacks": int, "mult": float, "counter": member index or -1}
+var shields: Array = []
+var last_stand_used := false
+var regen_turns := 0
+var regen_ratio := 0.0
+var boost_element := -1
+var boost_mult := 1.0
 ## Spectre's Ambush: has hunter i already attacked in this fight?
 var has_attacked: Array[bool] = []
 
 
 func _init(member_data: Array[FighterData]) -> void:
 	members = member_data
+	var t := Skills.TUNING
+	var rcv := 0.0
+	var hp_sum := 0.0
 	for m in members:
-		max_hp += m.max_hp
-		total_rcv += m.rcv
+		hp_sum += m.max_hp * (1.0 + (t.hp_up_ratio if m.has_passive(&"hp_up") else 0.0))
+		rcv += m.rcv * (1.0 + (t.rcv_up_ratio if m.has_passive(&"rcv_up") else 0.0))
 		skill_turns.append(m.skill_cooldown())
 		has_attacked.append(false)
-	# Titan leader skill: team HP x1.3.
-	max_hp = roundi(max_hp * CombatRules.team_hp_multiplier(leader()))
+	# Leader skills: team HP x (Stone Wall, Molten Ward, ...), team RCV x (Deep Current, ...).
+	max_hp = roundi(hp_sum * CombatRules.team_hp_multiplier(leader()))
+	total_rcv = roundi(rcv * CombatRules.team_rcv_multiplier(leader()))
 	hp = max_hp
 
 
@@ -68,3 +84,12 @@ func tick_skills(turns := 1) -> void:
 
 func hp_ratio() -> float:
 	return float(hp) / maxi(max_hp, 1)
+
+
+func add_shield(shield_name: String, attacks: int, mult: float, counter := -1) -> void:
+	shields.append({"name": shield_name, "attacks": attacks, "mult": mult, "counter": counter})
+
+
+## One-turn skill boost for this member (x1 if none).
+func boost_for(member: FighterData) -> float:
+	return boost_mult if boost_element >= 0 and member.element == boost_element else 1.0

@@ -501,6 +501,11 @@ func _begin_player_turn() -> void:
 	for e in enemies:
 		e.new_turn()   # Resolve: the per-turn damage limit starts over
 	board.move_time = CombatRules.move_time(team)
+	# Night Bloom: heal at the start of each of the next turns.
+	if team.regen_turns > 0 and turn_count > 0:
+		team.regen_turns -= 1
+		_heal_fx(team.heal(roundi(team.max_hp * team.regen_ratio)), Color("6dff8a"))
+		_refresh_team_ui()
 	board.begin_player_turn()
 
 
@@ -523,8 +528,12 @@ func _refresh_team_ui() -> void:
 	var parts := PackedStringArray()
 	if team.bulwark_attacks > 0:
 		parts.append("BULWARK: -%d%% x%d" % [roundi((1.0 - Skills.TUNING.bulwark_damage_taken) * 100), team.bulwark_attacks])
+	for s in team.shields:
+		parts.append("%s: %s x%d" % [s["name"], "BLOCK" if s["mult"] <= 0.0 else "-%d%%" % roundi((1.0 - s["mult"]) * 100), s["attacks"]])
 	if team.guard_next_hit:
-		parts.append("GUARD: -%d%% next hit" % roundi((1.0 - Skills.TUNING.leader_titan_damage_taken) * 100))
+		parts.append("GUARD: -%d%% next hit" % roundi((1.0 - team.guard_mult) * 100))
+	if team.regen_turns > 0:
+		parts.append("NIGHT BLOOM x%d" % team.regen_turns)
 	team_status_label.text = "   ".join(parts)
 
 
@@ -589,27 +598,120 @@ func use_skill(i: int) -> bool:
 	FloatingText.spawn(world, team_views[i].position + Vector2(0, -team_views[i].card_size.y - 20), Skills.display_name(member.active_skill).to_upper() + "!", Element.color(member.element).lightened(0.4), 58, 50.0, 0.6)
 	await _wait(0.25)
 
+	var col := Element.color(member.element)
+	var from_pos := team_views[i].position + Vector2(0, -team_views[i].card_size.y * 0.55)
+	SkillFx.ring(world, from_pos, col, 40.0, 190.0, 0.4)
 	match member.active_skill:
 		&"overrun":
 			# Every orb of the element this hunter beats becomes its own element.
 			var from: int = Element.BEATS.get(member.element, -1)
+			_board_burst(col)
 			var changed := board.convert_type(from, member.element)
-			FloatingText.spawn(world, board.position + Vector2(495, 400), "%d %s -> %s" % [changed, Element.display_name(from), Element.display_name(member.element)], Element.color(member.element).lightened(0.4), 52, 40.0, 0.6)
+			FloatingText.spawn(world, board.position + Vector2(495, 400), "%d %s -> %s" % [changed, Element.display_name(from), Element.display_name(member.element)], col.lightened(0.4), 52, 40.0, 0.6)
 		&"bulwark":
 			team.bulwark_attacks = t.bulwark_attacks
+			_team_dome(col)
 		&"execute":
 			var target := CombatRules.pick_target(enemies, target_index)
 			if target >= 0:
 				var enemy := enemies[target]
+				await _strike_fx(from_pos, target, col, 20.0)
 				var damage := CombatRules.execute_damage(member, enemy)
 				var dealt := enemy.take_hit(damage, true)   # a skill hit always breaks armour
 				_show_hit(target, dealt, member, 1)
 				_update_enemy_labels()
 		&"mend":
 			var healed := team.heal(roundi(team.max_hp * t.mend_heal_ratio))
-			team_bar.set_values(team.hp, team.max_hp)
-			FloatingText.spawn(world, _team_text_pos(), "+%d" % healed, Color("6dff8a"), 64, 60.0)
+			_heal_fx(healed, Color("6dff8a"))
+			_board_burst(Element.color(Element.Type.HEART))
 			board.convert_random(t.mend_hearts, Element.Type.HEART)
+		&"night_rend":
+			# Hits EVERY enemy for ATK x2 (its element), and breaks their armour.
+			for k in enemies.size():
+				if enemies[k].is_defeated():
+					continue
+				var c := _enemy_center(k)
+				SkillFx.streak(world, c + Vector2(-140, -140), c + Vector2(140, 140), col, 22.0, 0.3)
+				SkillFx.streak(world, c + Vector2(140, -140), c + Vector2(-140, 140), col, 22.0, 0.3)
+			await _wait(0.16)
+			_shake_screen(9.0, 0.25)
+			for k in enemies.size():
+				if enemies[k].is_defeated():
+					continue
+				SkillFx.ring(world, _enemy_center(k), col, 30.0, 170.0, 0.4)
+				var dealt := enemies[k].take_hit(CombatRules.skill_hit(member, enemies[k], t.night_rend_atk_mult), true)
+				_show_hit(k, dealt, member, 1)
+			_update_enemy_labels()
+		&"solar_flare":
+			# Bottom row -> its element; its element's hunters hit x1.5 this turn.
+			var y := Board.ROWS - 1
+			SkillFx.flash(world, board.position + Vector2(0, y * Board.CELL), Vector2(Board.COLS * Board.CELL, Board.CELL), Color(col, 0.75), 0.5)
+			SkillFx.sparkles(world, board.position + Vector2(Board.COLS * Board.CELL * 0.5, (y + 0.5) * Board.CELL), Vector2(480, 40), col, 24)
+			for x in Board.COLS:
+				(board.grid[x][y] as Orb).change_to(member.element)
+			team.boost_element = member.element
+			team.boost_mult = t.solar_flare_atk_mult
+			FloatingText.spawn(world, board.position + Vector2(495, 400), "%s x%s THIS TURN" % [Element.display_name(member.element), Skills._num(t.solar_flare_atk_mult)], col.lightened(0.4), 50, 40.0, 0.6)
+		&"ember_lance", &"thorn_snipe", &"undertow_strike", &"radiant_pierce":
+			var target := CombatRules.pick_target(enemies, target_index)
+			if target >= 0:
+				var enemy := enemies[target]
+				var mult := 1.0
+				match member.active_skill:
+					&"ember_lance": mult = t.ember_lance_atk_mult
+					&"thorn_snipe": mult = t.thorn_snipe_atk_mult
+					&"undertow_strike": mult = t.undertow_low_atk_mult if enemy.hp_ratio() < t.undertow_low_ratio else t.undertow_atk_mult
+					&"radiant_pierce": mult = t.radiant_pierce_atk_mult
+				await _strike_fx(from_pos, target, col, 30.0 if member.active_skill == &"ember_lance" else 18.0)
+				# Skill hits break armour (Ember Lance goes straight through it).
+				var dealt := enemy.take_hit(CombatRules.skill_hit(member, enemy, mult), true)
+				_show_hit(target, dealt, member, 1)
+				if member.active_skill == &"thorn_snipe" and not enemy.is_defeated():
+					enemy.vulnerable_turns = t.thorn_snipe_turns
+					enemy.vulnerable_mult = t.thorn_snipe_vulnerable
+					FloatingText.spawn(world, _enemy_center(target) + Vector2(0, -150), "VULNERABLE +%d%%" % roundi((t.thorn_snipe_vulnerable - 1.0) * 100), col.lightened(0.4), 42, 40.0, 0.6)
+				if member.active_skill == &"radiant_pierce":
+					_board_burst(col)
+					board.convert_random(t.radiant_pierce_orbs, member.element)
+				_update_enemy_labels()
+		&"forge_guard":
+			team.add_shield("FORGE GUARD", t.forge_guard_attacks, t.forge_guard_damage_taken, i)
+			_team_dome(col)
+		&"tidewall":
+			_heal_fx(team.heal(roundi(team.max_hp * t.tidewall_heal_ratio)), Color("6dff8a"))
+			team.add_shield("TIDEWALL", t.tidewall_attacks, t.tidewall_damage_taken)
+			_team_dome(col)
+		&"gravity_well":
+			for k in enemies.size():
+				if enemies[k].is_defeated():
+					continue
+				SkillFx.ring(world, _enemy_center(k), col, 220.0, 20.0, 0.6, 16.0)
+				enemies[k].weakened_attacks = t.gravity_well_turns
+				enemies[k].weakened_mult = t.gravity_well_atk_mult
+				FloatingText.spawn(world, _enemy_center(k) + Vector2(0, -150), "ATK -%d%%" % roundi((1.0 - t.gravity_well_atk_mult) * 100), col.lightened(0.4), 46, 40.0, 0.6)
+		&"sanctuary":
+			team.add_shield("SANCTUARY", t.sanctuary_blocks, 0.0)
+			_team_dome(Color("ffe9a0"))
+			_heal_fx(team.heal(roundi(team.max_hp * t.sanctuary_heal_ratio)), Color("6dff8a"))
+		&"spore_bloom":
+			_board_burst(Element.color(Element.Type.HEART))
+			var changed := board.convert_type(Element.Type.DARK, Element.Type.HEART)
+			FloatingText.spawn(world, board.position + Vector2(495, 400), "%d DARK -> HEART" % changed, Element.color(Element.Type.HEART).lightened(0.3), 52, 40.0, 0.6)
+		&"cauterize":
+			_heal_fx(team.heal(roundi(team.max_hp * t.cauterize_heal_ratio)), Color("6dff8a"))
+			team.boost_element = member.element
+			team.boost_mult = t.cauterize_atk_mult
+			FloatingText.spawn(world, board.position + Vector2(495, 400), "%s x%s THIS TURN" % [Element.display_name(member.element), Skills._num(t.cauterize_atk_mult)], col.lightened(0.4), 50, 40.0, 0.6)
+		&"night_bloom":
+			team.regen_turns = t.night_bloom_turns
+			team.regen_ratio = t.night_bloom_heal_ratio
+			SkillFx.sparkles(world, _team_text_pos() + Vector2(0, -120), Vector2(420, 60), col.lightened(0.3), 26, 1.0)
+		&"dawn_chorus":
+			_board_burst(Element.color(Element.Type.HEART))
+			board.convert_random(t.dawn_chorus_hearts, Element.Type.HEART)
+			board.move_time += t.dawn_chorus_seconds
+			_on_timer_changed(1.0)
+			FloatingText.spawn(world, board.position + Vector2(495, 400), "+%s s THIS TURN" % Skills._num(t.dawn_chorus_seconds), col.lightened(0.4), 52, 40.0, 0.6)
 	if member.has_passive(&"field_medic"):
 		# Field Medic: using the skill charges every OTHER ally's skill by 1 turn.
 		for j in team.skill_turns.size():
@@ -625,6 +727,37 @@ func use_skill(i: int) -> bool:
 	_busy = false
 	board.begin_player_turn()
 	return true
+
+
+## Skill FX helpers (code-only effects, see scripts/anim/skill_fx.gd).
+func _enemy_center(k: int) -> Vector2:
+	return enemy_position(k) + Vector2(0, -enemies[k].data.figure_height * 0.5)
+
+
+## A beam from the hunter to enemy `target`, then a ring where it lands.
+## Returns when the beam arrives, so the damage number shows on impact.
+func _strike_fx(from_pos: Vector2, target: int, col: Color, w: float) -> void:
+	SkillFx.streak(world, from_pos, _enemy_center(target), col, w, 0.32)
+	await _wait(0.15)
+	SkillFx.ring(world, _enemy_center(target), col, 30.0, 180.0, 0.4)
+	_shake_screen(6.0, 0.18)
+
+
+func _board_burst(col: Color) -> void:
+	var c := board.position + Vector2(Board.COLS * Board.CELL, Board.ROWS * Board.CELL) * 0.5
+	SkillFx.ring(world, c, col, 60.0, 520.0, 0.5, 18.0)
+	SkillFx.sparkles(world, c, Vector2(440, 330), col.lightened(0.2), 22)
+
+
+## A shield dome over the team cards.
+func _team_dome(col: Color) -> void:
+	SkillFx.dome(world, Vector2(540, TEAM_FEET_Y + _extra_height + 10), Vector2(520, 330), col.lightened(0.2), 1.0)
+
+
+func _heal_fx(healed: int, col: Color) -> void:
+	team_bar.set_values(team.hp, team.max_hp)
+	SkillFx.sparkles(world, _team_text_pos() + Vector2(0, -60), Vector2(420, 40), col, 20)
+	FloatingText.spawn(world, _team_text_pos(), "+%d" % healed, col, 64, 60.0)
 
 
 ## Choose which enemy single-target attacks go to (-1 = the front enemy).
@@ -686,14 +819,25 @@ func _on_turn_finished(combos: int, cleared: Dictionary, groups: Array) -> void:
 		team_bar.set_values(team.hp, team.max_hp)
 		FloatingText.spawn(world, _team_text_pos(), "+%d" % healed, Color("6dff8a"), 64, 60.0)
 		await _wait(0.35)
-	# Titan leader: matching Hearts arms a guard against the next enemy hit.
-	if hearts > 0 and team.leader().leader_skill == &"leader_titan":
+	# Stone Wall leader: matching Hearts arms a guard against the next enemy hit.
+	# Riptide leader: a 4+ group of its element does the same (smaller guard).
+	var lead := team.leader()
+	if hearts > 0 and lead.leader_skill == &"leader_titan":
 		team.guard_next_hit = true
+		team.guard_mult = Skills.TUNING.leader_titan_damage_taken
+		_refresh_team_ui()
+	elif lead.leader_skill == &"leader_riptide" and CombatRules.has_group(groups, lead.element, Skills.TUNING.leader_berserker_group):
+		team.guard_next_hit = true
+		team.guard_mult = Skills.TUNING.leader_riptide_damage_taken
 		_refresh_team_ui()
 
 	# Skills charge by one turn, but only on turns where you made a match.
 	if combos > 0:
 		team.tick_skills()
+		# Heart Charge: 5+ Hearts this turn charge that hunter's skill 1 extra turn.
+		for k in team.members.size():
+			if team.members[k].has_passive(&"heart_charge") and hearts >= Skills.TUNING.heart_charge_hearts:
+				team.skill_turns[k] = maxi(team.skill_turns[k] - Skills.TUNING.heart_charge_turns, 0)
 		_refresh_team_ui()
 
 	# 2) Each hunter whose element was cleared attacks.
@@ -712,9 +856,12 @@ func _on_turn_finished(combos: int, cleared: Dictionary, groups: Array) -> void:
 		await _wait(0.2)
 		for t in targets:
 			var enemy := enemies[t]
-			# Leader skill x this hunter's passives (worked out before the hit lands).
-			var bonus := CombatRules.leader_multiplier(team.leader(), member, groups, combos) \
-				* CombatRules.passive_multiplier(member, groups, combos, enemy, first_attack)
+			# Leader skill x this hunter's passives x a one-turn skill boost
+			# (worked out before the hit lands).
+			var marked := target_index >= 0 and t == target_index
+			var bonus := CombatRules.leader_multiplier(team.leader(), member, groups, combos, enemy, team, marked) \
+				* CombatRules.passive_multiplier(member, groups, combos, enemy, first_attack, team) \
+				* team.boost_for(member)
 			var damage := DamageCalculator.attack_damage(member.atk, orbs, combos, member.element, enemy.data.element, bonus)
 			damage = CombatRules.after_def(damage, enemy)
 			var dealt := enemy.take_hit(damage, CombatRules.breaks_armor(member, groups), CombatRules.ignores_armor(member, groups))
@@ -723,6 +870,7 @@ func _on_turn_finished(combos: int, cleared: Dictionary, groups: Array) -> void:
 		_update_enemy_labels()
 		if _all_enemies_down():
 			break
+	team.boost_element = -1   # one-turn skill boosts (Solar Flare, Cauterize) end here
 
 	if _all_enemies_down():
 		await _wait(0.85)
@@ -737,24 +885,42 @@ func _on_turn_finished(combos: int, cleared: Dictionary, groups: Array) -> void:
 		await _wait(0.25)
 		enemy_views[t].animator.play_attack(Vector2.DOWN)
 		await _wait(0.2)
-		var taken := team.take_damage(_enemy_attack_damage(enemy))
+		var forge_counter := _forge_guard_member()   # read before the shield is used up
+		var incoming := _enemy_attack_damage(enemy)
+		# Last Stand (TEAM, once per fight): a hit that would defeat the team leaves 1 HP.
+		var saved := false
+		if incoming >= team.hp and team.hp > 0 and CombatRules.team_has(team, &"last_stand") and not team.last_stand_used:
+			incoming = team.hp - 1
+			team.last_stand_used = true
+			saved = true
+		var taken := team.take_damage(incoming)
 		_refresh_team_ui()
 		for v in team_views:
 			v.animator.play_hit()
 		team_bar.set_values(team.hp, team.max_hp)
 		FloatingText.spawn(world, _team_text_pos(), "-%d" % taken, Color("ff5a5a"), 64, 60.0)
+		if saved:
+			FloatingText.spawn(world, _team_text_pos() + Vector2(0, -90), "LAST STAND!", Color("ffd23f"), 60, 50.0, 0.8)
+			SkillFx.dome(world, Vector2(540, TEAM_FEET_Y + _extra_height + 10), Vector2(520, 330), Color("ffd23f"), 0.8)
 		_shake_screen(5.0, 0.2)
 		await _wait(0.35)
 		if team.is_defeated():
 			break
 		# Counter (Titan passive): strike back at the enemy that just hit.
+		# Retaliation doubles it while team HP is below 50%. Forge Guard adds one more strike.
 		for k in team.members.size():
 			var m := team.members[k]
-			if m.has_passive(&"counter") and not enemy.is_defeated():
-				var back := roundi(m.atk * Skills.TUNING.counter_atk_mult * Element.multiplier(m.element, enemy.data.element))
+			var hits := 0.0
+			if m.has_passive(&"counter"):
+				hits += Skills.TUNING.counter_atk_mult * (Skills.TUNING.retaliation_mult if m.has_passive(&"retaliation") and team.hp_ratio() < Skills.TUNING.retaliation_hp_ratio else 1.0)
+			if k == forge_counter:
+				hits += Skills.TUNING.forge_guard_counter_mult
+			if hits > 0.0 and not enemy.is_defeated():
+				var back := roundi(m.atk * hits * Element.multiplier(m.element, enemy.data.element))
 				back = CombatRules.after_def(back, enemy)
 				var dealt_back := enemy.take_hit(back)
 				team_views[k].animator.play_attack(Vector2.UP)
+				SkillFx.streak(world, team_views[k].position + Vector2(0, -150), _enemy_center(t), Element.color(m.element), 12.0, 0.25)
 				_show_hit(t, dealt_back, m, k)
 				await _wait(0.3)
 		if _all_enemies_down():
@@ -777,22 +943,40 @@ func _on_turn_finished(combos: int, cleared: Dictionary, groups: Array) -> void:
 
 # ---------------------------------------------------------------- helpers
 
+## Which hunter has an active Forge Guard (strikes back each attack), or -1.
+func _forge_guard_member() -> int:
+	for s in team.shields:
+		if s["counter"] >= 0:
+			return s["counter"]
+	return -1
+
+
 ## How hard this enemy's attack lands after every damage cut, and uses them up:
-##   Bulwark (active)      x0.5 for the next 2 attacks
-##   Titan leader guard    x0.75 for the next 1 hit (armed by matching Hearts)
-##   Last Stand (passive)  x0.7 while team HP is below 30%
+##   Gravity Well (on the enemy)   x0.7 for its next 2 attacks
+##   Bulwark (active)              x0.5 for the next 2 attacks
+##   Forge Guard / Tidewall        x0.65 / x0.6 for the next 3 / 2 attacks
+##   Sanctuary                     blocks the next attack completely
+##   Leader guard                  x0.75 (Stone Wall) / x0.85 (Riptide), next hit only
+##   Leader always-on              Dawn Aegis x0.85; Iron Pact x0.7 below 50% HP
+##   Damage Resist (TEAM passive)  x0.9 (counts once)
 func _enemy_attack_damage(enemy: Enemy) -> int:
 	var t := Skills.TUNING
+	var power := enemy.attack_power()
 	var mult := 1.0
 	if team.bulwark_attacks > 0:
 		mult *= t.bulwark_damage_taken
 		team.bulwark_attacks -= 1
+	for s in team.shields:
+		mult *= s["mult"]
+		s["attacks"] -= 1
+	team.shields = team.shields.filter(func(s: Dictionary) -> bool: return s["attacks"] > 0)
 	if team.guard_next_hit:
-		mult *= t.leader_titan_damage_taken
+		mult *= team.guard_mult
 		team.guard_next_hit = false
-	if CombatRules.team_has(team, &"last_stand") and team.hp_ratio() < t.last_stand_hp_ratio:
-		mult *= t.last_stand_damage_taken
-	return roundi(enemy.data.atk * mult)
+	mult *= CombatRules.leader_damage_taken(team)
+	if CombatRules.team_has(team, &"damage_resist"):
+		mult *= t.damage_resist_taken
+	return roundi(power * mult)
 
 
 ## One hit landing on enemy t: flash, HP bar, damage number, defeat.
