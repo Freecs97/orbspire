@@ -8,5 +8,5 @@
 script = ExtResource("3_lsuss")
 display_name = "3/8 · MINI-BOSS: AURELIUS (HALO GUARD)"
 enemies = Array[ExtResource("1_xutuk")]([ExtResource("2_jwt1h")])
-xp = 105
+xp = 460
 expected_level = 14

@@ -64,6 +64,8 @@ static func attack(team: Array[FighterData], groups: Array, combos: int, enemies
 static func turns_to_win(enemy_data: Array, team: Array[FighterData], mode: String) -> int:
 	var enemies := fresh_enemies(enemy_data)
 	for turn in range(1, 51):
+		for e in enemies:
+			e.new_turn()
 		var front := CombatRules.pick_target(enemies, -1)
 		if front < 0:
 			return turn - 1
@@ -93,14 +95,20 @@ static func idle_turns(enemy_data: Array, team: Array[FighterData]) -> int:
 
 
 ## Average play heals 3 Hearts each turn while enemies hit: alive when it wins?
-static func avg_survives(enemy_data: Array, team: Array[FighterData]) -> bool:
+## mode "GOOD" adds the second-best colour (3 combos), like turns_to_win.
+static func avg_survives(enemy_data: Array, team: Array[FighterData], mode := "AVERAGE") -> bool:
 	var t := Team.new(team)
 	var enemies := fresh_enemies(enemy_data)
 	for turn in range(1, 51):
+		for e in enemies:
+			e.new_turn()
 		t.heal(CombatRules.turn_heal(t, 3, []))
 		var front := CombatRules.pick_target(enemies, -1)
 		var r := ranked(team, enemies[front].data.element)
-		attack(team, [group(r[0].element, 4 if enemies[front].armor_up else 3), group(Element.Type.HEART, 3)], 2, enemies)
+		var groups := [group(r[0].element, 4 if enemies[front].armor_up else 3), group(Element.Type.HEART, 3)]
+		if mode == "GOOD":
+			groups.append(group(r[1].element, 3))
+		attack(team, groups, groups.size(), enemies)
 		if CombatRules.pick_target(enemies, -1) < 0:
 			return true
 		for e in enemies:
@@ -112,8 +120,11 @@ static func avg_survives(enemy_data: Array, team: Array[FighterData]) -> bool:
 
 
 ## Damage of one perfect 6-combo turn on fresh enemies, and HP left after it.
-static func great_turn(enemy_data: Array, team: Array[FighterData]) -> Dictionary:
+## with_resolve = false measures the raw damage (as if bosses had no Resolve).
+static func great_turn(enemy_data: Array, team: Array[FighterData], with_resolve := true) -> Dictionary:
 	var enemies := fresh_enemies(enemy_data)
+	for e in enemies:
+		e.resolve = with_resolve
 	var groups := [group(Element.Type.FIRE, 5), group(Element.Type.WATER, 3), group(Element.Type.WOOD, 3),
 		group(Element.Type.LIGHT, 3), group(Element.Type.DARK, 3), group(Element.Type.HEART, 3)]
 	var dealt := attack(team, groups, 6, enemies)

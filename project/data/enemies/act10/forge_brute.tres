@@ -7,8 +7,8 @@
 script = ExtResource("2_2jdjh")
 display_name = "FORGE BRUTE"
 role = 4
-max_hp = 740
-atk = 134
+max_hp = 960
+atk = 158
 kind = &"art"
 art = ExtResource("1_yrril")
 figure_height = 330.0

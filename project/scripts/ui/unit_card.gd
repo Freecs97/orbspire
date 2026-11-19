@@ -50,9 +50,10 @@ func show_unit(unit: Dictionary, leader := false, card_size := Vector2(220, 300)
 		_tag.visible = false
 	else:
 		var t := Catalog.template(unit["id"])
-		_art.texture = t.art
+		var stage := int(unit.get("stage", 1))
+		_art.texture = Catalog.art(unit["id"], stage)
 		_name.text = t.display_name
-		_kind.text = t.title
+		_kind.text = t.title + ("  ·  Stage %d" % stage if stage > 1 else "")
 		_name.label_settings.font_color = Element.color(t.element).lightened(0.35)
 		_info.text = "Lv%d  ·  %s%s" % [unit["level"], Catalog.rarity_name(rarity), "  · LOCK" if unit.get("locked", false) else ""]
 		_info.label_settings.font_color = border.lightened(0.2)

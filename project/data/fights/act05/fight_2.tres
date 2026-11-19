@@ -8,5 +8,5 @@
 script = ExtResource("3_3nwib")
 display_name = "2/8 · OBSIDIAN · VOID CULTISTS"
 enemies = Array[ExtResource("1_7f86m")]([ExtResource("2_c1yq3"), ExtResource("2_c1yq3"), ExtResource("2_c1yq3")])
-xp = 50
+xp = 280
 expected_level = 16

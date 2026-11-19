@@ -8,5 +8,5 @@
 script = ExtResource("3_rf0ei")
 display_name = "8/8 · BOSS: DAWNWING"
 enemies = Array[ExtResource("1_i2rna")]([ExtResource("2_a2ibg")])
-xp = 215
+xp = 970
 expected_level = 15

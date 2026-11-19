@@ -8,5 +8,5 @@
 script = ExtResource("3_f7ci3")
 display_name = "6/8 · MORPHEUS · NIGHTMARE DRONES"
 enemies = Array[ExtResource("1_j0ysq")]([ExtResource("2_0gkme"), ExtResource("2_0gkme")])
-xp = 120
+xp = 885
 expected_level = 20

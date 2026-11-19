@@ -34,6 +34,10 @@ enum Role { BERSERKER, TITAN, SPECTRE, BIOTECH, ENEMY }
 ## How many passives are unlocked right now (0-3). Phase 6 sets this from
 ## level / evolution. A new Lv1 character has 0.
 @export_range(0, 3) var passives_unlocked: int = 0
+## Evolution: each evolution cuts the active skill's cooldown by 1 (never below 1).
+@export var cooldown_cut: int = 0
+## Evolution stage 1-3 (set from the save; templates are Stage 1).
+@export var stage: int = 1
 
 @export_group("Enemy only")
 ## DEF: every orb attack on this enemy loses this much damage (never below 1).
@@ -66,6 +70,12 @@ enum Role { BERSERKER, TITAN, SPECTRE, BIOTECH, ENEMY }
 
 func is_enemy() -> bool:
 	return role == Role.ENEMY
+
+
+## Turns between uses of this fighter's active skill (0 = no active skill).
+func skill_cooldown() -> int:
+	var cd := Skills.cooldown(active_skill)
+	return maxi(cd - cooldown_cut, 1) if cd > 0 else 0
 
 
 ## True if this passive is unlocked on this character right now.

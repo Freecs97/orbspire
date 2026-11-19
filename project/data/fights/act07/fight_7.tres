@@ -8,5 +8,5 @@
 script = ExtResource("3_p77od")
 display_name = "7/8 · MINI-BOSS: FLOOD MEDIC"
 enemies = Array[ExtResource("1_mur2s")]([ExtResource("2_t1g2c")])
-xp = 205
+xp = 1530
 expected_level = 21

@@ -1,11 +1,12 @@
-[gd_resource type="Resource" script_class="FightData" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="FightData" format=3]
 
+[ext_resource type="Script" path="res://scripts/data/fighter_data.gd" id="1_cd78y"]
 [ext_resource type="Script" path="res://scripts/data/fight_data.gd" id="1_fd"]
 [ext_resource type="Resource" path="res://data/enemies/act1/spore_sprout.tres" id="e0"]
 
 [resource]
 script = ExtResource("1_fd")
 display_name = "4/8 · SPORE SPROUTS"
-enemies = Array[Resource]([ExtResource("e0"), ExtResource("e0"), ExtResource("e0")])
-xp = 110
-expected_level = 4
+enemies = Array[ExtResource("1_cd78y")]([ExtResource("e0"), ExtResource("e0")])
+xp = 185
+expected_level = 5

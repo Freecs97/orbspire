@@ -7,8 +7,8 @@
 script = ExtResource("2_mk2o8")
 display_name = "ASH IMP"
 role = 4
-max_hp = 430
-atk = 78
+max_hp = 510
+atk = 89
 kind = &"art"
 art = ExtResource("1_remoi")
 figure_height = 240.0

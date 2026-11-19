@@ -23,6 +23,7 @@ var detail: Control
 var detail_card: UnitCard
 var detail_text: Label
 var use_core_button: Button
+var evolve_button: Button
 var lock_button: Button
 var retire_button: Button
 var detail_close: Button
@@ -148,9 +149,11 @@ func _build_detail() -> void:
 	detail_text.position = Vector2(60, 830)
 	detail_text.size = Vector2(960, 520)
 	detail_text.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	use_core_button = make_button("USE CORE", Vector2(60, 1370), Vector2(470, 100), 30, MenuStyle.NEON, detail)
+	use_core_button = make_button("USE CORE", Vector2(60, 1370), Vector2(300, 100), 24, MenuStyle.NEON, detail)
 	use_core_button.pressed.connect(_on_use_core)
-	lock_button = make_button("LOCK", Vector2(550, 1370), Vector2(470, 100), 30, MenuStyle.NEON, detail)
+	evolve_button = make_button("EVOLVE", Vector2(380, 1370), Vector2(320, 100), 24, GOLD, detail)
+	evolve_button.pressed.connect(_on_evolve)
+	lock_button = make_button("LOCK", Vector2(720, 1370), Vector2(300, 100), 24, MenuStyle.NEON, detail)
 	lock_button.pressed.connect(func() -> void:
 		profile.toggle_lock(_detail_uid)
 		changed.emit()
@@ -170,20 +173,45 @@ func open_detail(uid: int) -> void:
 	var f := profile.fighter(uid)
 	var p := Profile.PROGRESSION
 	detail_card.show_unit(u, false, Vector2(500, 640))
-	var xp_line := "MAX LEVEL" if u["level"] >= p.max_level else "XP %d / %d" % [u["xp"], p.xp_to_next(u["level"])]
+	var cap := profile.level_cap(u)
+	var xp_line := ("Lv%d CAP (Stage %d): evolve to go higher" % [cap, u["stage"]] if cap < p.max_level else "MAX LEVEL") if u["level"] >= cap else "XP %d / %d" % [u["xp"], p.xp_to_next(u["level"])]
 	var roles := ["BERSERKER", "TITAN", "SPECTRE", "BIOTECH"]
-	detail_text.text = "%s  ·  %s  ·  %s  ·  Lv%d  ·  %s\nHP %d   ATK %d   RCV %d\nActive: %s (cooldown %d)\nLeader: %s\nPassive 1 (Lv%d): %s%s\nTraining Cores used: %d" % [
+	var e := Profile.ECONOMY
+	var stage := int(u["stage"])
+	var passive_lines := PackedStringArray()
+	for k in f.passives.size():
+		passive_lines.append("Passive %d (%s): %s%s" % [k + 1, Skills.UNLOCK_TEXT[k], Skills.display_name(f.passives[k]), "" if k < f.passives_unlocked else "  (locked)"])
+	var evo_line := "EVOLUTION: Stage %d/3" % stage
+	if stage < 3:
+		evo_line += "  ·  next: Lv%d + %d Credits + %d Cores -> +%d%% stats, cooldown -1, Passive %d" % [
+			p.level_cap(stage), e.evo_credits[stage - 1], e.evo_cores[stage - 1], roundi(e.evo_stat_bonus * 100), stage + 1]
+	detail_text.text = "%s  ·  %s  ·  %s  ·  Lv%d  ·  %s\nHP %d   ATK %d   RCV %d\n%s\nActive: %s (cooldown %d)\nLeader: %s\n%s\nTraining Cores used: %d" % [
 		Element.display_name(f.element), roles[f.role], Catalog.rarity_name(u["rarity"]), u["level"], xp_line,
-		f.max_hp, f.atk, f.rcv, Skills.display_name(f.active_skill), Skills.cooldown(f.active_skill),
-		Skills.describe(f.leader_skill), Profile.ECONOMY.passive_1_level, Skills.display_name(f.passives[0]),
-		"  (unlocked)" if f.passives_unlocked > 0 else "  (locked)", u["cores"]]
-	use_core_button.text = "USE CORE  (+%d XP, have %d)" % [Profile.ECONOMY.core_xp, profile.data["cores"]]
-	use_core_button.disabled = profile.data["cores"] <= 0 or u["level"] >= p.max_level
+		f.max_hp, f.atk, f.rcv, evo_line, Skills.display_name(f.active_skill), f.skill_cooldown(),
+		Skills.describe(f.leader_skill), "\n".join(passive_lines), u["cores"]]
+	use_core_button.text = "USE CORE\n+%d XP (have %d)" % [e.core_xp, profile.data["cores"]]
+	use_core_button.disabled = profile.data["cores"] <= 0 or u["level"] >= cap
+	var why_not := profile.can_evolve(_detail_uid)
+	evolve_button.disabled = why_not != ""
+	evolve_button.text = ("EVOLVE to Stage %d\n%d Cr + %d Cores" % [stage + 1, e.evo_credits[stage - 1], e.evo_cores[stage - 1]]) if why_not == "" else ("EVOLVE\n" + why_not if stage < 3 else "STAGE 3/3\nfully evolved")
 	lock_button.text = "UNLOCK" if u["locked"] else "LOCK"
 	var why := profile.retire_check(uid)
 	retire_button.disabled = why != ""
 	retire_button.text = "RETIRE  (+%d Cores)" % profile.retire_value(uid) if why == "" else why
 	detail.visible = true
+
+
+func _on_evolve() -> void:
+	var before := profile.fighter(_detail_uid)
+	if not profile.evolve(_detail_uid):
+		return
+	var after := profile.fighter(_detail_uid)
+	show_toast("%s evolved to Stage %d!  HP %d -> %d, ATK %d -> %d" % [after.display_name, after.stage, before.max_hp, after.max_hp, before.atk, after.atk])
+	changed.emit()
+	open_detail(_detail_uid)
+	# A little flash on the new art.
+	detail_card.modulate = Color(2.2, 2.2, 2.2)
+	create_tween().tween_property(detail_card, "modulate", Color.WHITE, 0.6)
 
 
 func _on_use_core() -> void:

@@ -208,7 +208,7 @@ static func turn_heal(team: Team, hearts: int, groups: Array) -> int:
 ## Turns until this hunter's skill is ready at the start of an Act:
 ## half charged, plus Skill Boost if it has it.
 static func act_start_turns(member: FighterData) -> int:
-	var turns := Skills.act_start_turns(member.active_skill)
+	var turns := ceili(member.skill_cooldown() * (1.0 - Skills.TUNING.act_start_charge_ratio))
 	if member.has_passive(&"skill_boost"):
 		turns -= Skills.TUNING.skill_boost_turns
 	return maxi(turns, 0)

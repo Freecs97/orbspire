@@ -8,5 +8,5 @@
 script = ExtResource("3_r8sgc")
 display_name = "4/8 · FLAME TURRETS"
 enemies = Array[ExtResource("1_s8juj")]([ExtResource("2_af4le"), ExtResource("2_af4le"), ExtResource("2_af4le")])
-xp = 70
+xp = 385
 expected_level = 16

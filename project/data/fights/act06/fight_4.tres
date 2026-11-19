@@ -8,5 +8,5 @@
 script = ExtResource("3_6rem6")
 display_name = "4/8 · ROOT CRAWLERS"
 enemies = Array[ExtResource("1_nyggy")]([ExtResource("2_hbjwe"), ExtResource("2_hbjwe"), ExtResource("2_hbjwe")])
-xp = 80
+xp = 510
 expected_level = 18

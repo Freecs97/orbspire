@@ -8,5 +8,5 @@
 script = ExtResource("3_qs3n3")
 display_name = "8/8 · BOSS: VOIDSCALE"
 enemies = Array[ExtResource("1_ae768")]([ExtResource("2_1y6be")])
-xp = 250
+xp = 1340
 expected_level = 17

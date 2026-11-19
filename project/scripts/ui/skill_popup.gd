@@ -89,7 +89,7 @@ func open(index: int, data: FighterData, is_leader: bool, turns_left: int, can_u
 	for child in _body.get_children():
 		child.queue_free()
 
-	var cd := Skills.cooldown(data.active_skill)
+	var cd := data.skill_cooldown()
 	_section("ACTIVE: %s  ·  cooldown %d" % [Skills.display_name(data.active_skill).to_upper(), cd], Color("ffd23f"))
 	_text(Skills.describe(data.active_skill), Color.WHITE)
 	_text("READY!" if turns_left <= 0 else "Ready in %d turn%s (charges on turns you make a match)" % [turns_left, "" if turns_left == 1 else "s"],

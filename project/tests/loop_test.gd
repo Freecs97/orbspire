@@ -707,7 +707,7 @@ func _test_passives() -> void:
 
 func _test_stacking() -> void:
 	_log("\n== S: damage stacking (numbers for tuning) ==")
-	_log("Act 1 boss Emberfang-9 = Fire, 1,200 HP. Lv1 stats; levelling (Phase 6) is not built yet.")
+	var boss_hp: int = StarMap.ACTS[0].fights[7].enemies[0].max_hp
 	var empty: Array = []
 	var fire5 := [{"type": Element.Type.FIRE, "cells": [Vector2i(0, 0), Vector2i(1, 0), Vector2i(2, 0), Vector2i(3, 0), Vector2i(4, 0)]}]
 	var b1 := _unlocked(BERSERKER, 1)
@@ -720,7 +720,7 @@ func _test_stacking() -> void:
 	for c in [5, 7, 9]:
 		var bonus := CombatRules.leader_multiplier(s2, s2, empty, c) * CombatRules.passive_multiplier(s2, empty, c, null, false)
 		var dmg := DamageCalculator.attack_damage(130, 3, c, Element.Type.DARK, Element.Type.FIRE, bonus)
-		_log("INFO  Spectre leads + Combo Boost, 3 dark, %d combos: Spectre alone hits Emberfang-9 for %d (%s)" % [c, dmg, "ONE-TURN KILL" if dmg >= 1200 else "not a kill"])
+		_log("INFO  Spectre leads + Combo Boost, 3 dark, %d combos: Spectre alone hits Emberfang-9 for %d (%s)" % [c, dmg, "ONE-TURN KILL" if dmg >= boss_hp else "not a kill"])
 	_check(true, "Spectre's Combo Boost needs Evolution 1 (Lv15) and the Spectre joins in Act 2, so the x12 stack cannot happen in Act 1")
 
 
@@ -745,23 +745,23 @@ func _test_balance() -> void:
 			var good := BalanceSim.turns_to_win(f.enemies, team, "GOOD")
 			var avg := BalanceSim.turns_to_win(f.enemies, team, "AVERAGE")
 			var idle := BalanceSim.idle_turns(f.enemies, team)
-			var survives := BalanceSim.avg_survives(f.enemies, team)
+			# Regular fights: average play survives. Mini-bosses and bosses: good play survives.
 			var great := BalanceSim.great_turn(f.enemies, team)
+			var survives := BalanceSim.avg_survives(f.enemies, team, "GOOD" if f.enemies[0].armored else "AVERAGE")
 			good_turns.append(good)
 			all_survive = all_survive and survives
-			if f.enemies[0].armored and n >= 2:
+			if f.enemies[0].armored:
 				bosses_hold = bosses_hold and great["left"] > 0
 			_log("INFO    %-36s Lv%2d  %d x %5d HP  ATK %3d%s | good %d, avg %2d, idle %2d, avg survives %s, one great turn: %s" % [f.display_name, f.expected_level,
 				f.enemies.size(), f.enemies[0].max_hp, f.enemies[0].atk, " ARMOUR" if f.enemies[0].armored else "", good, avg, idle,
 				"yes" if survives else "NO", "WINS" if great["left"] == 0 else "%d HP left" % great["left"]])
 			xp += f.xp
 		end_levels.append(p.level_for_xp(xp))
-		_check(all_survive, "Act %d: average play (3-orb matches + Hearts) survives every fight" % n)
-		if n >= 2:
-			_check(good_turns[7] == good_turns.max() and good_turns.max() <= 6, "Act %d: the boss is the longest fight with good play (%s)" % [n, good_turns])
-			_check(bosses_hold, "Act %d: mini-bosses and the boss survive one perfect 6-combo turn" % n)
+		_check(all_survive, "Act %d: average play survives every regular fight; good play survives the mini-bosses and the boss" % n)
+		_check(good_turns[7] == good_turns.max() and good_turns.max() <= 9, "Act %d: the boss is the longest fight with good play (%s)" % [n, good_turns])
+		_check(bosses_hold, "Act %d: mini-bosses and the boss survive one perfect 6-combo turn" % n)
 	_check(end_levels == [10, 12, 14, 16, 18, 20, 22, 24, 27, 30], "XP: story team level after each Act's boss: %s (Act 1 -> Lv10 ... Act 10 -> Lv30)" % [end_levels])
-	_log("INFO  Act 1's boss stays at your locked 1,200 HP / 180 ATK, so it is shorter than Act 1's mini-bosses.")
+	_log("INFO  Stage 1 balance (2026-11-18): Act 1 is tuned for a Scrap / Alloy team; see tools/stage1_playtest_report.txt.")
 
 # ---------------------------------------------------------------- F / X: the 5 loop tests on every fight
 
@@ -910,9 +910,18 @@ func _win_fight(i: int, team_m: Array[FighterData], restart := true) -> int:
 	var turns := 0
 	while not battle.result_panel.visible and turns < 30:
 		var t := CombatRules.pick_target(battle.enemies, -1)
-		var best: FighterData = BalanceSim.ranked(team_m, battle.enemies[t].data.element)[0]
+		var ranked: Array = BalanceSim.ranked(team_m, battle.enemies[t].data.element)
+		var best: FighterData = ranked[0]
 		var rows: Array = _rows_for(best.element, 4).duplicate()
 		rows[3] = "HHHFWG"   # plus 3 Hearts in row 4
+		# Mini-bosses and bosses (armoured) need GOOD play since the Stage 1 rework:
+		# add a 3-match of the second-best colour (like BalanceSim "GOOD").
+		var armoured: bool = battle.enemies.any(func(e: Enemy) -> bool: return e.data.armored and e.hp > 0)
+		if armoured:
+			var second: int = ranked[1].element if ranked.size() > 1 else best.element
+			var c: String = {Element.Type.FIRE: "F", Element.Type.WATER: "W", Element.Type.WOOD: "G", Element.Type.LIGHT: "L"}.get(second, "D")
+			# Rows 0 and 2 are "FWGLDH": put the group where it can't join them vertically.
+			rows[1] = (c + c + c + "FWG") if c in ["L", "D"] else ("LDH" + c + c + c)
 		_set_board(rows)
 		await _tap(Vector2i(5, 0))
 		await _await_turn_end()

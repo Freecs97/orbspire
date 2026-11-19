@@ -8,5 +8,5 @@
 script = ExtResource("3_b7qnw")
 display_name = "3/8 · MINI-BOSS: RAIN ASSASSIN"
 enemies = Array[ExtResource("1_igwbe")]([ExtResource("2_mfovf")])
-xp = 145
+xp = 1060
 expected_level = 20

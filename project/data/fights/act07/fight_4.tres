@@ -8,5 +8,5 @@
 script = ExtResource("3_tav8o")
 display_name = "4/8 · PLASMA HOUNDS"
 enemies = Array[ExtResource("1_y2ff0")]([ExtResource("2_gw3e2"), ExtResource("2_gw3e2"), ExtResource("2_gw3e2")])
-xp = 90
+xp = 650
 expected_level = 20

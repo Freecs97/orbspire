@@ -8,5 +8,5 @@
 script = ExtResource("3_uaeuq")
 display_name = "1/8 · POLLEN WISPS"
 enemies = Array[ExtResource("1_isaeu")]([ExtResource("2_p5thi"), ExtResource("2_p5thi")])
-xp = 30
+xp = 105
 expected_level = 12

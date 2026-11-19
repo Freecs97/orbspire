@@ -8,5 +8,5 @@
 script = ExtResource("3_1g1rh")
 display_name = "4/8 · ASH IMPS"
 enemies = Array[ExtResource("1_rs6nc")]([ExtResource("2_44fqn"), ExtResource("2_44fqn"), ExtResource("2_44fqn")])
-xp = 45
+xp = 120
 expected_level = 10

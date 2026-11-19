@@ -8,5 +8,5 @@
 script = ExtResource("3_uv07y")
 display_name = "8/8 · BOSS: THORNWOOD UNIT"
 enemies = Array[ExtResource("1_67k3q")]([ExtResource("2_4ke27")])
-xp = 190
+xp = 660
 expected_level = 13

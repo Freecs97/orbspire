@@ -1,17 +1,25 @@
 class_name ProgressionTuning
 extends Resource
-## Levelling numbers in one place (Phase 6 builds the full levelling system).
+## Levelling numbers in one place.
 ##
 ## Plain English:
-##   - Stats grow in a straight line from Lv1 (x1) to max level (x3 by default).
-##   - XP needed for the next level = xp_base + xp_step x (current level - 1).
-##     With 50 / 25: Lv1->2 needs 50, Lv2->3 needs 75, ... Lv9->10 needs 250.
-##     Total to reach Lv10 = 1,350, which is exactly Act 1's total XP.
+##   - Stats grow in a straight line from Lv1 (x1) to max level (x2.5 by default).
+##   - XP needed for the next level = 50 x current level, and it gets steeper
+##     from Lv10: each level from 10 on costs an extra +25% on top (Lv10 x1.25,
+##     Lv11 x1.5, Lv12 x1.75 ...).
+##       Lv1->2 = 50, Lv5->6 = 250, Lv9->10 = 450, Lv10->11 = 625, Lv14->15 = 1,575.
+##     Total to reach Lv10 = 2,250 (what Act 1 pays), Lv10 -> Lv15 = 5,375 more.
+##   - Level cap per evolution stage: Stage 1 = Lv15, Stage 2 = Lv30, Stage 3 = Lv30
+##     (the top stage). Nothing (fights, Training Cores) can push past the cap.
 
 @export var max_level := 30
-@export var stat_mult_at_max := 3.0
-@export var xp_base := 50
-@export var xp_step := 25
+@export var stat_mult_at_max := 2.5
+@export var xp_per_level := 50
+## From this level on, every level costs xp_steep_step more (x1.25, x1.5, ...).
+@export var xp_steep_from := 10
+@export var xp_steep_step := 0.25
+## Highest level for evolution stage 1, 2, 3.
+@export var stage_level_caps: Array[int] = [15, 30, 30]
 
 ## Until Phase 6 adds real levelling, each fight shows the team at the level a
 ## player would normally have reached by then (FightData.expected_level).
@@ -26,7 +34,13 @@ func stat_mult(level: int) -> float:
 
 ## XP needed to go from `level` to level + 1.
 func xp_to_next(level: int) -> int:
-	return xp_base + xp_step * (level - 1)
+	var steep := 1.0 + xp_steep_step * maxi(level - xp_steep_from + 1, 0)
+	return roundi(xp_per_level * level * steep)
+
+
+## The level cap for an evolution stage (1-3).
+func level_cap(stage: int) -> int:
+	return stage_level_caps[clampi(stage, 1, stage_level_caps.size()) - 1]
 
 
 ## Total XP needed to reach `level` from Lv1.

@@ -8,5 +8,5 @@
 script = ExtResource("3_gafas")
 display_name = "5/8 · AURORA · DAWN ACOLYTES"
 enemies = Array[ExtResource("1_bbl7a")]([ExtResource("2_7jj7s"), ExtResource("2_7jj7s")])
-xp = 85
+xp = 455
 expected_level = 16

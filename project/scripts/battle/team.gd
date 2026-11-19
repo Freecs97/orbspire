@@ -27,7 +27,7 @@ func _init(member_data: Array[FighterData]) -> void:
 	for m in members:
 		max_hp += m.max_hp
 		total_rcv += m.rcv
-		skill_turns.append(Skills.cooldown(m.active_skill))
+		skill_turns.append(m.skill_cooldown())
 		has_attacked.append(false)
 	# Titan leader skill: team HP x1.3.
 	max_hp = roundi(max_hp * CombatRules.team_hp_multiplier(leader()))
@@ -57,7 +57,7 @@ func is_defeated() -> bool:
 
 
 func skill_ready(i: int) -> bool:
-	return skill_turns[i] <= 0 and Skills.cooldown(members[i].active_skill) > 0
+	return skill_turns[i] <= 0 and members[i].skill_cooldown() > 0
 
 
 ## A turn with at least one match: every skill charges by one turn.

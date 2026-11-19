@@ -8,5 +8,5 @@
 script = ExtResource("3_1xy0i")
 display_name = "6/8 · UMBRA · UMBRA HOUNDS"
 enemies = Array[ExtResource("1_x5jjq")]([ExtResource("2_wdd32"), ExtResource("2_wdd32")])
-xp = 130
+xp = 1095
 expected_level = 22

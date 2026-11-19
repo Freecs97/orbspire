@@ -8,5 +8,5 @@
 script = ExtResource("3_u41e4")
 display_name = "2/8 · CASSIAN · LIGHT CULTISTS"
 enemies = Array[ExtResource("1_c46f8")]([ExtResource("2_ex4pv"), ExtResource("2_ex4pv"), ExtResource("2_ex4pv")])
-xp = 115
+xp = 1115
 expected_level = 24

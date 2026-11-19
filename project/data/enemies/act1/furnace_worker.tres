@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="FighterData" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="FighterData" format=3]
 
 [ext_resource type="Script" path="res://scripts/data/fighter_data.gd" id="1_fd"]
 [ext_resource type="Texture2D" path="res://assets/enemies/enemy_fire_furnace_worker.png" id="2_art"]
@@ -6,16 +6,13 @@
 [resource]
 script = ExtResource("1_fd")
 display_name = "FURNACE WORKER"
-element = 0
 role = 4
-max_hp = 1500
-atk = 160
-rcv = 0
-def = 0
+max_hp = 1950
+atk = 192
 armored = true
 is_boss = true
 kind = &"foreman"
+art = ExtResource("2_art")
 body_color = Color(0.6, 0.38, 0.2, 1)
 figure_height = 380.0
 figure_width = 240.0
-art = ExtResource("2_art")

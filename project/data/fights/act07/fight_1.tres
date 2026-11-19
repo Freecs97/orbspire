@@ -8,5 +8,5 @@
 script = ExtResource("3_0d3ri")
 display_name = "1/8 · KRAKEN SPAWNLINGS"
 enemies = Array[ExtResource("1_p1wp7")]([ExtResource("2_eswj7"), ExtResource("2_eswj7")])
-xp = 50
+xp = 355
 expected_level = 20

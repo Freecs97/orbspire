@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="FighterData" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="FighterData" format=3]
 
 [ext_resource type="Script" path="res://scripts/data/fighter_data.gd" id="1_fd"]
 [ext_resource type="Texture2D" path="res://assets/enemies/enemy_dark_shadow_thief.png" id="2_art"]
@@ -9,14 +9,10 @@ display_name = "SHADE"
 title = "Shadow Thief"
 element = 6
 role = 4
-max_hp = 480
-atk = 85
-rcv = 0
-def = 0
-armored = false
-is_boss = false
+max_hp = 620
+atk = 109
 kind = &"thief"
+art = ExtResource("2_art")
 body_color = Color(0.3, 0.24, 0.4, 1)
 figure_height = 320.0
 figure_width = 160.0
-art = ExtResource("2_art")

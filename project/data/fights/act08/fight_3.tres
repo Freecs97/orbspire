@@ -8,5 +8,5 @@
 script = ExtResource("3_6i42o")
 display_name = "3/8 · MINI-BOSS: CHLORO CULTIST"
 enemies = Array[ExtResource("1_2oddq")]([ExtResource("2_nhqnx")])
-xp = 155
+xp = 1315
 expected_level = 22

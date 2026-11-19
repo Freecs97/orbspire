@@ -8,5 +8,5 @@
 script = ExtResource("3_hsfgb")
 display_name = "1/8 · BIO HOUNDS"
 enemies = Array[ExtResource("1_em72v")]([ExtResource("2_qx0i2"), ExtResource("2_qx0i2")])
-xp = 50
+xp = 440
 expected_level = 22

@@ -8,5 +8,5 @@
 script = ExtResource("3_s8c2h")
 display_name = "3/8 · MINI-BOSS: VINE STRANGLER"
 enemies = Array[ExtResource("1_gvgt3")]([ExtResource("2_wxu3h")])
-xp = 90
+xp = 315
 expected_level = 12

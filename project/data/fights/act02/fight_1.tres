@@ -8,5 +8,5 @@
 script = ExtResource("3_nb4od")
 display_name = "1/8 · DROWNED DRIFTERS"
 enemies = Array[ExtResource("1_sj0oa")]([ExtResource("2_dc76q"), ExtResource("2_dc76q")])
-xp = 25
+xp = 65
 expected_level = 10

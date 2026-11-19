@@ -8,5 +8,5 @@
 script = ExtResource("3_pcl72")
 display_name = "8/8 · BOSS: TIDECOIL-7"
 enemies = Array[ExtResource("1_4iksr")]([ExtResource("2_kbxb3")])
-xp = 165
+xp = 405
 expected_level = 11

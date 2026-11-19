@@ -8,5 +8,5 @@
 script = ExtResource("3_facdy")
 display_name = "2/8 · PYRO CULTISTS"
 enemies = Array[ExtResource("1_wvtl8")]([ExtResource("2_t7bjo"), ExtResource("2_t7bjo"), ExtResource("2_t7bjo")])
-xp = 60
+xp = 370
 expected_level = 18

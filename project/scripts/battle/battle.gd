@@ -498,6 +498,8 @@ func _start_battle(index: int, mode := StartMode.RETRY) -> void:
 ## Unlock the board for a new player turn (skills can be used until an orb is picked up).
 func _begin_player_turn() -> void:
 	_player_turn = true
+	for e in enemies:
+		e.new_turn()   # Resolve: the per-turn damage limit starts over
 	board.move_time = CombatRules.move_time(team)
 	board.begin_player_turn()
 
@@ -516,7 +518,7 @@ func _on_next_pressed() -> void:
 func _refresh_team_ui() -> void:
 	for i in team_views.size():
 		team_views[i].is_leader = (i == 0)
-		var cd := Skills.cooldown(team.members[i].active_skill)
+		var cd := team.members[i].skill_cooldown()
 		team_views[i].set_skill(team.skill_turns[i] if cd > 0 else -1, cd)
 	var parts := PackedStringArray()
 	if team.bulwark_attacks > 0:
@@ -581,7 +583,7 @@ func use_skill(i: int) -> bool:
 	board.lock()
 	var member := team.members[i]
 	var t := Skills.TUNING
-	team.skill_turns[i] = Skills.cooldown(member.active_skill)
+	team.skill_turns[i] = member.skill_cooldown()
 	team_views[i].light_up()
 	team_views[i].animator.play_attack(Vector2.UP)
 	FloatingText.spawn(world, team_views[i].position + Vector2(0, -team_views[i].card_size.y - 20), Skills.display_name(member.active_skill).to_upper() + "!", Element.color(member.element).lightened(0.4), 58, 50.0, 0.6)
@@ -641,7 +643,9 @@ func _update_enemy_labels() -> void:
 	var prefix := "TARGET: " if target_index >= 0 else ""
 	var who := e.data.display_name + (" (%s)" % e.data.title if e.data.title != "" else "")
 	enemy_hint.text = "%s%s · %s   ·   %s" % [prefix, who, Element.display_name(e.data.element), _matchup_hint(e.data.element)]
-	if enemies.size() == 1:
+	if enemies.size() == 1 and e.turn_room() >= 0:
+		enemy_attack_label.text = "Attacks after your turn  ·  ATK %d  ·  RESOLVE: max -%d%% HP per turn" % [e.data.atk, roundi(Skills.TUNING.boss_turn_cap * 100)]
+	elif enemies.size() == 1:
 		enemy_attack_label.text = "Attacks after your turn  ·  ATK %d" % e.data.atk
 	else:
 		enemy_attack_label.text = "%d enemies · each attacks after your turn · tap one to target it" % enemies.size()

@@ -8,5 +8,5 @@
 script = ExtResource("3_msi0c")
 display_name = "2/8 · PIPE CRAWLERS"
 enemies = Array[ExtResource("1_gtqry")]([ExtResource("2_u2dta"), ExtResource("2_u2dta"), ExtResource("2_u2dta")])
-xp = 35
+xp = 85
 expected_level = 10

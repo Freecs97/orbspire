@@ -8,5 +8,5 @@
 script = ExtResource("3_37tcm")
 display_name = "7/8 · MINI-BOSS: MOLTEN SCRAPBOT"
 enemies = Array[ExtResource("1_4xfuy")]([ExtResource("2_ce6u3")])
-xp = 190
+xp = 1205
 expected_level = 19

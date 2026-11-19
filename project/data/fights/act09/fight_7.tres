@@ -8,5 +8,5 @@
 script = ExtResource("3_6123b")
 display_name = "7/8 · MINI-BOSS: LUX (BEACON SNIPER)"
 enemies = Array[ExtResource("1_gkix1")]([ExtResource("2_rgjt3")])
-xp = 375
+xp = 3615
 expected_level = 25

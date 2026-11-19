@@ -8,5 +8,5 @@
 script = ExtResource("3_nth43")
 display_name = "3/8 · MINI-BOSS: TIDE GUARD"
 enemies = Array[ExtResource("1_r58s3")]([ExtResource("2_2j1h0")])
-xp = 75
+xp = 195
 expected_level = 10

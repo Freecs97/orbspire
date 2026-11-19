@@ -8,5 +8,5 @@
 script = ExtResource("3_u2pmj")
 display_name = "3/8 · MINI-BOSS: INFERNO BIKER"
 enemies = Array[ExtResource("1_lpldg")]([ExtResource("2_qip6o")])
-xp = 130
+xp = 835
 expected_level = 18

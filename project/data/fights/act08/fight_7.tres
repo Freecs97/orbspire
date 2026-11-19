@@ -8,5 +8,5 @@
 script = ExtResource("3_olbjl")
 display_name = "7/8 · MINI-BOSS: GREENHOUSE MUTANT"
 enemies = Array[ExtResource("1_bf1af")]([ExtResource("2_tygyf")])
-xp = 225
+xp = 1895
 expected_level = 23

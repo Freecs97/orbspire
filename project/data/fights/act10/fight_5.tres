@@ -8,5 +8,5 @@
 script = ExtResource("3_bkcfu")
 display_name = "5/8 · LUMEN · RADIANT SPRITES"
 enemies = Array[ExtResource("1_7dt18")]([ExtResource("2_xuwlr"), ExtResource("2_xuwlr")])
-xp = 210
-expected_level = 27
+xp = 2330
+expected_level = 28

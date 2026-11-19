@@ -8,5 +8,5 @@
 script = ExtResource("3_r5vsk")
 display_name = "5/8 · LUX · BEACON SNIPERS"
 enemies = Array[ExtResource("1_5b8oh")]([ExtResource("2_qthjx"), ExtResource("2_qthjx")])
-xp = 75
+xp = 330
 expected_level = 14

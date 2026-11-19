@@ -7,8 +7,8 @@
 script = ExtResource("2_yi3hx")
 display_name = "ASHEN-01"
 role = 4
-max_hp = 4400
-atk = 362
+max_hp = 5380
+atk = 415
 armored = true
 is_boss = true
 kind = &"boss"

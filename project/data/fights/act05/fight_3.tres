@@ -8,5 +8,5 @@
 script = ExtResource("3_5jn3b")
 display_name = "3/8 · MINI-BOSS: EREBUS (ECLIPSE ASSASSIN)"
 enemies = Array[ExtResource("1_dlkj4")]([ExtResource("2_sxvca")])
-xp = 115
+xp = 635
 expected_level = 16

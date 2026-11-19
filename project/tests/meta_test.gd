@@ -40,6 +40,7 @@ func _ready() -> void:
 	await _test_recruit()
 	_test_roster_cap()
 	await _test_retire_and_cores()
+	await _test_evolution()
 	await _test_team_select()
 	await _test_save_reload()
 	_finish()
@@ -96,11 +97,11 @@ func _test_battle_levels_and_rewards() -> void:
 	await _tap(b, Vector2i(5, 0))
 	await _until(func() -> bool: return b.result_panel.visible, 15.0)
 	var r: Dictionary = b.last_rewards
-	_check(r.get("credits", 0) == 30 and r.get("xp", 0) == 60, "win fight 1: +60 XP and +30 Credits (20 + 10 x Act 1): %s" % [r])
+	_check(r.get("credits", 0) == 30 and r.get("xp", 0) == 100, "win fight 1: +100 XP and +30 Credits (20 + 10 x Act 1): %s" % [r])
 	var lv := []
 	for uid in p.data["team"]:
 		lv.append(p.unit(uid)["level"])
-	_check(lv == [2, 2, 2], "60 XP takes each team member Lv1 -> Lv2: %s" % [lv])
+	_check(lv == [2, 2, 2], "100 XP takes each team member Lv1 -> Lv2 (Lv2 -> 3 needs 100 more): %s" % [lv])
 	_check(b.result_panel._info.text.contains("Lv2!") and b.result_panel._info.text.contains("+30 Credits"), "the win screen lists Credits and level-ups")
 	await _shot("c2_rewards")
 	await _click(b.result_panel._next_button)
@@ -116,12 +117,12 @@ func _test_xp_rules() -> void:
 	var top := p.add_unit("berserker_02_hulk_wood", 2, 12)
 	var u := p.unit(uid)
 	var lines_up := p.grant_xp([uid], 100)
-	# 12 - 1 = 11 levels below the highest -> x2 XP: 200 XP = Lv1 -> 2 (50) -> 3 (75), 75 left.
-	_check(u["level"] == 3 and u["xp"] == 75, "11 levels behind your highest: x2 catch-up XP (100 -> 200): Lv%d, %d XP" % [u["level"], u["xp"]])
+	# 12 - 1 = 11 levels below the highest -> x2 XP: 200 XP = Lv1 -> 2 (50) -> 3 (100), 50 left.
+	_check(u["level"] == 3 and u["xp"] == 50, "11 levels behind your highest: x2 catch-up XP (100 -> 200): Lv%d, %d XP" % [u["level"], u["xp"]])
 	var mid := p.add_unit("biotech_02_splicer_wood", 2, 8)
 	p.grant_xp([mid], 100)
 	_check(p.unit(mid)["xp"] == 150, "4 levels behind: x1.5 (100 -> 150 XP)")
-	var to10 := Profile.PROGRESSION.total_xp_for(10) - Profile.PROGRESSION.total_xp_for(3) - 75
+	var to10 := Profile.PROGRESSION.total_xp_for(10) - Profile.PROGRESSION.total_xp_for(3) - 50
 	lines_up = p.grant_xp([top], 0)
 	p.add_xp(u, to10)
 	_check(u["level"] == 10 and p.fighter(uid).passives_unlocked == 1, "at Lv10 Passive 1 unlocks (passives unlocked: %d)" % p.fighter(uid).passives_unlocked)
@@ -129,8 +130,20 @@ func _test_xp_rules() -> void:
 	var msg := p.grant_xp([x], 400)
 	_check(not msg.is_empty() and msg[0].contains("Passive unlocked"), "level-up message says so: \"%s\"" % ("" if msg.is_empty() else msg[0]))
 	var cap := p.add_unit("titan_03_anchor_water", 2, 30)
-	p.add_xp(p.unit(cap), 99999)
-	_check(p.unit(cap)["level"] == 30, "level cap is 30")
+	p.add_xp(p.unit(cap), 999999)
+	_check(p.unit(cap)["level"] == 15 and p.unit(cap)["xp"] == 0, "Stage 1 level cap is Lv15 (asked for Lv30, got Lv%d)" % p.unit(cap)["level"])
+	p.unit(cap)["stage"] = 3
+	p.add_xp(p.unit(cap), 999999)
+	_check(p.unit(cap)["level"] == 30, "Stage 3 (both evolutions) caps at Lv30")
+	var drops := p.add_unit("titan_04_void_dark", 2, 14)
+	var lowfight: FightData = StarMap.ACTS[0].fights[0]
+	_check(is_equal_approx(p.xp_falloff_for([drops], lowfight.expected_level), 0.25) and is_equal_approx(p.xp_falloff_for([drops], 12), 1.0) and is_equal_approx(p.xp_falloff_for([drops], 11), 0.5),
+		"XP falloff: a fight 13 levels below the team gives x0.25, 3 below x0.5, 2 below full XP")
+	p.unit(drops)["level"] = 15
+	p.data["cores"] = 3
+	_check(not p.use_core(drops) and p.data["cores"] == 3, "Training Cores can't level past the Lv15 cap")
+	p.data["cores"] = 0
+	p.data["units"] = p.data["units"].filter(func(v: Dictionary) -> bool: return v["uid"] != drops)
 	for id in [uid, top, mid, x, cap]:
 		p.data["units"] = p.data["units"].filter(func(v: Dictionary) -> bool: return v["uid"] != id)
 
@@ -168,14 +181,14 @@ func _test_essence_rules() -> void:
 			shown.append("%s -> %s" % [d.display_name, Catalog.display_name(got)])
 	_check(ok, "each enemy drops Essence for one specific character: %s" % ", ".join(shown))
 	p.rng.seed = 11
-	var regular: FightData = StarMap.ACTS[0].fights[1]   # 3 Coolant Slimes
+	var regular: FightData = StarMap.ACTS[0].fights[3]   # 2 Spore Sprouts
 	var drops := 0
 	var trials := 3000
 	for k in trials:
 		var r := p.fight_rewards(regular, 1, true, [], false)
 		for id in r["essence"]:
 			drops += r["essence"][id]
-	var rate := float(drops) / (trials * 3)
+	var rate := float(drops) / (trials * regular.enemies.size())
 	_check(rate > 0.13 and rate < 0.17, "regular enemies drop 1 Essence %.1f%% of the time (target 15%%)" % (rate * 100))
 	var mini_ok := true
 	for k in 200:
@@ -206,8 +219,8 @@ func _test_lab() -> void:
 	await _click(btn)
 	await _frames(2)
 	var made: Dictionary = p.data["units"][-1]
-	_check(p.data["units"].size() == n_before + 1 and made["id"] == "spectre_03_sniper_wood" and made["level"] == 1 and made["rarity"] == 2
-		and p.data["essence"]["spectre_03_sniper_wood"] == 0, "CRAFT: Wood Spectre joins at Lv1 (Forged); Essence 10 -> 0")
+	_check(p.data["units"].size() == n_before + 1 and made["id"] == "spectre_03_sniper_wood" and made["level"] == 1 and made["rarity"] == 1
+		and p.data["essence"]["spectre_03_sniper_wood"] == 0, "CRAFT: Wood Spectre joins at Lv1 (Alloy in Acts 1-2); Essence 10 -> 0")
 
 
 func _test_recruit() -> void:
@@ -216,7 +229,7 @@ func _test_recruit() -> void:
 	main.show_page("RECRUIT")
 	await _frames(2)
 	var rc: RecruitScreen = main.recruit_screen
-	_check(rc.odds_label.text.contains("Basic:  Scrap 50") and rc.odds_label.text.contains("Key:  Ascendant 80"), "the odds are shown on screen")
+	_check(rc.odds_label.text.contains("Basic:  Scrap 65") and rc.odds_label.text.contains("Key:  Alloy 40") and not rc.odds_label.text.contains("·  Prime"),"the odds for your Act are shown on screen (Acts 1-2: no Prime or better)")
 	var n_before: int = p.data["units"].size()
 	await _click(rc.tier_buttons[0])
 	await _frames(3)
@@ -242,7 +255,7 @@ func _test_recruit() -> void:
 		_check(ok, "%s odds over 20,000 pulls: %s%% (table %s)" % ["Key" if tier == 3 else e.recruit_names[tier], ", ".join(got), e.odds_for(tier)])
 	p.data["keys"] = 1
 	var kr := p.recruit(3)
-	_check(not kr.is_empty() and kr["rarity"] >= 4 and p.data["keys"] == 0, "KEY recruit: %s (Ascendant or better), Key used" % Catalog.rarity_name(kr["rarity"]))
+	_check(not kr.is_empty() and kr["rarity"] >= 1 and kr["rarity"] <= 2 and p.data["keys"] == 0, "KEY recruit in Acts 1-2: %s (Alloy or Forged), Key used" % Catalog.rarity_name(kr["rarity"]))
 	var seen := {}
 	var dup := false
 	p.data["credits"] = 100000
@@ -272,6 +285,54 @@ func _test_roster_cap() -> void:
 	_check(not p.recruit(0).is_empty(), "then recruiting works again")
 	p.data["units"] = p.data["units"].slice(0, n0)
 	p.data["credits"] = 0
+
+
+func _test_evolution() -> void:
+	_log("\n== C10: evolution (your Stage 2 / Stage 3 art) ==")
+	var missing := PackedStringArray()
+	for id in Catalog.IDS:
+		for s in [2, 3]:
+			var t := Catalog.art(id, s)
+			if t == null or t == Catalog.template(id).art or not t.resource_path.ends_with("%s_stage%d.png" % [id, s]):
+				missing.append("%s stage %d" % [id, s])
+	_check(missing.is_empty(), "all 20 characters have Stage 2 and Stage 3 art (missing: %s)" % ", ".join(missing))
+	var uid := p.add_unit("berserker_03_thin_water", 2, 14)
+	p.data["credits"] = 10000
+	p.data["cores"] = 40
+	_check(p.can_evolve(uid) == "Needs Lv15 to evolve", "Lv14: can't evolve yet (\"%s\")" % p.can_evolve(uid))
+	p.unit(uid)["level"] = 15
+	var f1 := p.fighter(uid)
+	_check(p.evolve(uid) and p.unit(uid)["stage"] == 2 and p.unit(uid)["level"] == 15 and p.data["credits"] == 9000 and p.data["cores"] == 35,
+		"Lv15: EVOLVE -> Stage 2, keeps Lv15, costs 1,000 Credits + 5 Cores")
+	var f2 := p.fighter(uid)
+	_check(f2.atk == roundi(Catalog.template("berserker_03_thin_water").atk * Profile.PROGRESSION.stat_mult(15) * 1.1) and f2.max_hp > f1.max_hp,
+		"Stage 2: +10%% stats (ATK %d -> %d, HP %d -> %d)" % [f1.atk, f2.atk, f1.max_hp, f2.max_hp])
+	_check(f2.skill_cooldown() == f1.skill_cooldown() - 1 and f2.passives_unlocked == 2, "Stage 2: active cooldown %d -> %d, Passive 2 unlocked" % [f1.skill_cooldown(), f2.skill_cooldown()])
+	_check(f2.art.resource_path.ends_with("berserker_03_thin_water_stage2.png"), "Stage 2 uses your Stage 2 art (%s)" % f2.art.resource_path.get_file())
+	p.add_xp(p.unit(uid), 999999)
+	_check(p.unit(uid)["level"] == 30, "Stage 2 can level to Lv30")
+	_check(p.evolve(uid) and p.fighter(uid).stage == 3 and p.fighter(uid).passives_unlocked == 3 and p.fighter(uid).art.resource_path.ends_with("_stage3.png"),
+		"Lv30: Evolution 2 -> Stage 3: Passive 3, your Stage 3 art")
+	_check(p.can_evolve(uid).begins_with("Fully evolved"), "Stage 3 is the last: \"%s\"" % p.can_evolve(uid))
+	# The roster detail screen: evolve with the button, art changes.
+	var uid2 := p.add_unit("titan_03_anchor_water", 2, 15)
+	main.show_page("ROSTER")
+	await _frames(2)
+	var rs: RosterScreen = main.roster_screen
+	rs.open_detail(uid2)
+	await _frames(2)
+	_check(not rs.evolve_button.disabled and rs.evolve_button.text.contains("Stage 2") and rs.detail_text.text.contains("EVOLUTION: Stage 1/3"), "detail screen: EVOLVE button + \"EVOLUTION: Stage 1/3\" line")
+	await _shot("c10_evolve_before")
+	await _click(rs.evolve_button)
+	await _frames(20)
+	_check(p.unit(uid2)["stage"] == 2 and rs.detail_card._art.texture.resource_path.ends_with("titan_03_anchor_water_stage2.png") and rs.detail_text.text.contains("Stage 2/3"),
+		"tap EVOLVE: Rowan Tide is Stage 2 and the card shows the new art")
+	await _shot("c10_evolve_after")
+	rs.detail.visible = false
+	for id in [uid, uid2]:
+		p.data["units"] = p.data["units"].filter(func(v: Dictionary) -> bool: return v["uid"] != id)
+	p.data["credits"] = 0
+	p.data["cores"] = 0
 
 
 func _test_retire_and_cores() -> void:

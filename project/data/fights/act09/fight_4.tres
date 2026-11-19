@@ -8,5 +8,5 @@
 script = ExtResource("3_nmtcp")
 display_name = "4/8 · TIDE GUARDS"
 enemies = Array[ExtResource("1_rh34s")]([ExtResource("2_ihayy"), ExtResource("2_ihayy"), ExtResource("2_ihayy")])
-xp = 160
+xp = 1530
 expected_level = 24

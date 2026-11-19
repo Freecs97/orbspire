@@ -58,8 +58,21 @@ func join_spectre() -> bool:
 func add_unit(id: String, rarity: int, level := 1) -> int:
 	var uid: int = data["next_uid"]
 	data["next_uid"] = uid + 1
-	data["units"].append({"uid": uid, "id": id, "level": level, "xp": 0, "rarity": rarity, "locked": false, "cores": 0})
+	data["units"].append({"uid": uid, "id": id, "level": mini(level, PROGRESSION.level_cap(1)), "xp": 0, "rarity": rarity, "locked": false, "cores": 0, "stage": 1})
 	return uid
+
+
+## Highest level this unit can reach at its evolution stage (Stage 1 = Lv15).
+func level_cap(u: Dictionary) -> int:
+	return PROGRESSION.level_cap(int(u.get("stage", 1)))
+
+
+## The highest Act you have unlocked (1 + Acts cleared). Sets the Recruit odds band.
+func progress_act() -> int:
+	var best := 0
+	for a in data["first_clears"]:
+		best = maxi(best, int(a))
+	return clampi(best + 1, 1, 10)
 
 
 func unit(uid: int) -> Dictionary:
@@ -80,18 +93,55 @@ func highest_level() -> int:
 	return best
 
 
-## The unit as a fighter: its character's data with stats for its level and rarity,
-## and Passive 1 unlocked from Lv10 (Passives 2-3 need evolution art).
+## The unit as a fighter: its character's data with stats for its level, rarity
+## and evolution stage. Passive 1 unlocks at Lv10, Passive 2 with Evolution 1,
+## Passive 3 with Evolution 2. Each evolution: +10% stats, cooldown -1, new art.
 func fighter(uid: int) -> FighterData:
 	var u := unit(uid)
 	var base := Catalog.template(u["id"])
 	var f: FighterData = base.duplicate()
-	var m: float = PROGRESSION.stat_mult(u["level"]) * ECONOMY.rarity_stat_mult[u["rarity"]]
+	var stage := int(u.get("stage", 1))
+	var m: float = PROGRESSION.stat_mult(u["level"]) * ECONOMY.rarity_stat_mult[u["rarity"]] * (1.0 + ECONOMY.evo_stat_bonus * (stage - 1))
 	f.max_hp = roundi(base.max_hp * m)
 	f.atk = roundi(base.atk * m)
 	f.rcv = roundi(base.rcv * m)
-	f.passives_unlocked = 1 if u["level"] >= ECONOMY.passive_1_level else 0
+	f.stage = stage
+	f.cooldown_cut = stage - 1
+	f.passives_unlocked = mini((1 if u["level"] >= ECONOMY.passive_1_level else 0) + stage - 1, base.passives.size())
+	f.art = Catalog.art(u["id"], stage)
 	return f
+
+
+# ---------------------------------------------------------------- evolution
+
+## "" if this unit can evolve right now, otherwise why not.
+func can_evolve(uid: int) -> String:
+	var u := unit(uid)
+	if u.is_empty():
+		return "Unknown character"
+	var stage := int(u.get("stage", 1))
+	if stage >= 3:
+		return "Fully evolved (Stage 3/3)"
+	var need_lv := PROGRESSION.level_cap(stage)
+	if u["level"] < need_lv:
+		return "Needs Lv%d to evolve" % need_lv
+	if data["credits"] < ECONOMY.evo_credits[stage - 1]:
+		return "Needs %d Credits" % ECONOMY.evo_credits[stage - 1]
+	if data["cores"] < ECONOMY.evo_cores[stage - 1]:
+		return "Needs %d Training Cores" % ECONOMY.evo_cores[stage - 1]
+	return ""
+
+
+## Evolve: Stage +1, pays Credits + Cores. Level and XP are kept. Returns success.
+func evolve(uid: int) -> bool:
+	if can_evolve(uid) != "":
+		return false
+	var u := unit(uid)
+	var stage := int(u["stage"])
+	data["credits"] -= ECONOMY.evo_credits[stage - 1]
+	data["cores"] -= ECONOMY.evo_cores[stage - 1]
+	u["stage"] = stage + 1
+	return true
 
 
 # ---------------------------------------------------------------- team
@@ -129,35 +179,50 @@ func in_team(uid: int) -> bool:
 
 # ---------------------------------------------------------------- levels
 
-## Give XP to these units (catch-up bonus for ones far below your highest).
-## Returns lines like "WATER BIOTECH Lv10! Passive unlocked".
-func grant_xp(uids: Array, amount: int) -> Array[String]:
+## XP multiplier for a fight at `fight_level` for this team: low-level fights
+## (compared with the team's strongest member) give less, 15+ below gives none.
+func xp_falloff_for(uids: Array, fight_level: int) -> float:
+	var team_top := 1
+	for uid in uids:
+		team_top = maxi(team_top, int(unit(uid).get("level", 1)))
+	return ECONOMY.xp_falloff(team_top - fight_level)
+
+
+## Give XP to these units (catch-up bonus for ones far below your highest;
+## less XP from fights far below the team). Returns lines like "MIRA SOLACE Lv10! Passive unlocked".
+func grant_xp(uids: Array, amount: int, fight_level := 0) -> Array[String]:
 	var lines: Array[String] = []
 	var top := highest_level()
+	var falloff := xp_falloff_for(uids, fight_level) if fight_level > 0 else 1.0
 	for uid in uids:
 		var u := unit(uid)
 		var gap := top - int(u["level"])
-		var mult := 1.0
+		var mult := falloff
 		if gap >= ECONOMY.catch_up_big_gap:
-			mult = ECONOMY.catch_up_big_mult
+			mult *= ECONOMY.catch_up_big_mult
 		elif gap >= ECONOMY.catch_up_small_gap:
-			mult = ECONOMY.catch_up_small_mult
+			mult *= ECONOMY.catch_up_small_mult
 		var before: int = u["level"]
 		add_xp(u, roundi(amount * mult))
 		if u["level"] > before:
 			var line := "%s Lv%d!" % [Catalog.display_name(u["id"]), u["level"]]
 			if before < ECONOMY.passive_1_level and u["level"] >= ECONOMY.passive_1_level:
 				line += " Passive unlocked"
+			if u["level"] >= level_cap(u):
+				line += " (Lv%d cap: evolve to go higher)" % level_cap(u)
 			lines.append(line)
 	return lines
 
 
+## Add XP and level up, never past the cap for the unit's evolution stage.
 func add_xp(u: Dictionary, amount: int) -> void:
+	var cap := level_cap(u)
 	u["xp"] = int(u["xp"]) + amount
-	while u["level"] < PROGRESSION.max_level and u["xp"] >= PROGRESSION.xp_to_next(u["level"]):
+	while u["level"] < cap and u["xp"] >= PROGRESSION.xp_to_next(u["level"]):
 		u["xp"] -= PROGRESSION.xp_to_next(u["level"])
 		u["level"] = int(u["level"]) + 1
-	if u["level"] >= PROGRESSION.max_level:
+	if u["level"] >= cap:
+		u["level"] = cap
 		u["xp"] = 0
 
 
@@ -181,7 +246,8 @@ func fight_rewards(fight: FightData, act_number: int, won: bool, team: Array, is
 		return r
 	r["credits"] = credits
 	r["xp"] = fight.xp
-	r["level_ups"] = grant_xp(team, fight.xp)
+	r["xp"] = roundi(fight.xp * xp_falloff_for(team, fight.expected_level))
+	r["level_ups"] = grant_xp(team, fight.xp, fight.expected_level)
 	# Essence: each enemy drops for its own character.
 	for d in fight.enemies:
 		var n := 0
@@ -234,7 +300,7 @@ func craft(id: String) -> int:
 	if can_craft(id) != "":
 		return -1
 	data["essence"][id] = int(data["essence"][id]) - ECONOMY.essence_to_craft
-	return add_unit(id, ECONOMY.crafted_rarity)
+	return add_unit(id, ECONOMY.crafted_rarity(progress_act()))
 
 
 # ---------------------------------------------------------------- Recruit
@@ -257,7 +323,7 @@ func recruit(tier: int) -> Dictionary:
 		data["keys"] -= 1
 	else:
 		data["credits"] -= ECONOMY.recruit_costs[tier]
-	var rarity := roll_rarity(ECONOMY.odds_for(tier))
+	var rarity := roll_rarity(ECONOMY.odds_for(tier, progress_act()))
 	var id: String = Catalog.IDS[rng.randi_range(0, Catalog.IDS.size() - 1)]
 	var uid := add_unit(id, rarity)
 	return {"uid": uid, "id": id, "rarity": rarity}
@@ -294,7 +360,7 @@ func buy_core() -> bool:
 ## Spend 1 Training Core on a unit: +core_xp XP.
 func use_core(uid: int) -> bool:
 	var u := unit(uid)
-	if data["cores"] <= 0 or u.is_empty() or u["level"] >= PROGRESSION.max_level:
+	if data["cores"] <= 0 or u.is_empty() or u["level"] >= level_cap(u):
 		return false
 	data["cores"] -= 1
 	u["cores"] = int(u["cores"]) + 1
@@ -352,8 +418,11 @@ func _fix_types() -> void:
 	for k in ["next_uid", "credits", "cores", "keys", "roster_cap"]:
 		data[k] = int(data[k])
 	for u in data["units"]:
-		for k in ["uid", "level", "xp", "rarity", "cores"]:
+		if not u.has("stage"):
+			u["stage"] = 1
+		for k in ["uid", "level", "xp", "rarity", "cores", "stage"]:
 			u[k] = int(u[k])
+		u["level"] = mini(int(u["level"]), level_cap(u))   # old saves: clamp to the new cap
 	var team := []
 	for t in data["team"]:
 		team.append(int(t))

@@ -7,11 +7,32 @@ extends RefCounted
 ## hit) knocks it off first and then deals FULL damage. A hit that "ignores
 ## armour" (the Breaker passive) deals full damage but leaves the armour up.
 
+##
+## Resolve (bosses and mini-bosses): they can lose at most half their max HP
+## in one player turn (Skills.TUNING.boss_turn_cap), so nothing one-shots them.
+
 const ARMOR_FACTOR := 0.5
 
 var data: FighterData
 var hp := 0
 var armor_up := false
+## Damage taken so far this player turn (for Resolve). new_turn() resets it.
+var turn_taken := 0
+## false = no Resolve (only the balance tools use this, to measure raw damage).
+var resolve := true
+
+
+## Call at the start of every player turn.
+func new_turn() -> void:
+	turn_taken = 0
+
+
+## How much more damage this enemy can take this turn (Resolve), or -1 = no limit.
+func turn_room() -> int:
+	var cap := Skills.TUNING.boss_turn_cap
+	if not data.is_boss or not resolve or cap >= 1.0:
+		return -1
+	return maxi(ceili(data.max_hp * cap) - turn_taken, 0)
 
 
 func _init(enemy_data: FighterData) -> void:
@@ -27,7 +48,11 @@ func take_hit(amount: int, breaks_armor := false, ignores_armor := false) -> int
 	elif armor_up and not ignores_armor:
 		amount = roundi(amount * ARMOR_FACTOR)
 	var dealt := mini(amount, hp)
+	var room := turn_room()
+	if room >= 0:
+		dealt = mini(dealt, room)
 	hp -= dealt
+	turn_taken += dealt
 	return dealt
 
 

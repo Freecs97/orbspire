@@ -8,5 +8,5 @@
 script = ExtResource("3_mvodx")
 display_name = "8/8 · BOSS: ASHEN-01"
 enemies = Array[ExtResource("1_h4nqb")]([ExtResource("2_8x7tr")])
-xp = 265
+xp = 1755
 expected_level = 19

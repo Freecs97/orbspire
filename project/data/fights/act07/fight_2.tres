@@ -8,5 +8,5 @@
 script = ExtResource("3_4017u")
 display_name = "2/8 · HYDRO HACKERS"
 enemies = Array[ExtResource("1_040gf")]([ExtResource("2_rimfi"), ExtResource("2_rimfi"), ExtResource("2_rimfi")])
-xp = 65
+xp = 470
 expected_level = 20

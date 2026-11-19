@@ -5,7 +5,9 @@
 [resource]
 script = ExtResource("1_pt")
 max_level = 30
-stat_mult_at_max = 3.0
-xp_base = 50
-xp_step = 25
+stat_mult_at_max = 2.5
+xp_per_level = 50
+xp_steep_from = 10
+xp_steep_step = 0.25
+stage_level_caps = Array[int]([15, 30, 30])
 preview_expected_level = true

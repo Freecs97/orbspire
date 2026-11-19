@@ -8,5 +8,5 @@
 script = ExtResource("3_rkmg8")
 display_name = "1/8 · SOLAR FLARE SPRITES"
 enemies = Array[ExtResource("1_nxaed")]([ExtResource("2_1ownx"), ExtResource("2_1ownx")])
-xp = 45
+xp = 280
 expected_level = 18

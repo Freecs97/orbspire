@@ -8,5 +8,5 @@
 script = ExtResource("3_na7go")
 display_name = "5/8 · SOL · SUN SQUIRES"
 enemies = Array[ExtResource("1_ponvb")]([ExtResource("2_rfbq8"), ExtResource("2_rfbq8")])
-xp = 190
-expected_level = 24
+xp = 1810
+expected_level = 25

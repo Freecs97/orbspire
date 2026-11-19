@@ -7,8 +7,8 @@
 script = ExtResource("2_f2dvm")
 display_name = "MOLTEN SCRAPBOT"
 role = 4
-max_hp = 3590
-atk = 362
+max_hp = 4390
+atk = 415
 armored = true
 is_boss = true
 kind = &"art"

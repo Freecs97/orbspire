@@ -23,6 +23,12 @@ const XP_SHARE := [60, 80, 180, 110, 130, 150, 260, 380]
 const GOOD_TURNS := [2, 3, 5, 3, 3, 3, 5, 6]
 const IDLE_TURNS := [12, 10, 8, 9, 9, 9, 8, 8]
 const COUNTS := [2, 3, 1, 3, 2, 2, 1, 1]
+## Stage 1 balance (2026-11-18): every Act is harder than the old curve, and it
+## gets harder per Act. After tuning to the targets above, HP and ATK are
+## multiplied by these (Act 2 = first entry). Regular fights must still be
+## survivable with average play; mini-bosses and bosses need good play.
+const HP_SCALE := [1.30, 1.33, 1.36, 1.39, 1.42, 1.45, 1.48, 1.51, 1.55]
+const ATK_SCALE := [1.25, 1.27, 1.29, 1.31, 1.33, 1.35, 1.37, 1.39, 1.41]
 
 ## Enemy line-up per Act: [fight1, fight2, mini1, fight4, fight5, fight6, mini2], art names.
 const PLAN := {
@@ -91,7 +97,7 @@ func _build_act(n: int, p: ProgressionTuning) -> void:
 		var level := p.level_for_xp(xp_so_far)
 		var team := BalanceSim.leveled_team(team_base, level)
 		var d := _enemy_for(n, act, slot)
-		_tune(d, slot, team)
+		_tune(d, slot, team, n)
 		var fname := _file_name(d.title if d.title != "" else d.display_name, slot)
 		ResourceSaver.save(d, "%s/%s.tres" % [dir_e, fname])
 		var saved: FighterData = load("%s/%s.tres" % [dir_e, fname])
@@ -108,9 +114,10 @@ func _build_act(n: int, p: ProgressionTuning) -> void:
 		var good := BalanceSim.turns_to_win(list, team, "GOOD")
 		var avg := BalanceSim.turns_to_win(list, team, "AVERAGE")
 		var great := BalanceSim.great_turn(list, team)
-		report.append("  %-38s Lv%2d  %d x %5d HP  ATK %4d%s  | good %d, avg %2d, idle %2d, avg survives %s, great turn %s | %d XP" % [
+		report.append("  %-38s Lv%2d  %d x %5d HP  ATK %4d%s  | good %d, avg %2d, idle %2d, survives good %s / avg %s, great turn %s | %d XP" % [
 			f.display_name, level, list.size(), d.max_hp, d.atk, " ARMOUR" if d.armored else "", good, avg,
-			BalanceSim.idle_turns(list, team), "yes" if BalanceSim.avg_survives(list, team) else "NO",
+			BalanceSim.idle_turns(list, team), "yes" if BalanceSim.avg_survives(list, team, "GOOD") else "NO",
+			"yes" if BalanceSim.avg_survives(list, team) else "NO",
 			"KILLS" if great["left"] == 0 else "leaves %d" % great["left"], f.xp])
 		xp_so_far += xps[slot]
 	act.fights = fights
@@ -172,7 +179,7 @@ func _size_for(name: String) -> Vector2:
 ## HP so that GOOD play wins in the target number of turns (middle of that range),
 ## ATK so that doing nothing loses in the target number of turns. Then:
 ## average play must survive, and mini-bosses / bosses must survive one GREAT turn.
-func _tune(d: FighterData, slot: int, team: Array[FighterData]) -> void:
+func _tune(d: FighterData, slot: int, team: Array[FighterData], act_n: int) -> void:
 	var n: int = COUNTS[slot]
 	var lo := _min_hp_for_turns(d, n, team, GOOD_TURNS[slot])
 	var hi := _min_hp_for_turns(d, n, team, GOOD_TURNS[slot] + 1)
@@ -181,10 +188,14 @@ func _tune(d: FighterData, slot: int, team: Array[FighterData]) -> void:
 	d.atk = ceili(float(hp) / (n * IDLE_TURNS[slot]))
 	while ceili(float(hp) / (n * d.atk)) > IDLE_TURNS[slot]:
 		d.atk += 1
-	while not BalanceSim.avg_survives(_list(d, n), team) and d.atk > 10:
-		d.atk = int(d.atk * 0.95)
+	# Harder than the old curve, and harder every Act.
+	d.max_hp = snappedi(roundi(d.max_hp * HP_SCALE[act_n - 2]), 10)
+	d.atk = roundi(d.atk * ATK_SCALE[act_n - 2])
+	var mode := "GOOD" if d.armored else "AVERAGE"
+	while not BalanceSim.avg_survives(_list(d, n), team, mode) and d.atk > 10:
+		d.atk = int(d.atk * 0.97)
 	if d.armored:
-		var great := BalanceSim.great_turn(_list(d, n), team)
+		var great := BalanceSim.great_turn(_list(d, n), team, false)
 		if great["left"] == 0:
 			d.max_hp = snappedi(ceili(great["dealt"] * 1.15), 10)
 

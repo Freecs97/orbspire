@@ -8,5 +8,5 @@
 script = ExtResource("3_w7m53")
 display_name = "2/8 · SOL · SUN SQUIRES"
 enemies = Array[ExtResource("1_whate")]([ExtResource("2_2n2yh"), ExtResource("2_2n2yh"), ExtResource("2_2n2yh")])
-xp = 45
+xp = 205
 expected_level = 14

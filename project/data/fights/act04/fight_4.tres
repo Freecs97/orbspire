@@ -8,5 +8,5 @@
 script = ExtResource("3_tiws5")
 display_name = "4/8 · MOSS ZOMBIES"
 enemies = Array[ExtResource("1_42ave")]([ExtResource("2_1e3el"), ExtResource("2_1e3el"), ExtResource("2_1e3el")])
-xp = 65
+xp = 280
 expected_level = 14

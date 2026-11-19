@@ -8,5 +8,5 @@
 script = ExtResource("3_nf8jm")
 display_name = "6/8 · CIPHER · DARK HACKERS"
 enemies = Array[ExtResource("1_k056l")]([ExtResource("2_383up"), ExtResource("2_383up")])
-xp = 95
+xp = 530
 expected_level = 16

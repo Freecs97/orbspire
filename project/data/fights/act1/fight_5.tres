@@ -1,11 +1,12 @@
-[gd_resource type="Resource" script_class="FightData" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="FightData" format=3]
 
 [ext_resource type="Script" path="res://scripts/data/fight_data.gd" id="1_fd"]
+[ext_resource type="Script" path="res://scripts/data/fighter_data.gd" id="1_qho8l"]
 [ext_resource type="Resource" path="res://data/enemies/act1/solar_drone.tres" id="e0"]
 
 [resource]
 script = ExtResource("1_fd")
-display_name = "5/8 · HELIOS · SOLAR DRONES"
-enemies = Array[Resource]([ExtResource("e0"), ExtResource("e0")])
-xp = 130
+display_name = "5/8 · HELIOS · SOLAR DRONE"
+enemies = Array[ExtResource("1_qho8l")]([ExtResource("e0")])
+xp = 215
 expected_level = 5

@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="FighterData" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="FighterData" format=3]
 
 [ext_resource type="Script" path="res://scripts/data/fighter_data.gd" id="1_fd"]
 [ext_resource type="Texture2D" path="res://assets/enemies/enemy_light_solar_drone.png" id="2_art"]
@@ -9,14 +9,10 @@ display_name = "HELIOS"
 title = "Solar Drone"
 element = 5
 role = 4
-max_hp = 450
-atk = 75
-rcv = 0
-def = 0
-armored = false
-is_boss = false
+max_hp = 600
+atk = 96
 kind = &"drone"
+art = ExtResource("2_art")
 body_color = Color(0.62, 0.56, 0.32, 1)
 figure_height = 250.0
 figure_width = 210.0
-art = ExtResource("2_art")

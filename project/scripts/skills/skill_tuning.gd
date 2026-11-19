@@ -59,3 +59,8 @@ extends Resource
 @export var overflow_group := 5
 @export var overflow_mult := 1.5
 @export var field_medic_turns := 1
+
+@export_group("Bosses")
+## Resolve: a boss or mini-boss can lose at most this share of its max HP in
+## ONE turn (skills + orbs together), so no team can one-shot it. 1.0 = off.
+@export var boss_turn_cap := 0.5

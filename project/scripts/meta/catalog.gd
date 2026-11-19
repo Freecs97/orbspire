@@ -75,6 +75,16 @@ static func essence_for(enemy: FighterData, act_number: int) -> String:
 	return id_for(role, element)
 
 
+## The character's art at an evolution stage (1-3). Stage 2 / 3 art lives next to
+## the base art as <id>_stage2.png / <id>_stage3.png; falls back to the base art.
+static func art(id: String, stage := 1) -> Texture2D:
+	if stage > 1:
+		var path := "res://assets/characters/%s/%s_stage%d.png" % [id.get_slice("_", 0), id, stage]
+		if ResourceLoader.exists(path):
+			return load(path)
+	return template(id).art
+
+
 static func display_name(id: String) -> String:
 	return template(id).display_name
 

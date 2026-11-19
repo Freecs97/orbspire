@@ -8,5 +8,5 @@
 script = ExtResource("3_x7aux")
 display_name = "2/8 · OVERGROWTH SPROUTLINGS"
 enemies = Array[ExtResource("1_mukeo")]([ExtResource("2_w8glr"), ExtResource("2_w8glr"), ExtResource("2_w8glr")])
-xp = 40
+xp = 140
 expected_level = 12

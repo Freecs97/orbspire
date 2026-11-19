@@ -1,0 +1,73 @@
+== 1. XP to next level (50 x level, steeper from Lv10) ==
+  Lv1->2: 50, Lv2->3: 100, Lv3->4: 150, Lv4->5: 200, Lv5->6: 250, Lv6->7: 300, Lv7->8: 350, Lv8->9: 400, Lv9->10: 450, Lv10->11: 625, Lv11->12: 825, Lv12->13: 1050, Lv13->14: 1300, Lv14->15: 1575, Lv15->16: 1875, Lv16->17: 2200, Lv17->18: 2550, Lv18->19: 2925, Lv19->20: 3325, Lv20->21: 3750, Lv21->22: 4200, Lv22->23: 4675, Lv23->24: 5175, Lv24->25: 5700, Lv25->26: 6250, Lv26->27: 6825, Lv27->28: 7425, Lv28->29: 8050, Lv29->30: 8700
+  Total XP to Lv10: 2250   Lv10->Lv15: 5375   Lv15->Lv30: 73625
+  Level caps: Stage 1 = Lv15, Stage 2 = Lv30, Stage 3 = Lv30
+  Stats: x1.0 at Lv1 -> x1.72 at Lv15 -> x2.5 at Lv30 (was x3.0 at Lv30)
+
+== 2. Recruit odds by Act (Scrap / Alloy / Forged / Prime / Ascendant / Singularity) ==
+  Act 1 (band 1):
+    Basic     [65, 30, 5, 0, 0, 0]
+PASS  Act 1 Basic: Scrap + Alloy = 95%, no Prime or better
+    Advanced  [50, 38, 12, 0, 0, 0]
+PASS  Act 1 Advanced: Scrap + Alloy = 88%, no Prime or better
+    Elite     [35, 50, 15, 0, 0, 0]
+PASS  Act 1 Elite: Scrap + Alloy = 85%, no Prime or better
+    Key       [0, 40, 60, 0, 0, 0]
+PASS  Act 1: 80,000 simulated pulls, best rarity seen = Forged (allowed: up to Forged)
+  Act 2 (band 1):
+    Basic     [65, 30, 5, 0, 0, 0]
+PASS  Act 2 Basic: Scrap + Alloy = 95%, no Prime or better
+    Advanced  [50, 38, 12, 0, 0, 0]
+PASS  Act 2 Advanced: Scrap + Alloy = 88%, no Prime or better
+    Elite     [35, 50, 15, 0, 0, 0]
+PASS  Act 2 Elite: Scrap + Alloy = 85%, no Prime or better
+    Key       [0, 40, 60, 0, 0, 0]
+PASS  Act 2: 80,000 simulated pulls, best rarity seen = Forged (allowed: up to Forged)
+  Act 3 (band 2):
+    Basic     [55, 33, 10, 2, 0, 0]
+    Advanced  [35, 40, 20, 5, 0, 0]
+    Elite     [15, 40, 35, 10, 0, 0]
+    Key       [0, 15, 55, 30, 0, 0]
+PASS  Act 3: 80,000 simulated pulls, best rarity seen = Prime (allowed: up to Prime)
+  Act 5 (band 3):
+    Basic     [45, 35, 16, 4, 0, 0]
+    Advanced  [25, 38, 27, 9, 1, 0]
+    Elite     [5, 30, 40, 20, 5, 0]
+    Key       [0, 0, 45, 40, 15, 0]
+PASS  Act 5: 80,000 simulated pulls, best rarity seen = Ascendant (allowed: up to Ascendant)
+  Act 7 (band 4):
+    Basic     [35, 38, 21, 5, 1, 0]
+    Advanced  [15, 35, 32, 14, 4, 0]
+    Elite     [0, 20, 40, 28, 12, 0]
+    Key       [0, 0, 30, 45, 22, 3]
+PASS  Act 7: 80,000 simulated pulls, best rarity seen = Singularity (allowed: up to Singularity)
+PASS  Singularity is never in a Credit Recruit table (Key pulls only, from Act 7)
+
+== 3. 2000 full Act 1 campaigns (real Profile code; every Credit spent on Basic Recruits) ==
+  Credits earned in Act 1: 690 on average -> 2.0 Basic Recruits, 0.00 Essence crafts, 1.0 Keys per run
+  Characters gained (Recruits + crafts + the Act 1 Key): Scrap 43.3%, Alloy 33.7%, Forged 23.0%, Prime 0.0%, Ascendant 0.0%, Singularity 0.0%
+  Forged characters gained per run: 0 Forged: 36.8%, 1 Forged: 57.6%, 2 Forged: 5.4%, 3 Forged: 0.2%
+PASS  no run finishes Act 1 with a Singularity (0 of 2000)
+PASS  no run finishes Act 1 with a Prime or better (0 of 2000)
+PASS  most new characters are Scrap / Alloy
+PASS  story team level: Lv8 before the boss, Lv10 after it (target about Lv10, cap Lv15)
+PASS  exactly 1 Key per run (first Act 1 clear only, bosses drop none)
+
+== 4. Farming after Act 1 (replay fights, full team XP) ==
+  Replaying Emberfang-9 from Lv10: Lv15 cap after 16 boss replays
+PASS  reaching the Lv15 cap in Act 1 takes 16+ boss replays (XP halves once you are 3+ levels above the fight)
+  Fight 1 replay at Lv15: 25 XP of 100 (fight is Lv1)
+PASS  low-level fights give 25% or less (10+ levels below), 0% at 15+
+PASS  Training Cores can't push past the Lv15 cap
+
+== 5. Top end vs Emberfang-9 (2900 HP, armoured) - one GREAT turn: 6 combos, 5 Fire + 3 of every colour ==
+  3 Singularity, Lv15 (Stage 1 cap = max level today): strongest team (KAELA RYNN x3) deals 6648 raw -> ONE-SHOT without Resolve; with Resolve the boss keeps at least 1450 HP
+PASS  3 Singularity, Lv15 (Stage 1 cap = max level today) can't one-shot Emberfang-9
+  3 Singularity, Lv30, both evolutions (+21%): strongest team (KAELA RYNN x3) deals 11679 raw -> ONE-SHOT without Resolve; with Resolve the boss keeps at least 1450 HP
+PASS  3 Singularity, Lv30, both evolutions (+21%) can't one-shot Emberfang-9
+  ONE Lv30 evolved Singularity (Kaela Rynn, leading) + Lv8 Forged Biotech / Titan: 3033 true damage vs 2900 HP (one-shot without Resolve)
+PASS  a single max Singularity can't one-shot Emberfang-9 (boss keeps 1450 HP thanks to Resolve)
+  ONE Lv15 Singularity Kaela Rynn (max today) + the same team: 1916 true damage vs 2900 HP
+PASS  today's best single Singularity (Lv15) can't one-shot Emberfang-9 even without Resolve
+
+ALL PASSED - 0 failure(s)

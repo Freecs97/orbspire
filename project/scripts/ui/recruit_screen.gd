@@ -3,8 +3,9 @@ extends HomePage
 ## RECRUIT: spend Credits (or a Key) on a random character.
 ##
 ## Plain English: any of the 20 characters can come out (so a random type AND
-## affinity), with a random rarity. Pricier tiers have better odds, and a Key
-## guarantees Ascendant or better. The odds are always shown on this screen.
+## affinity), with a random rarity. Pricier tiers have better odds, a Key pull
+## has the best odds. Odds depend on how far you are (rarity bands by Act, see
+## data/economy.tres). The odds are always shown on this screen.
 ## Duplicates are allowed (retire them in the Roster for Training Cores).
 
 signal changed
@@ -68,18 +69,22 @@ func refresh() -> void:
 	var e := Profile.ECONOMY
 	set_bar_values(profile.data["credits"], profile.data["cores"], profile.highest_level())
 	keys_label.text = "KEYS: %d   ·   Roster %d / %d" % [profile.data["keys"], profile.data["units"].size(), profile.data["roster_cap"]]
+	var act := profile.progress_act()
 	for i in 3:
 		tier_buttons[i].text = "%s RECRUIT  ·  %d Credits" % [e.recruit_names[i].to_upper(), e.recruit_costs[i]]
-	tier_buttons[3].text = "KEY RECRUIT  ·  1 Key  (Ascendant or better)"
-	var lines := PackedStringArray(["ODDS (%):"])
+	tier_buttons[3].text = "KEY RECRUIT  ·  1 Key  (up to %s)" % e.rarity_names[e.best_rarity(3, act)]
+	var band := e.band_for_act(act)
+	var last_act := e.band_first_act[band + 1] - 1 if band + 1 < e.band_first_act.size() else 10
+	var lines := PackedStringArray(["ODDS (%%) for Acts %d-%d (you have unlocked Act %d):" % [e.band_first_act[band], last_act, act]])
 	for i in 4:
-		var odds := e.odds_for(i)
+		var odds := e.odds_for(i, act)
 		var parts := PackedStringArray()
 		for r in 6:
 			if odds[r] > 0:
 				parts.append("%s %d" % [e.rarity_names[r], odds[r]])
 		lines.append("%s:  %s" % ["Key" if i == 3 else e.recruit_names[i], "  ·  ".join(parts)])
-	lines.append("\nAny of the 20 characters can appear (random type and affinity). Duplicates are allowed.")
+	lines.append("\nBetter rarities unlock as you clear Acts: Prime from Act 3, Ascendant from Act 5, Singularity from Act 7 (Key only).")
+	lines.append("Keys: 1 for the first clear of each Act. Any of the 20 characters can appear. Duplicates are allowed.")
 	odds_label.text = "\n".join(lines)
 
 
